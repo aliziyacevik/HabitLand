@@ -1,0 +1,522 @@
+import Foundation
+import SwiftData
+import SwiftUI
+
+// MARK: - Habit
+
+@Model
+final class Habit {
+    var id: UUID
+    var name: String
+    var icon: String
+    var colorHex: String
+    var category: HabitCategory
+    var frequency: HabitFrequency
+    var targetDays: [Int] // 0=Sun, 1=Mon, ... 6=Sat
+    var reminderTime: Date?
+    var reminderEnabled: Bool
+    var goalCount: Int
+    var unit: String
+    var notes: String
+    var isArchived: Bool
+    var sortOrder: Int
+    var createdAt: Date
+    var updatedAt: Date
+
+    @Relationship(deleteRule: .cascade) var completions: [HabitCompletion]
+
+    init(
+        name: String,
+        icon: String = "checkmark.circle",
+        colorHex: String = "#34C759",
+        category: HabitCategory = .health,
+        frequency: HabitFrequency = .daily,
+        targetDays: [Int] = [0, 1, 2, 3, 4, 5, 6],
+        reminderTime: Date? = nil,
+        reminderEnabled: Bool = false,
+        goalCount: Int = 1,
+        unit: String = "times",
+        notes: String = "",
+        sortOrder: Int = 0
+    ) {
+        self.id = UUID()
+        self.name = name
+        self.icon = icon
+        self.colorHex = colorHex
+        self.category = category
+        self.frequency = frequency
+        self.targetDays = targetDays
+        self.reminderTime = reminderTime
+        self.reminderEnabled = reminderEnabled
+        self.goalCount = goalCount
+        self.unit = unit
+        self.notes = notes
+        self.isArchived = false
+        self.sortOrder = sortOrder
+        self.createdAt = Date()
+        self.updatedAt = Date()
+        self.completions = []
+    }
+
+    var color: Color {
+        Color(hex: colorHex) ?? .hlPrimary
+    }
+
+    var currentStreak: Int {
+        var streak = 0
+        let calendar = Calendar.current
+        var date = calendar.startOfDay(for: Date())
+        let sortedCompletions = completions.sorted { $0.date > $1.date }
+
+        for completion in sortedCompletions {
+            let completionDay = calendar.startOfDay(for: completion.date)
+            if completionDay == date && completion.isCompleted {
+                streak += 1
+                date = calendar.date(byAdding: .day, value: -1, to: date)!
+            } else if completionDay < date {
+                break
+            }
+        }
+        return streak
+    }
+
+    var todayCompleted: Bool {
+        let today = Calendar.current.startOfDay(for: Date())
+        return completions.contains { completion in
+            Calendar.current.startOfDay(for: completion.date) == today && completion.isCompleted
+        }
+    }
+
+    var todayProgress: Double {
+        let today = Calendar.current.startOfDay(for: Date())
+        let todayCount = completions.filter { completion in
+            Calendar.current.startOfDay(for: completion.date) == today && completion.isCompleted
+        }.count
+        return min(Double(todayCount) / Double(goalCount), 1.0)
+    }
+
+    var weekCompletionRate: Double {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        guard let weekAgo = calendar.date(byAdding: .day, value: -7, to: today) else { return 0 }
+
+        let weekCompletions = completions.filter { completion in
+            let day = calendar.startOfDay(for: completion.date)
+            return day >= weekAgo && day <= today && completion.isCompleted
+        }
+        return Double(weekCompletions.count) / 7.0
+    }
+
+    var bestStreak: Int {
+        guard !completions.isEmpty else { return 0 }
+        let calendar = Calendar.current
+        let sorted = completions.filter(\.isCompleted).map { calendar.startOfDay(for: $0.date) }.sorted()
+        guard !sorted.isEmpty else { return 0 }
+
+        var best = 1
+        var current = 1
+
+        for i in 1..<sorted.count {
+            if let expected = calendar.date(byAdding: .day, value: 1, to: sorted[i-1]),
+               calendar.isDate(sorted[i], inSameDayAs: expected) {
+                current += 1
+                best = max(best, current)
+            } else if !calendar.isDate(sorted[i], inSameDayAs: sorted[i-1]) {
+                current = 1
+            }
+        }
+        return best
+    }
+
+    var totalCompletions: Int {
+        completions.filter(\.isCompleted).count
+    }
+}
+
+// MARK: - Habit Completion
+
+@Model
+final class HabitCompletion {
+    var id: UUID
+    var date: Date
+    var isCompleted: Bool
+    var count: Int
+    var note: String?
+    var habit: Habit?
+
+    init(date: Date = Date(), isCompleted: Bool = true, count: Int = 1, note: String? = nil) {
+        self.id = UUID()
+        self.date = date
+        self.isCompleted = isCompleted
+        self.count = count
+        self.note = note
+    }
+}
+
+// MARK: - Sleep Log
+
+@Model
+final class SleepLog {
+    var id: UUID
+    var bedTime: Date
+    var wakeTime: Date
+    var quality: SleepQuality
+    var notes: String
+    var mood: Int // 1-5
+    var createdAt: Date
+
+    init(bedTime: Date, wakeTime: Date, quality: SleepQuality = .good, notes: String = "", mood: Int = 3) {
+        self.id = UUID()
+        self.bedTime = bedTime
+        self.wakeTime = wakeTime
+        self.quality = quality
+        self.notes = notes
+        self.mood = mood
+        self.createdAt = Date()
+    }
+
+    var duration: TimeInterval {
+        wakeTime.timeIntervalSince(bedTime)
+    }
+
+    var durationHours: Double {
+        duration / 3600
+    }
+
+    var durationFormatted: String {
+        let hours = Int(duration) / 3600
+        let minutes = (Int(duration) % 3600) / 60
+        return "\(hours)h \(minutes)m"
+    }
+}
+
+// MARK: - User Profile
+
+@Model
+final class UserProfile {
+    var id: UUID
+    var name: String
+    var username: String
+    var avatarEmoji: String
+    var level: Int
+    var xp: Int
+    var joinedAt: Date
+    var bio: String
+    var sleepGoalHours: Double
+    var dailyHabitGoal: Int
+
+    init(
+        name: String = "",
+        username: String = "",
+        avatarEmoji: String = "🌱",
+        bio: String = ""
+    ) {
+        self.id = UUID()
+        self.name = name
+        self.username = username
+        self.avatarEmoji = avatarEmoji
+        self.level = 1
+        self.xp = 0
+        self.joinedAt = Date()
+        self.bio = bio
+        self.sleepGoalHours = 8.0
+        self.dailyHabitGoal = 5
+    }
+
+    var xpForNextLevel: Int {
+        level * 100
+    }
+
+    var levelProgress: Double {
+        Double(xp) / Double(xpForNextLevel)
+    }
+
+    var levelTitle: String {
+        switch level {
+        case 1...5: return "Seedling"
+        case 6...10: return "Sprout"
+        case 11...20: return "Sapling"
+        case 21...35: return "Tree"
+        case 36...50: return "Forest"
+        default: return "Legend"
+        }
+    }
+}
+
+// MARK: - Achievement
+
+@Model
+final class Achievement {
+    var id: UUID
+    var name: String
+    var descriptionText: String
+    var icon: String
+    var category: AchievementCategory
+    var isUnlocked: Bool
+    var unlockedAt: Date?
+    var progress: Double
+    var targetValue: Int
+
+    init(
+        name: String,
+        descriptionText: String,
+        icon: String,
+        category: AchievementCategory = .streak,
+        targetValue: Int = 1
+    ) {
+        self.id = UUID()
+        self.name = name
+        self.descriptionText = descriptionText
+        self.icon = icon
+        self.category = category
+        self.isUnlocked = false
+        self.unlockedAt = nil
+        self.progress = 0
+        self.targetValue = targetValue
+    }
+}
+
+// MARK: - Friend
+
+@Model
+final class Friend {
+    var id: UUID
+    var name: String
+    var username: String
+    var avatarEmoji: String
+    var level: Int
+    var currentStreak: Int
+    var sharedChallenges: Int
+    var addedAt: Date
+
+    init(
+        name: String,
+        username: String,
+        avatarEmoji: String = "😊",
+        level: Int = 1,
+        currentStreak: Int = 0,
+        sharedChallenges: Int = 0
+    ) {
+        self.id = UUID()
+        self.name = name
+        self.username = username
+        self.avatarEmoji = avatarEmoji
+        self.level = level
+        self.currentStreak = currentStreak
+        self.sharedChallenges = sharedChallenges
+        self.addedAt = Date()
+    }
+}
+
+// MARK: - Challenge
+
+@Model
+final class Challenge {
+    var id: UUID
+    var name: String
+    var descriptionText: String
+    var icon: String
+    var startDate: Date
+    var endDate: Date
+    var participantCount: Int
+    var isActive: Bool
+    var progress: Double
+
+    init(
+        name: String,
+        descriptionText: String,
+        icon: String = "flag.fill",
+        startDate: Date = Date(),
+        endDate: Date = Date().addingTimeInterval(7 * 24 * 3600),
+        participantCount: Int = 2
+    ) {
+        self.id = UUID()
+        self.name = name
+        self.descriptionText = descriptionText
+        self.icon = icon
+        self.startDate = startDate
+        self.endDate = endDate
+        self.participantCount = participantCount
+        self.isActive = true
+        self.progress = 0
+    }
+
+    var daysRemaining: Int {
+        max(0, Calendar.current.dateComponents([.day], from: Date(), to: endDate).day ?? 0)
+    }
+}
+
+// MARK: - App Notification
+
+@Model
+final class AppNotification {
+    var id: UUID
+    var title: String
+    var body: String
+    var icon: String
+    var type: NotificationType
+    var isRead: Bool
+    var createdAt: Date
+
+    init(title: String, body: String, icon: String = "bell.fill", type: NotificationType = .general) {
+        self.id = UUID()
+        self.title = title
+        self.body = body
+        self.icon = icon
+        self.type = type
+        self.isRead = false
+        self.createdAt = Date()
+    }
+}
+
+// MARK: - Enums
+
+enum HabitCategory: String, Codable, CaseIterable {
+    case health = "Health"
+    case fitness = "Fitness"
+    case mindfulness = "Mindfulness"
+    case productivity = "Productivity"
+    case sleep = "Sleep"
+    case social = "Social"
+    case learning = "Learning"
+    case nutrition = "Nutrition"
+
+    var icon: String {
+        switch self {
+        case .health: return "heart.fill"
+        case .fitness: return "figure.run"
+        case .mindfulness: return "brain.head.profile"
+        case .productivity: return "bolt.fill"
+        case .sleep: return "moon.fill"
+        case .social: return "person.2.fill"
+        case .learning: return "book.fill"
+        case .nutrition: return "leaf.fill"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .health: return .hlHealth
+        case .fitness: return .hlFitness
+        case .mindfulness: return .hlMindfulness
+        case .productivity: return .hlProductivity
+        case .sleep: return .hlSleep
+        case .social: return .hlSocial
+        case .learning: return .hlInfo
+        case .nutrition: return .hlPrimary
+        }
+    }
+
+    var colorHex: String {
+        switch self {
+        case .health: return "#F24D66"
+        case .fitness: return "#338FFF"
+        case .mindfulness: return "#9966E6"
+        case .productivity: return "#FF9919"
+        case .sleep: return "#6659CC"
+        case .social: return "#F27389"
+        case .learning: return "#338FFF"
+        case .nutrition: return "#34C759"
+        }
+    }
+}
+
+enum HabitFrequency: String, Codable, CaseIterable {
+    case daily = "Daily"
+    case weekdays = "Weekdays"
+    case weekends = "Weekends"
+    case custom = "Custom"
+}
+
+enum SleepQuality: String, Codable, CaseIterable {
+    case terrible = "Terrible"
+    case poor = "Poor"
+    case fair = "Fair"
+    case good = "Good"
+    case excellent = "Excellent"
+
+    var icon: String {
+        switch self {
+        case .terrible: return "😫"
+        case .poor: return "😴"
+        case .fair: return "😐"
+        case .good: return "😊"
+        case .excellent: return "🤩"
+        }
+    }
+
+    var value: Double {
+        switch self {
+        case .terrible: return 0.2
+        case .poor: return 0.4
+        case .fair: return 0.6
+        case .good: return 0.8
+        case .excellent: return 1.0
+        }
+    }
+}
+
+enum AchievementCategory: String, Codable, CaseIterable {
+    case streak = "Streak"
+    case completion = "Completion"
+    case social = "Social"
+    case sleep = "Sleep"
+    case special = "Special"
+}
+
+enum NotificationType: String, Codable, CaseIterable {
+    case habitReminder = "Habit Reminder"
+    case streakAlert = "Streak Alert"
+    case achievement = "Achievement"
+    case social = "Social"
+    case general = "General"
+}
+
+// MARK: - Color Hex Extension
+
+extension Color {
+    init?(hex: String) {
+        var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
+
+        var rgb: UInt64 = 0
+        guard Scanner(string: hexSanitized).scanHexInt64(&rgb) else { return nil }
+
+        let r = Double((rgb & 0xFF0000) >> 16) / 255.0
+        let g = Double((rgb & 0x00FF00) >> 8) / 255.0
+        let b = Double(rgb & 0x0000FF) / 255.0
+
+        self.init(red: r, green: g, blue: b)
+    }
+}
+
+// MARK: - Sample Data
+
+struct SampleData {
+    static let habits: [String: (icon: String, color: String, category: HabitCategory)] = [
+        "Morning Meditation": ("brain.head.profile", "#9966E6", .mindfulness),
+        "Drink Water": ("drop.fill", "#338FFF", .health),
+        "Exercise": ("figure.run", "#F24D4D", .fitness),
+        "Read 30 min": ("book.fill", "#FFC207", .learning),
+        "Healthy Eating": ("leaf.fill", "#34C759", .nutrition),
+        "Journal": ("note.text", "#FF9A1A", .mindfulness),
+        "Walk 10k Steps": ("figure.walk", "#338FFF", .fitness),
+        "No Social Media": ("iphone.slash", "#9966E6", .productivity),
+        "Sleep by 11pm": ("moon.fill", "#6659CC", .sleep),
+        "Practice Gratitude": ("heart.fill", "#F27D8D", .mindfulness),
+    ]
+
+    static let achievements: [(name: String, description: String, icon: String, category: AchievementCategory)] = [
+        ("Habit Creator", "Create your first habit", "sparkle", .special),
+        ("First Step", "Complete your first habit", "shoe.fill", .completion),
+        ("On Fire", "Reach a 7-day streak", "flame.fill", .streak),
+        ("Unstoppable", "Reach a 30-day streak", "bolt.fill", .streak),
+        ("Century", "Complete 100 habits", "star.fill", .completion),
+        ("Social Butterfly", "Add 5 friends", "person.2.fill", .social),
+        ("Dream Catcher", "Log sleep for 7 days", "moon.fill", .sleep),
+        ("Perfect Week", "Complete all habits for a week", "crown.fill", .special),
+        ("Early Bird", "Complete a habit before 7am", "sunrise.fill", .special),
+        ("Night Owl", "Log sleep after midnight 5 times", "owl", .sleep),
+        ("Team Player", "Complete a shared challenge", "flag.fill", .social),
+    ]
+}
