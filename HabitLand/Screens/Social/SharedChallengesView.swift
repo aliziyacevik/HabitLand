@@ -52,10 +52,8 @@ struct SharedChallengesView: View {
                     }
                 }
             }
-            .alert("Create Challenge", isPresented: $showCreateChallenge) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text("Challenge creation coming soon!")
+            .sheet(isPresented: $showCreateChallenge) {
+                CreateChallengeView()
             }
         }
     }

@@ -1,17 +1,6 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - Leaderboard Entry (display model)
-
-private struct RankedEntry: Identifiable {
-    let id: UUID
-    let rank: Int
-    let name: String
-    let avatarEmoji: String
-    let score: Int
-    let isCurrentUser: Bool
-}
-
 // MARK: - Time Period
 
 private enum TimePeriod: String, CaseIterable {
@@ -25,66 +14,71 @@ private enum TimePeriod: String, CaseIterable {
 struct LeaderboardView: View {
     @Query(sort: \Friend.level, order: .reverse) private var friends: [Friend]
     @Query private var profiles: [UserProfile]
+    @StateObject private var cloudKit = CloudKitManager.shared
 
     @State private var selectedPeriod: TimePeriod = .week
+    @State private var cloudEntries: [LeaderboardEntry] = []
 
     private var profile: UserProfile? { profiles.first }
 
-    private var entries: [RankedEntry] {
-        // Build entries from friends + current user
-        var all: [(name: String, emoji: String, score: Int, isCurrent: Bool, id: UUID)] = []
+    private var entries: [LeaderboardEntry] {
+        // If we have CloudKit data, use it
+        if !cloudEntries.isEmpty {
+            return cloudEntries
+        }
 
-        // Add current user
+        // Fallback to local data
+        var all: [LeaderboardEntry] = []
+
         if let p = profile {
-            all.append((p.name.isEmpty ? "You" : p.name, p.avatarEmoji, p.xp, true, p.id))
+            all.append(LeaderboardEntry(
+                recordName: p.id.uuidString,
+                name: p.name.isEmpty ? "You" : p.name,
+                avatarEmoji: p.avatarEmoji,
+                xp: p.xp,
+                level: p.level,
+                streak: 0,
+                isCurrentUser: true
+            ))
         }
 
-        // Add friends
         for friend in friends {
-            // Estimate XP from level (level * 50 + streak * 5 as approximation)
-            let estimatedXP = friend.level * 50 + friend.currentStreak * 5
-            all.append((friend.name, friend.avatarEmoji, estimatedXP, false, friend.id))
+            all.append(LeaderboardEntry(
+                recordName: friend.id.uuidString,
+                name: friend.name,
+                avatarEmoji: friend.avatarEmoji,
+                xp: friend.xp > 0 ? friend.xp : friend.level * 50 + friend.currentStreak * 5,
+                level: friend.level,
+                streak: friend.currentStreak,
+                isCurrentUser: false
+            ))
         }
 
-        // Sort by score descending
-        all.sort { $0.score > $1.score }
-
-        // Assign ranks
-        return all.enumerated().map { index, item in
-            RankedEntry(
-                id: item.id,
-                rank: index + 1,
-                name: item.isCurrent ? "You" : item.name,
-                avatarEmoji: item.emoji,
-                score: item.score,
-                isCurrentUser: item.isCurrent
-            )
-        }
+        all.sort { $0.xp > $1.xp }
+        return all
     }
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.hlBackground.ignoresSafeArea()
+        ZStack {
+            Color.hlBackground.ignoresSafeArea()
 
-                if entries.isEmpty {
-                    emptyState
-                } else {
-                    ScrollView {
-                        VStack(spacing: HLSpacing.lg) {
-                            periodPicker
-
-                            podiumSection
-
-                            rankingsSection
-                        }
-                        .padding(.horizontal, HLSpacing.md)
-                        .padding(.top, HLSpacing.sm)
-                        .padding(.bottom, HLSpacing.xxxl)
+            if entries.isEmpty {
+                emptyState
+            } else {
+                ScrollView {
+                    VStack(spacing: HLSpacing.lg) {
+                        periodPicker
+                        podiumSection
+                        rankingsSection
                     }
+                    .padding(.horizontal, HLSpacing.md)
+                    .padding(.top, HLSpacing.sm)
+                    .padding(.bottom, HLSpacing.xxxl)
                 }
             }
-            .navigationTitle("Leaderboard")
+        }
+        .task {
+            await refreshLeaderboard()
         }
     }
 
@@ -137,20 +131,20 @@ struct LeaderboardView: View {
     private var podiumSection: some View {
         HStack(alignment: .bottom, spacing: HLSpacing.sm) {
             if entries.count >= 3 {
-                podiumPlace(entry: entries[1], color: .hlSilver, height: 80, crownIcon: nil)
-                podiumPlace(entry: entries[0], color: .hlGold, height: 100, crownIcon: HLIcon.crown)
-                podiumPlace(entry: entries[2], color: .hlBronze, height: 64, crownIcon: nil)
+                podiumPlace(entry: entries[1], rank: 2, color: .hlSilver, height: 80, crownIcon: nil)
+                podiumPlace(entry: entries[0], rank: 1, color: .hlGold, height: 100, crownIcon: HLIcon.crown)
+                podiumPlace(entry: entries[2], rank: 3, color: .hlBronze, height: 64, crownIcon: nil)
             } else if entries.count == 2 {
-                podiumPlace(entry: entries[0], color: .hlGold, height: 100, crownIcon: HLIcon.crown)
-                podiumPlace(entry: entries[1], color: .hlSilver, height: 80, crownIcon: nil)
+                podiumPlace(entry: entries[0], rank: 1, color: .hlGold, height: 100, crownIcon: HLIcon.crown)
+                podiumPlace(entry: entries[1], rank: 2, color: .hlSilver, height: 80, crownIcon: nil)
             } else if entries.count == 1 {
-                podiumPlace(entry: entries[0], color: .hlGold, height: 100, crownIcon: HLIcon.crown)
+                podiumPlace(entry: entries[0], rank: 1, color: .hlGold, height: 100, crownIcon: HLIcon.crown)
             }
         }
         .hlCard()
     }
 
-    private func podiumPlace(entry: RankedEntry, color: Color, height: CGFloat, crownIcon: String?) -> some View {
+    private func podiumPlace(entry: LeaderboardEntry, rank: Int, color: Color, height: CGFloat, crownIcon: String?) -> some View {
         VStack(spacing: HLSpacing.xs) {
             if let crown = crownIcon {
                 Image(systemName: crown)
@@ -167,12 +161,12 @@ struct LeaderboardView: View {
                     Circle().stroke(color, lineWidth: 3)
                 )
 
-            Text(entry.name)
+            Text(entry.isCurrentUser ? "You" : entry.name)
                 .font(HLFont.caption(.semibold))
                 .foregroundColor(.hlTextPrimary)
                 .lineLimit(1)
 
-            Text("\(entry.score) XP")
+            Text("\(entry.xp) XP")
                 .font(HLFont.caption2(.medium))
                 .foregroundColor(.hlTextSecondary)
 
@@ -180,7 +174,7 @@ struct LeaderboardView: View {
                 .fill(color.opacity(0.2))
                 .frame(height: height)
                 .overlay(
-                    Text("#\(entry.rank)")
+                    Text("#\(rank)")
                         .font(HLFont.title3(.bold))
                         .foregroundColor(color)
                 )
@@ -198,17 +192,17 @@ struct LeaderboardView: View {
                 .padding(.bottom, HLSpacing.xxs)
 
             ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
-                rankRow(entry)
+                rankRow(entry, rank: index + 1)
                     .hlStaggeredAppear(index: index)
             }
         }
     }
 
-    private func rankRow(_ entry: RankedEntry) -> some View {
+    private func rankRow(_ entry: LeaderboardEntry, rank: Int) -> some View {
         HStack(spacing: HLSpacing.sm) {
-            Text("\(entry.rank)")
+            Text("\(rank)")
                 .font(HLFont.headline())
-                .foregroundColor(rankColor(entry.rank))
+                .foregroundColor(rankColor(rank))
                 .frame(width: 28, alignment: .center)
 
             Text(entry.avatarEmoji)
@@ -217,13 +211,26 @@ struct LeaderboardView: View {
                 .background(entry.isCurrentUser ? Color.hlPrimaryLight : Color.hlBackground)
                 .cornerRadius(HLRadius.full)
 
-            Text(entry.name)
-                .font(HLFont.subheadline(entry.isCurrentUser ? .bold : .regular))
-                .foregroundColor(.hlTextPrimary)
+            VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
+                Text(entry.isCurrentUser ? "You" : entry.name)
+                    .font(HLFont.subheadline(entry.isCurrentUser ? .bold : .regular))
+                    .foregroundColor(.hlTextPrimary)
+
+                if entry.streak > 0 {
+                    HStack(spacing: HLSpacing.xxs) {
+                        Image(systemName: HLIcon.flame)
+                            .font(.system(size: 10))
+                            .foregroundColor(.hlFlame)
+                        Text("\(entry.streak)d streak")
+                            .font(HLFont.caption2())
+                            .foregroundColor(.hlTextTertiary)
+                    }
+                }
+            }
 
             Spacer()
 
-            Text("\(entry.score) XP")
+            Text("\(entry.xp) XP")
                 .font(HLFont.subheadline(.semibold))
                 .foregroundColor(entry.isCurrentUser ? .hlPrimary : .hlTextSecondary)
         }
@@ -246,6 +253,14 @@ struct LeaderboardView: View {
         case 3: return .hlBronze
         default: return .hlTextSecondary
         }
+    }
+
+    // MARK: - Refresh
+
+    private func refreshLeaderboard() async {
+        let friendRecordNames = friends.compactMap(\.cloudKitRecordName)
+        guard !friendRecordNames.isEmpty else { return }
+        cloudEntries = await cloudKit.fetchLeaderboardData(friendRecordNames: friendRecordNames)
     }
 }
 

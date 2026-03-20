@@ -33,13 +33,7 @@ struct FriendsListView: View {
                             LazyVStack(spacing: HLSpacing.sm) {
                                 ForEach(Array(filteredFriends.enumerated()), id: \.element.id) { index, friend in
                                     NavigationLink {
-                                        FriendProfileView(
-                                            name: friend.name,
-                                            username: friend.username,
-                                            avatarEmoji: friend.avatarEmoji,
-                                            level: friend.level,
-                                            streak: friend.currentStreak
-                                        )
+                                        FriendProfileView(friend: friend)
                                     } label: {
                                         friendRow(friend)
                                     }

@@ -87,8 +87,8 @@ struct ContentView: View {
                     Label(HLTab.sleep.title, systemImage: HLTab.sleep.icon)
                 }
 
-            FriendsListView()
-                .premiumGated(feature: "Social Features", icon: "person.2.fill", comingSoon: true)
+            SocialHubView()
+                .premiumGated(feature: "Social Features", icon: "person.2.fill")
                 .tag(HLTab.social)
                 .tabItem {
                     Label(HLTab.social.title, systemImage: HLTab.social.icon)

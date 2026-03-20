@@ -3,7 +3,9 @@ import SwiftData
 
 struct SocialFeedView: View {
     @Query(sort: \Friend.name) private var friends: [Friend]
+    @StateObject private var cloudKit = CloudKitManager.shared
     @State private var likedItems: Set<UUID> = []
+    @State private var nudgedItems: Set<UUID> = []
 
     private var feedEntries: [FeedEntry] {
         friends.map { friend in
@@ -15,25 +17,45 @@ struct SocialFeedView: View {
             let detailIcon: String
             let typeIcon: String
             let typeColor: Color
+            let isInactive: Bool
 
-            if friend.currentStreak > 0 {
+            // Use real data if available
+            if let lastActive = friend.lastActive, Calendar.current.isDateInToday(lastActive) {
+                if friend.habitsCompletedToday > 0 {
+                    message = "\(friend.name) completed \(friend.habitsCompletedToday) habit\(friend.habitsCompletedToday == 1 ? "" : "s") today!"
+                    detail = "\(friend.currentStreak) Day Streak"
+                    detailIcon = "flame.fill"
+                    typeIcon = "checkmark.circle.fill"
+                    typeColor = .hlSuccess
+                } else {
+                    message = "\(friend.name) hasn't started their habits yet today"
+                    detail = nil
+                    detailIcon = ""
+                    typeIcon = "clock.fill"
+                    typeColor = .hlWarning
+                }
+                isInactive = false
+            } else if friend.currentStreak > 0 {
                 message = "\(friend.name) is on a \(friend.currentStreak)-day streak!"
                 detail = "\(friend.currentStreak) Day Streak"
                 detailIcon = "flame.fill"
                 typeIcon = "flame.fill"
                 typeColor = .hlFlame
+                isInactive = false
             } else if friend.level >= 10 {
                 message = "\(friend.name) reached Level \(friend.level)!"
                 detail = "Level \(friend.level)"
                 detailIcon = "star.fill"
                 typeIcon = "bolt.fill"
                 typeColor = .hlGold
+                isInactive = false
             } else {
                 message = "\(friend.name) is building great habits"
                 detail = nil
                 detailIcon = ""
                 typeIcon = "plus.circle.fill"
                 typeColor = .hlPrimary
+                isInactive = friend.lastActive == nil || !Calendar.current.isDateInToday(friend.lastActive!)
             }
 
             return FeedEntry(
@@ -46,7 +68,9 @@ struct SocialFeedView: View {
                 typeIcon: typeIcon,
                 typeColor: typeColor,
                 likes: likes,
-                streak: friend.currentStreak
+                streak: friend.currentStreak,
+                isInactive: isInactive,
+                cloudKitRecordName: friend.cloudKitRecordName
             )
         }
         .sorted { $0.streak > $1.streak }
@@ -146,6 +170,7 @@ struct SocialFeedView: View {
                             likedItems.remove(item.id)
                         } else {
                             likedItems.insert(item.id)
+                            HLHaptics.light()
                         }
                     }
                 } label: {
@@ -159,18 +184,42 @@ struct SocialFeedView: View {
                 }
                 .buttonStyle(.plain)
 
-                HStack(spacing: HLSpacing.xxs) {
-                    Image(systemName: "bubble.left")
-                        .foregroundColor(.hlTextTertiary)
-                    Text("Congrats!")
-                        .font(HLFont.caption())
-                        .foregroundColor(.hlTextSecondary)
+                // Nudge button for inactive friends
+                if item.isInactive, let recordName = item.cloudKitRecordName {
+                    Button {
+                        sendNudge(to: recordName, itemID: item.id)
+                    } label: {
+                        HStack(spacing: HLSpacing.xxs) {
+                            Image(systemName: nudgedItems.contains(item.id) ? "hand.wave.fill" : "hand.wave")
+                                .foregroundColor(nudgedItems.contains(item.id) ? .hlPrimary : .hlTextTertiary)
+                            Text(nudgedItems.contains(item.id) ? "Nudged!" : "Nudge")
+                                .font(HLFont.caption())
+                                .foregroundColor(nudgedItems.contains(item.id) ? .hlPrimary : .hlTextSecondary)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(nudgedItems.contains(item.id))
                 }
 
                 Spacer()
             }
         }
         .hlCard()
+    }
+
+    private func sendNudge(to recordName: String, itemID: UUID) {
+        Task {
+            let success = await cloudKit.sendNudge(
+                to: recordName,
+                message: "Your friend is cheering you on! Don't break your streak!"
+            )
+            if success {
+                withAnimation {
+                    nudgedItems.insert(itemID)
+                }
+                HLHaptics.success()
+            }
+        }
     }
 }
 
@@ -185,6 +234,8 @@ private struct FeedEntry: Identifiable {
     let typeColor: Color
     let likes: Int
     let streak: Int
+    let isInactive: Bool
+    let cloudKitRecordName: String?
 }
 
 #Preview {

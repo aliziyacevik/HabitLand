@@ -302,6 +302,11 @@ final class Friend {
     var currentStreak: Int
     var sharedChallenges: Int
     var addedAt: Date
+    var cloudKitRecordName: String?
+    var lastActive: Date?
+    var totalCompletions: Int
+    var habitsCompletedToday: Int
+    var xp: Int
 
     init(
         name: String,
@@ -319,6 +324,11 @@ final class Friend {
         self.currentStreak = currentStreak
         self.sharedChallenges = sharedChallenges
         self.addedAt = Date()
+        self.cloudKitRecordName = nil
+        self.lastActive = nil
+        self.totalCompletions = 0
+        self.habitsCompletedToday = 0
+        self.xp = 0
     }
 }
 
@@ -335,6 +345,8 @@ final class Challenge {
     var participantCount: Int
     var isActive: Bool
     var progress: Double
+    var cloudKitRecordName: String?
+    var creatorRecordName: String?
 
     init(
         name: String,
@@ -353,6 +365,8 @@ final class Challenge {
         self.participantCount = participantCount
         self.isActive = true
         self.progress = 0
+        self.cloudKitRecordName = nil
+        self.creatorRecordName = nil
     }
 
     var daysRemaining: Int {
