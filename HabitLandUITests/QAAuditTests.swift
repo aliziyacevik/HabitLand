@@ -84,42 +84,50 @@ final class QAAuditTests: XCTestCase {
         sleep(1)
         save(app, "04_social_hub")
 
-        // Check if SocialHubView loaded (should show Friends/Leaderboard/Challenges/Feed sections)
-        // or iCloud Required message
-        let iCloudRequired = app.staticTexts["iCloud Required"]
-        if iCloudRequired.waitForExistence(timeout: 2) {
-            save(app, "04_social_icloud_required")
-        } else {
-            // Try tapping Leaderboard section
-            let leaderboardTab = app.staticTexts["Leaderboard"]
-            if leaderboardTab.waitForExistence(timeout: 2) {
-                leaderboardTab.tap()
-                sleep(1)
-                save(app, "04_social_leaderboard")
-            }
+        // Social Hub sections
+        sleep(2)
 
-            // Challenges section
-            let challengesTab = app.staticTexts["Challenges"]
-            if challengesTab.waitForExistence(timeout: 2) {
-                challengesTab.tap()
-                sleep(1)
-                save(app, "04_social_challenges")
-            }
+        // Leaderboard — section picker uses buttons
+        let leaderboardBtn = app.buttons["Leaderboard"]
+        if leaderboardBtn.waitForExistence(timeout: 3) {
+            leaderboardBtn.tap()
+            sleep(2)
+            save(app, "04_social_leaderboard")
+        }
 
-            // Feed section
-            let feedTab = app.staticTexts["Feed"]
-            if feedTab.waitForExistence(timeout: 2) {
-                feedTab.tap()
-                sleep(1)
-                save(app, "04_social_feed")
-            }
+        // Challenges
+        let challengesBtn = app.buttons["Challenges"]
+        if challengesBtn.waitForExistence(timeout: 3) {
+            challengesBtn.tap()
+            sleep(2)
+            save(app, "04_social_challenges")
+        }
 
-            // Back to Friends
-            let friendsTab = app.staticTexts["Friends"]
-            if friendsTab.waitForExistence(timeout: 2) {
-                friendsTab.tap()
+        // Feed
+        let feedBtn = app.buttons["Feed"]
+        if feedBtn.waitForExistence(timeout: 3) {
+            feedBtn.tap()
+            sleep(2)
+            save(app, "04_social_feed")
+        }
+
+        // Back to Friends and tap a friend profile
+        let friendsTab = app.buttons["Friends"]
+        if friendsTab.waitForExistence(timeout: 3) {
+            friendsTab.tap()
+            sleep(1)
+            save(app, "04_social_friends")
+
+            // Tap Sarah's profile
+            let sarahRow = app.staticTexts["Sarah"]
+            if sarahRow.waitForExistence(timeout: 3) {
+                sarahRow.tap()
                 sleep(1)
-                save(app, "04_social_friends")
+                save(app, "04_friend_profile")
+
+                // Back
+                app.navigationBars.buttons.element(boundBy: 0).tap()
+                sleep(1)
             }
         }
 
