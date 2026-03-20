@@ -6,25 +6,25 @@ import SwiftUI
 
 @Model
 final class Habit {
-    var id: UUID
-    var name: String
-    var icon: String
-    var colorHex: String
-    var category: HabitCategory
-    var frequency: HabitFrequency
-    var targetDays: [Int] // 0=Sun, 1=Mon, ... 6=Sat
+    var id: UUID = UUID()
+    var name: String = ""
+    var icon: String = "checkmark.circle"
+    var colorHex: String = "#34C759"
+    var category: HabitCategory = HabitCategory.health
+    var frequency: HabitFrequency = HabitFrequency.daily
+    var targetDays: [Int] = [0, 1, 2, 3, 4, 5, 6]
     var reminderTime: Date?
-    var reminderEnabled: Bool
-    var goalCount: Int
-    var unit: String
-    var notes: String
-    var isArchived: Bool
-    var sortOrder: Int
-    var createdAt: Date
-    var updatedAt: Date
+    var reminderEnabled: Bool = false
+    var goalCount: Int = 1
+    var unit: String = "times"
+    var notes: String = ""
+    var isArchived: Bool = false
+    var sortOrder: Int = 0
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
     var healthKitMetric: String?
 
-    @Relationship(deleteRule: .cascade) var completions: [HabitCompletion]
+    @Relationship(deleteRule: .cascade) var completions: [HabitCompletion] = []
 
     init(
         name: String,
@@ -153,10 +153,10 @@ final class Habit {
 
 @Model
 final class HabitCompletion {
-    var id: UUID
-    var date: Date
-    var isCompleted: Bool
-    var count: Int
+    var id: UUID = UUID()
+    var date: Date = Date()
+    var isCompleted: Bool = true
+    var count: Int = 1
     var note: String?
     var habit: Habit?
 
@@ -173,13 +173,13 @@ final class HabitCompletion {
 
 @Model
 final class SleepLog {
-    var id: UUID
-    var bedTime: Date
-    var wakeTime: Date
-    var quality: SleepQuality
-    var notes: String
-    var mood: Int // 1-5
-    var createdAt: Date
+    var id: UUID = UUID()
+    var bedTime: Date = Date()
+    var wakeTime: Date = Date()
+    var quality: SleepQuality = SleepQuality.good
+    var notes: String = ""
+    var mood: Int = 3
+    var createdAt: Date = Date()
 
     init(bedTime: Date, wakeTime: Date, quality: SleepQuality = .good, notes: String = "", mood: Int = 3) {
         self.id = UUID()
@@ -210,16 +210,16 @@ final class SleepLog {
 
 @Model
 final class UserProfile {
-    var id: UUID
-    var name: String
-    var username: String
-    var avatarEmoji: String
-    var level: Int
-    var xp: Int
-    var joinedAt: Date
-    var bio: String
-    var sleepGoalHours: Double
-    var dailyHabitGoal: Int
+    var id: UUID = UUID()
+    var name: String = ""
+    var username: String = ""
+    var avatarEmoji: String = "🌱"
+    var level: Int = 1
+    var xp: Int = 0
+    var joinedAt: Date = Date()
+    var bio: String = ""
+    var sleepGoalHours: Double = 8.0
+    var dailyHabitGoal: Int = 5
 
     init(
         name: String = "",
@@ -263,15 +263,15 @@ final class UserProfile {
 
 @Model
 final class Achievement {
-    var id: UUID
-    var name: String
-    var descriptionText: String
-    var icon: String
-    var category: AchievementCategory
-    var isUnlocked: Bool
+    var id: UUID = UUID()
+    var name: String = ""
+    var descriptionText: String = ""
+    var icon: String = "star.fill"
+    var category: AchievementCategory = AchievementCategory.streak
+    var isUnlocked: Bool = false
     var unlockedAt: Date?
-    var progress: Double
-    var targetValue: Int
+    var progress: Double = 0
+    var targetValue: Int = 1
 
     init(
         name: String,
@@ -296,19 +296,19 @@ final class Achievement {
 
 @Model
 final class Friend {
-    var id: UUID
-    var name: String
-    var username: String
-    var avatarEmoji: String
-    var level: Int
-    var currentStreak: Int
-    var sharedChallenges: Int
-    var addedAt: Date
+    var id: UUID = UUID()
+    var name: String = ""
+    var username: String = ""
+    var avatarEmoji: String = "😊"
+    var level: Int = 1
+    var currentStreak: Int = 0
+    var sharedChallenges: Int = 0
+    var addedAt: Date = Date()
     var cloudKitRecordName: String?
     var lastActive: Date?
-    var totalCompletions: Int
-    var habitsCompletedToday: Int
-    var xp: Int
+    var totalCompletions: Int = 0
+    var habitsCompletedToday: Int = 0
+    var xp: Int = 0
 
     init(
         name: String,
@@ -338,15 +338,15 @@ final class Friend {
 
 @Model
 final class Challenge {
-    var id: UUID
-    var name: String
-    var descriptionText: String
-    var icon: String
-    var startDate: Date
-    var endDate: Date
-    var participantCount: Int
-    var isActive: Bool
-    var progress: Double
+    var id: UUID = UUID()
+    var name: String = ""
+    var descriptionText: String = ""
+    var icon: String = "flag.fill"
+    var startDate: Date = Date()
+    var endDate: Date = Date().addingTimeInterval(7 * 24 * 3600)
+    var participantCount: Int = 2
+    var isActive: Bool = true
+    var progress: Double = 0
     var cloudKitRecordName: String?
     var creatorRecordName: String?
 
@@ -380,13 +380,13 @@ final class Challenge {
 
 @Model
 final class AppNotification {
-    var id: UUID
-    var title: String
-    var body: String
-    var icon: String
-    var type: NotificationType
-    var isRead: Bool
-    var createdAt: Date
+    var id: UUID = UUID()
+    var title: String = ""
+    var body: String = ""
+    var icon: String = "bell.fill"
+    var type: NotificationType = NotificationType.general
+    var isRead: Bool = false
+    var createdAt: Date = Date()
 
     init(title: String, body: String, icon: String = "bell.fill", type: NotificationType = .general) {
         self.id = UUID()

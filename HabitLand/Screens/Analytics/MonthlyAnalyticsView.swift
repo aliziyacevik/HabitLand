@@ -5,7 +5,11 @@ import SwiftData
 
 struct MonthlyAnalyticsView: View {
     @Query(filter: #Predicate<Habit> { !$0.isArchived }) private var habits: [Habit]
+    @Query private var profiles: [UserProfile]
+    @Query(sort: \SleepLog.createdAt, order: .reverse) private var sleepLogs: [SleepLog]
     @State private var animateBars = false
+    @State private var showShareReport = false
+    @State private var reportURL: URL?
 
     private var calendar: Calendar { Calendar.current }
 
@@ -197,9 +201,25 @@ struct MonthlyAnalyticsView: View {
         .background(Color.hlBackground.ignoresSafeArea())
         .navigationTitle("Monthly Analytics")
         .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    generateAndShareReport()
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 16))
+                        .foregroundStyle(Color.hlPrimary)
+                }
+            }
+        }
         .onAppear {
             withAnimation(HLAnimation.slow.delay(0.15)) {
                 animateBars = true
+            }
+        }
+        .sheet(isPresented: $showShareReport) {
+            if let url = reportURL {
+                ShareSheetView(url: url)
             }
         }
     }
@@ -452,6 +472,92 @@ struct MonthlyAnalyticsView: View {
             }
         }
         .hlCard()
+    }
+
+    // MARK: - Share Report
+
+    private func generateAndShareReport() {
+        let profile = profiles.first
+        let playerName = profile?.name.isEmpty == false ? profile!.name : "HabitLand User"
+        let levelTitle = profile?.levelTitle ?? "Seedling"
+
+        // Habit stats
+        let topStreakHabit = habits.max(by: { $0.currentStreak < $1.currentStreak })
+        let totalCompletions = habits.reduce(0) { $0 + $1.totalCompletions }
+        let bestStreak = habits.map(\.currentStreak).max() ?? 0
+        let perfectDays = trackedDays.filter { $0.rate >= 1.0 }.count
+
+        // Sleep stats (this month)
+        let monthSleepLogs = sleepLogs.filter { log in
+            calendar.startOfDay(for: log.createdAt) >= monthStart
+        }
+        let avgSleep: Double = monthSleepLogs.isEmpty ? 0 :
+            monthSleepLogs.reduce(0.0) { $0 + $1.durationHours } / Double(monthSleepLogs.count)
+
+        var report = """
+        ╔══════════════════════════════════════╗
+        ║     🌿 HabitLand Monthly Report      ║
+        ╚══════════════════════════════════════╝
+
+        📅 \(monthTitle)
+        👤 \(playerName) · Level \(profile?.level ?? 1) \(levelTitle)
+        ⭐ \(profile?.xp ?? 0) XP
+
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        📊 MONTHLY OVERVIEW
+        • Completion Rate: \(Int(monthlyRate * 100))%
+        • Days Tracked: \(daysTracked)
+        • Perfect Days: \(perfectDays) 🎯
+        • Total Completions: \(totalCompletions)
+
+        """
+
+        if monthChange != 0 {
+            let arrow = monthChange >= 0 ? "📈" : "📉"
+            report += "  \(arrow) vs Last Month: \(monthChange >= 0 ? "+" : "")\(Int(monthChange * 100))%\n\n"
+        }
+
+        report += """
+        🔥 STREAKS
+        • Best Active Streak: \(bestStreak) days
+        """
+
+        if let top = topStreakHabit, top.currentStreak > 0 {
+            report += "\n  • Top Habit: \(top.name) (\(top.currentStreak) days)\n"
+        }
+
+        if !categoryBreakdown.isEmpty {
+            report += "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            report += "📋 CATEGORY BREAKDOWN\n"
+            for cat in categoryBreakdown {
+                let bar = String(repeating: "█", count: max(1, Int(cat.rate * 10)))
+                let empty = String(repeating: "░", count: max(0, 10 - Int(cat.rate * 10)))
+                report += "  \(cat.name): \(bar)\(empty) \(Int(cat.rate * 100))%\n"
+            }
+        }
+
+        if !monthSleepLogs.isEmpty {
+            report += "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            report += "🌙 SLEEP\n"
+            report += "  • Average: \(String(format: "%.1f", avgSleep))h\n"
+            report += "  • Nights Logged: \(monthSleepLogs.count)\n"
+        }
+
+        report += """
+
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        Tracked with HabitLand 🌿
+        Private · Gamified · Free
+        """
+
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("HabitLand_\(monthTitle.replacingOccurrences(of: " ", with: "_"))_Report.txt")
+
+        try? report.write(to: url, atomically: true, encoding: .utf8)
+        reportURL = url
+        showShareReport = true
     }
 
     // MARK: - Month Comparison
