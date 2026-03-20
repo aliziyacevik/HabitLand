@@ -14,8 +14,16 @@ final class ProManager: ObservableObject {
     @Published private(set) var purchasedProductIDs: Set<String> = []
     @Published private(set) var isLoading = false
 
+    /// Debug override — only works in DEBUG builds
+    #if DEBUG
+    @Published var debugProEnabled = false
+    #endif
+
     var isPro: Bool {
-        ProcessInfo.processInfo.arguments.contains("-screenshotMode") || !purchasedProductIDs.isEmpty
+        #if DEBUG
+        if debugProEnabled { return true }
+        #endif
+        return ProcessInfo.processInfo.arguments.contains("-screenshotMode") || !purchasedProductIDs.isEmpty
     }
 
     var yearlyProduct: Product? {
@@ -106,6 +114,22 @@ final class ProManager: ObservableObject {
     func restorePurchases() async {
         try? await AppStore.sync()
         await updatePurchasedProducts()
+    }
+
+    // MARK: - Promo Code
+
+    @discardableResult
+    func redeemPromoCode() async -> Bool {
+        guard let windowScene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene }).first else { return false }
+        do {
+            try await AppStore.presentOfferCodeRedeemSheet(in: windowScene)
+            await updatePurchasedProducts()
+            return true
+        } catch {
+            print("Promo code redemption failed: \(error)")
+            return false
+        }
     }
 
     // MARK: - Transaction Updates

@@ -91,6 +91,31 @@ struct GeneralSettingsView: View {
                 Text("Support")
             }
 
+            if !proManager.isPro {
+                Section {
+                    Button {
+                        Task { await proManager.redeemPromoCode() }
+                    } label: {
+                        settingsRow(icon: "ticket.fill", color: .hlGold, title: "Redeem Promo Code")
+                    }
+                } header: {
+                    Text("Promo")
+                }
+            }
+
+            #if DEBUG
+            Section {
+                Toggle(isOn: $proManager.debugProEnabled) {
+                    settingsRow(icon: "ladybug.fill", color: .hlError, title: "Debug Pro")
+                }
+                .tint(.hlPrimary)
+            } header: {
+                Text("Developer")
+            } footer: {
+                Text("Toggle Pro access for testing. Only visible in debug builds.")
+            }
+            #endif
+
             Section {
                 VStack(spacing: HLSpacing.xxs) {
                     Text("HabitLand")

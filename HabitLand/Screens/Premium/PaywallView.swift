@@ -21,6 +21,7 @@ struct PaywallView: View {
                     }
                     plansSection
                     purchaseButton
+                    promoCodeButton
                     restoreButton
                     legalSection
                 }
@@ -275,6 +276,22 @@ struct PaywallView: View {
         .disabled(proManager.isLoading)
         .padding(.horizontal, HLSpacing.md)
         .padding(.bottom, HLSpacing.sm)
+    }
+
+    // MARK: - Promo Code
+
+    private var promoCodeButton: some View {
+        Button {
+            Task { await proManager.redeemPromoCode() }
+        } label: {
+            HStack(spacing: HLSpacing.xs) {
+                Image(systemName: "ticket.fill")
+                Text("Redeem Promo Code")
+            }
+            .font(HLFont.subheadline(.medium))
+            .foregroundStyle(Color.hlPrimary)
+        }
+        .padding(.bottom, HLSpacing.xxs)
     }
 
     // MARK: - Restore
