@@ -59,7 +59,11 @@ final class Habit {
     }
 
     var color: Color {
+        #if WIDGET_EXTENSION
+        Color(hex: colorHex) ?? .green
+        #else
         Color(hex: colorHex) ?? .hlPrimary
+        #endif
     }
 
     var currentStreak: Int {
@@ -67,6 +71,14 @@ final class Habit {
         let calendar = Calendar.current
         var date = calendar.startOfDay(for: Date())
         let sortedCompletions = completions.sorted { $0.date > $1.date }
+
+        // Grace period: if not completed today, start counting from yesterday
+        let hasCompletionToday = sortedCompletions.contains {
+            calendar.startOfDay(for: $0.date) == date && $0.isCompleted
+        }
+        if !hasCompletionToday {
+            date = calendar.date(byAdding: .day, value: -1, to: date)!
+        }
 
         for completion in sortedCompletions {
             let completionDay = calendar.startOfDay(for: completion.date)
@@ -88,6 +100,7 @@ final class Habit {
     }
 
     var todayProgress: Double {
+        guard goalCount > 0 else { return 0 }
         let today = Calendar.current.startOfDay(for: Date())
         let todayCount = completions.filter { completion in
             Calendar.current.startOfDay(for: completion.date) == today && completion.isCompleted
@@ -104,7 +117,8 @@ final class Habit {
             let day = calendar.startOfDay(for: completion.date)
             return day >= weekAgo && day <= today && completion.isCompleted
         }
-        return Double(weekCompletions.count) / 7.0
+        let expectedDays = max(targetDays.count, 1)
+        return Double(weekCompletions.count) / Double(expectedDays)
     }
 
     var bestStreak: Int {
@@ -395,6 +409,9 @@ enum HabitCategory: String, Codable, CaseIterable {
     }
 
     var color: Color {
+        #if WIDGET_EXTENSION
+        Color(hex: colorHex) ?? .green
+        #else
         switch self {
         case .health: return .hlHealth
         case .fitness: return .hlFitness
@@ -405,6 +422,7 @@ enum HabitCategory: String, Codable, CaseIterable {
         case .learning: return .hlInfo
         case .nutrition: return .hlPrimary
         }
+        #endif
     }
 
     var colorHex: String {
@@ -493,19 +511,6 @@ extension Color {
 // MARK: - Sample Data
 
 struct SampleData {
-    static let habits: [String: (icon: String, color: String, category: HabitCategory)] = [
-        "Morning Meditation": ("brain.head.profile", "#9966E6", .mindfulness),
-        "Drink Water": ("drop.fill", "#338FFF", .health),
-        "Exercise": ("figure.run", "#F24D4D", .fitness),
-        "Read 30 min": ("book.fill", "#FFC207", .learning),
-        "Healthy Eating": ("leaf.fill", "#34C759", .nutrition),
-        "Journal": ("note.text", "#FF9A1A", .mindfulness),
-        "Walk 10k Steps": ("figure.walk", "#338FFF", .fitness),
-        "No Social Media": ("iphone.slash", "#9966E6", .productivity),
-        "Sleep by 11pm": ("moon.fill", "#6659CC", .sleep),
-        "Practice Gratitude": ("heart.fill", "#F27D8D", .mindfulness),
-    ]
-
     static let achievements: [(name: String, description: String, icon: String, category: AchievementCategory)] = [
         ("Habit Creator", "Create your first habit", "sparkle", .special),
         ("First Step", "Complete your first habit", "shoe.fill", .completion),

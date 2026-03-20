@@ -315,6 +315,8 @@ struct DailyHabitsOverview: View {
                     }
                     // Check achievements
                     showAchievementIfNeeded(AchievementManager.checkAll(context: modelContext))
+                    // Donate to Siri/Spotlight
+                    CompleteHabitIntent.donate(habit: habit.toEntity())
                 } else {
                     removeXP(10)
                     HLHaptics.light()

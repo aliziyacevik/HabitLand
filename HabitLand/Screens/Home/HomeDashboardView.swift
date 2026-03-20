@@ -37,7 +37,30 @@ struct HomeDashboardView: View {
         return Double(completedCount) / Double(totalCount)
     }
 
+    private var progressStatusText: String {
+        if completedCount == totalCount && totalCount > 0 { return "All done!" }
+        if completionPercent >= 0.5 { return "On track today!" }
+        if completedCount > 0 { return "Keep going!" }
+        return "Let's get started!"
+    }
+
+    private var progressStatusIcon: String {
+        if completedCount == totalCount && totalCount > 0 { return "checkmark.seal.fill" }
+        if completionPercent >= 0.5 { return HLIcon.trendUp }
+        return "arrow.right.circle"
+    }
+
+    private var progressStatusColor: Color {
+        if completedCount == totalCount && totalCount > 0 { return Color.hlSuccess }
+        if completionPercent >= 0.5 { return Color.hlSuccess }
+        if completedCount > 0 { return Color.hlInfo }
+        return Color.hlTextTertiary
+    }
+
     private var greeting: String {
+        if ProcessInfo.processInfo.arguments.contains("-screenshotMode") {
+            return "Good morning"
+        }
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
         case 5..<12: return "Good morning"
@@ -137,6 +160,10 @@ struct HomeDashboardView: View {
                         } else {
                             dailyProgressCard
                                 .hlStaggeredAppear(index: 1)
+                            if completedCount == 0 && totalCount > 0 {
+                                firstDayProgressionCard
+                                    .hlStaggeredAppear(index: 2)
+                            }
                             motivationCard
                                 .hlStaggeredAppear(index: 2)
                             streakCard
@@ -387,12 +414,12 @@ struct HomeDashboardView: View {
                     .foregroundStyle(Color.hlTextSecondary)
 
                 HStack(spacing: HLSpacing.xxs) {
-                    Image(systemName: HLIcon.trendUp)
+                    Image(systemName: progressStatusIcon)
                         .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(Color.hlSuccess)
-                    Text("On track today!")
+                        .foregroundStyle(progressStatusColor)
+                    Text(progressStatusText)
                         .font(HLFont.caption(.medium))
-                        .foregroundStyle(Color.hlSuccess)
+                        .foregroundStyle(progressStatusColor)
                 }
             }
 
@@ -530,7 +557,7 @@ struct HomeDashboardView: View {
                     ReviewManager.trackCompletion()
                     // Show undo toast
                     undoHabitName = habit.name
-                    let latestCompletion = habit.completions.first(where: {
+                    let latestCompletion = habit.completions.sorted(by: { $0.date > $1.date }).first(where: {
                         Calendar.current.isDateInToday($0.date) && $0.isCompleted
                     })
                     undoCompletion = latestCompletion
@@ -546,7 +573,7 @@ struct HomeDashboardView: View {
                         xpGainHabitID = nil
                     }
                     // All-complete celebration
-                    let newCompletedCount = completedCount + 1
+                    let newCompletedCount = habits.filter({ $0.todayCompleted || $0.id == habit.id }).count
                     if newCompletedCount == totalCount && totalCount > 0 {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             celebrationMessage = "All habits done!\nAmazing work today!"
@@ -566,6 +593,8 @@ struct HomeDashboardView: View {
                     }
                     // Check achievements
                     showAchievementIfNeeded(AchievementManager.checkAll(context: modelContext))
+                    // Donate to Siri/Spotlight
+                    CompleteHabitIntent.donate(habit: habit.toEntity())
                 } else {
                     removeXP(10)
                     HLHaptics.light()
@@ -604,8 +633,9 @@ struct HomeDashboardView: View {
         ReviewManager.trackCompletion()
         gainXP(10)
         showAchievementIfNeeded(AchievementManager.checkAll(context: modelContext))
+        CompleteHabitIntent.donate(habit: habit.toEntity())
         undoHabitName = habit.name
-        let latestCompletion = habit.completions.first(where: {
+        let latestCompletion = habit.completions.sorted(by: { $0.date > $1.date }).first(where: {
             Calendar.current.isDateInToday($0.date) && $0.isCompleted
         })
         undoCompletion = latestCompletion
@@ -658,6 +688,74 @@ struct HomeDashboardView: View {
             profile.xp += profile.xpForNextLevel
         }
         profile.xp = max(0, profile.xp)
+    }
+
+    // MARK: - First Day Progression Card
+
+    private var firstDayProgressionCard: some View {
+        VStack(spacing: HLSpacing.sm) {
+            HStack(spacing: HLSpacing.sm) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(Color.hlGold)
+
+                VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
+                    Text("Your Journey Begins!")
+                        .font(HLFont.headline())
+                        .foregroundStyle(Color.hlTextPrimary)
+                    Text("Complete your first habit to earn +10 XP")
+                        .font(HLFont.caption())
+                        .foregroundStyle(Color.hlTextSecondary)
+                }
+
+                Spacer()
+            }
+
+            // Mini progression preview
+            HStack(spacing: HLSpacing.lg) {
+                VStack(spacing: HLSpacing.xxs) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundStyle(Color.hlPrimary)
+                    Text("Complete")
+                        .font(HLFont.caption2())
+                        .foregroundStyle(Color.hlTextTertiary)
+                }
+
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.hlDivider)
+
+                VStack(spacing: HLSpacing.xxs) {
+                    Text("+10")
+                        .font(HLFont.callout(.bold))
+                        .foregroundStyle(Color.hlGold)
+                    Text("Earn XP")
+                        .font(HLFont.caption2())
+                        .foregroundStyle(Color.hlTextTertiary)
+                }
+
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.hlDivider)
+
+                VStack(spacing: HLSpacing.xxs) {
+                    Image(systemName: "arrow.up.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundStyle(Color.hlPrimary)
+                    Text("Level Up")
+                        .font(HLFont.caption2())
+                        .foregroundStyle(Color.hlTextTertiary)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, HLSpacing.xs)
+        }
+        .hlCard()
+        .overlay(
+            RoundedRectangle(cornerRadius: HLRadius.lg)
+                .stroke(Color.hlGold.opacity(0.3), lineWidth: 1)
+        )
     }
 
     // MARK: - Motivation Card

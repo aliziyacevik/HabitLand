@@ -21,17 +21,56 @@
 			remoteGlobalIDString = 2B1BE9A02F683FAF00B17D4A;
 			remoteInfo = HabitLand;
 		};
+		AA1BE9DB2F68400100B17D4A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2B1BE9992F683FAF00B17D4A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA1BE9D62F68400100B17D4A;
+			remoteInfo = HabitLandWidgetExtension;
+		};
+		BB1BE9EB2F68500100B17D4A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2B1BE9992F683FAF00B17D4A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BB1BE9E62F68500100B17D4A;
+			remoteInfo = "HabitLandWatch Watch App";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		2B1BE9A12F683FAF00B17D4A /* HabitLand.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HabitLand.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B1BE9B02F683FB100B17D4A /* HabitLandTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HabitLandTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B1BE9BA2F683FB100B17D4A /* HabitLandUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HabitLandUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA1BE9D12F68400100B17D4A /* HabitLandWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HabitLandWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB1BE9E12F68500100B17D4A /* HabitLandWatch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "HabitLandWatch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AA1BE9DD2F68400100B17D4A /* Exceptions for "HabitLand" folder in "HabitLandWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Models/Models.swift,
+				Services/SharedModelContainer.swift,
+			);
+			target = AA1BE9D62F68400100B17D4A /* HabitLandWidgetExtension */;
+		};
+		BB1BE9ED2F68500100B17D4A /* Exceptions for "HabitLand" folder in "HabitLandWatch Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Models/Models.swift,
+				Services/SharedModelContainer.swift,
+			);
+			target = BB1BE9E62F68500100B17D4A /* HabitLandWatch Watch App */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2B1BE9A32F683FAF00B17D4A /* HabitLand */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AA1BE9DD2F68400100B17D4A /* Exceptions for "HabitLand" folder in "HabitLandWidgetExtension" target */,
+				BB1BE9ED2F68500100B17D4A /* Exceptions for "HabitLand" folder in "HabitLandWatch Watch App" target */,
+			);
 			path = HabitLand;
 			sourceTree = "<group>";
 		};
@@ -45,7 +84,30 @@
 			path = HabitLandUITests;
 			sourceTree = "<group>";
 		};
+		AA1BE9D22F68400100B17D4A /* HabitLandWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HabitLandWidget;
+			sourceTree = "<group>";
+		};
+		BB1BE9E22F68500100B17D4A /* HabitLandWatch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HabitLandWatch;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		AA1BE9DA2F68400100B17D4A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		2B1BE99E2F683FAF00B17D4A /* Frameworks */ = {
@@ -69,6 +131,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA1BE9D42F68400100B17D4A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB1BE9E42F68500100B17D4A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -76,6 +152,8 @@
 			isa = PBXGroup;
 			children = (
 				2B1BE9A32F683FAF00B17D4A /* HabitLand */,
+				AA1BE9D22F68400100B17D4A /* HabitLandWidget */,
+				BB1BE9E22F68500100B17D4A /* HabitLandWatch */,
 				2B1BE9B32F683FB100B17D4A /* HabitLandTests */,
 				2B1BE9BD2F683FB100B17D4A /* HabitLandUITests */,
 				2B1BE9A22F683FAF00B17D4A /* Products */,
@@ -86,6 +164,8 @@
 			isa = PBXGroup;
 			children = (
 				2B1BE9A12F683FAF00B17D4A /* HabitLand.app */,
+				AA1BE9D12F68400100B17D4A /* HabitLandWidgetExtension.appex */,
+				BB1BE9E12F68500100B17D4A /* HabitLandWatch Watch App.app */,
 				2B1BE9B02F683FB100B17D4A /* HabitLandTests.xctest */,
 				2B1BE9BA2F683FB100B17D4A /* HabitLandUITests.xctest */,
 			);
@@ -102,10 +182,12 @@
 				2B1BE99D2F683FAF00B17D4A /* Sources */,
 				2B1BE99E2F683FAF00B17D4A /* Frameworks */,
 				2B1BE99F2F683FAF00B17D4A /* Resources */,
+				AA1BE9DA2F68400100B17D4A /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				AA1BE9DC2F68400100B17D4A /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				2B1BE9A32F683FAF00B17D4A /* HabitLand */,
@@ -163,6 +245,50 @@
 			productReference = 2B1BE9BA2F683FB100B17D4A /* HabitLandUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		AA1BE9D62F68400100B17D4A /* HabitLandWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA1BE9D92F68400100B17D4A /* Build configuration list for PBXNativeTarget "HabitLandWidgetExtension" */;
+			buildPhases = (
+				AA1BE9D32F68400100B17D4A /* Sources */,
+				AA1BE9D42F68400100B17D4A /* Frameworks */,
+				AA1BE9D52F68400100B17D4A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AA1BE9D22F68400100B17D4A /* HabitLandWidget */,
+			);
+			name = HabitLandWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = HabitLandWidgetExtension;
+			productReference = AA1BE9D12F68400100B17D4A /* HabitLandWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		BB1BE9E62F68500100B17D4A /* HabitLandWatch Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB1BE9E92F68500100B17D4A /* Build configuration list for PBXNativeTarget "HabitLandWatch Watch App" */;
+			buildPhases = (
+				BB1BE9E32F68500100B17D4A /* Sources */,
+				BB1BE9E42F68500100B17D4A /* Frameworks */,
+				BB1BE9E52F68500100B17D4A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				BB1BE9E22F68500100B17D4A /* HabitLandWatch */,
+			);
+			name = "HabitLandWatch Watch App";
+			packageProductDependencies = (
+			);
+			productName = "HabitLandWatch Watch App";
+			productReference = BB1BE9E12F68500100B17D4A /* HabitLandWatch Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -184,6 +310,12 @@
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = 2B1BE9A02F683FAF00B17D4A;
 					};
+					AA1BE9D62F68400100B17D4A = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					BB1BE9E62F68500100B17D4A = {
+						CreatedOnToolsVersion = 16.4;
+					};
 				};
 			};
 			buildConfigurationList = 2B1BE99C2F683FAF00B17D4A /* Build configuration list for PBXProject "HabitLand" */;
@@ -192,6 +324,7 @@
 			knownRegions = (
 				en,
 				Base,
+				tr,
 			);
 			mainGroup = 2B1BE9982F683FAF00B17D4A;
 			minimizedProjectReferenceProxies = 1;
@@ -201,6 +334,8 @@
 			projectRoot = "";
 			targets = (
 				2B1BE9A02F683FAF00B17D4A /* HabitLand */,
+				AA1BE9D62F68400100B17D4A /* HabitLandWidgetExtension */,
+				BB1BE9E62F68500100B17D4A /* HabitLandWatch Watch App */,
 				2B1BE9AF2F683FB100B17D4A /* HabitLandTests */,
 				2B1BE9B92F683FB100B17D4A /* HabitLandUITests */,
 			);
@@ -223,6 +358,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		2B1BE9B82F683FB100B17D4A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA1BE9D52F68400100B17D4A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB1BE9E52F68500100B17D4A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,6 +402,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA1BE9D32F68400100B17D4A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB1BE9E32F68500100B17D4A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -265,6 +428,16 @@
 			isa = PBXTargetDependency;
 			target = 2B1BE9A02F683FAF00B17D4A /* HabitLand */;
 			targetProxy = 2B1BE9BB2F683FB100B17D4A /* PBXContainerItemProxy */;
+		};
+		AA1BE9DC2F68400100B17D4A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA1BE9D62F68400100B17D4A /* HabitLandWidgetExtension */;
+			targetProxy = AA1BE9DB2F68400100B17D4A /* PBXContainerItemProxy */;
+		};
+		BB1BE9EC2F68500100B17D4A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BB1BE9E62F68500100B17D4A /* HabitLandWatch Watch App */;
+			targetProxy = BB1BE9EB2F68500100B17D4A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -393,6 +566,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HabitLand/HabitLand.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 32SSMH2HFF;
@@ -423,6 +597,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HabitLand/HabitLand.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 32SSMH2HFF;
@@ -516,6 +691,122 @@
 			};
 			name = Release;
 		};
+		AA1BE9D72F68400100B17D4A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HabitLandWidget/HabitLandWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 32SSMH2HFF;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = HabitLandWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = azc.HabitLand.HabitLandWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "WIDGET_EXTENSION $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AA1BE9D82F68400100B17D4A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HabitLandWidget/HabitLandWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 32SSMH2HFF;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = HabitLandWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = azc.HabitLand.HabitLandWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "WIDGET_EXTENSION $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		BB1BE9E72F68500100B17D4A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HabitLandWatch/HabitLandWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 32SSMH2HFF;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = HabitLand;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = azc.HabitLand;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = azc.HabitLand.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "WIDGET_EXTENSION $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		BB1BE9E82F68500100B17D4A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HabitLandWatch/HabitLandWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 32SSMH2HFF;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = HabitLand;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = azc.HabitLand;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = azc.HabitLand.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "WIDGET_EXTENSION $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -551,6 +842,24 @@
 			buildConfigurations = (
 				2B1BE9CB2F683FB100B17D4A /* Debug */,
 				2B1BE9CC2F683FB100B17D4A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA1BE9D92F68400100B17D4A /* Build configuration list for PBXNativeTarget "HabitLandWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA1BE9D72F68400100B17D4A /* Debug */,
+				AA1BE9D82F68400100B17D4A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB1BE9E92F68500100B17D4A /* Build configuration list for PBXNativeTarget "HabitLandWatch Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB1BE9E72F68500100B17D4A /* Debug */,
+				BB1BE9E82F68500100B17D4A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
