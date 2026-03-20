@@ -104,7 +104,7 @@ struct HomeDashboardView: View {
             }
 
             let completedForDay = habits.filter { habit in
-                habit.completions.contains { completion in
+                habit.safeCompletions.contains { completion in
                     calendar.startOfDay(for: completion.date) == dayStart && completion.isCompleted
                 }
             }.count
@@ -137,7 +137,7 @@ struct HomeDashboardView: View {
         guard let monday = calendar.date(byAdding: .day, value: -daysFromMonday, to: today) else { return 0 }
 
         return habits.reduce(0) { total, habit in
-            total + habit.completions.filter { completion in
+            total + habit.safeCompletions.filter { completion in
                 let day = calendar.startOfDay(for: completion.date)
                 return day >= monday && day <= today && completion.isCompleted
             }.count
@@ -541,7 +541,7 @@ struct HomeDashboardView: View {
                 withAnimation(HLAnimation.celebration) {
                     if wasCompleted {
                         let today = Calendar.current.startOfDay(for: Date())
-                        if let completion = habit.completions.first(where: {
+                        if let completion = habit.safeCompletions.first(where: {
                             Calendar.current.startOfDay(for: $0.date) == today && $0.isCompleted
                         }) {
                             modelContext.delete(completion)
@@ -557,7 +557,7 @@ struct HomeDashboardView: View {
                     ReviewManager.trackCompletion()
                     // Show undo toast
                     undoHabitName = habit.name
-                    let latestCompletion = habit.completions.sorted(by: { $0.date > $1.date }).first(where: {
+                    let latestCompletion = habit.safeCompletions.sorted(by: { $0.date > $1.date }).first(where: {
                         Calendar.current.isDateInToday($0.date) && $0.isCompleted
                     })
                     undoCompletion = latestCompletion
@@ -635,7 +635,7 @@ struct HomeDashboardView: View {
         showAchievementIfNeeded(AchievementManager.checkAll(context: modelContext))
         CompleteHabitIntent.donate(habit: habit.toEntity())
         undoHabitName = habit.name
-        let latestCompletion = habit.completions.sorted(by: { $0.date > $1.date }).first(where: {
+        let latestCompletion = habit.safeCompletions.sorted(by: { $0.date > $1.date }).first(where: {
             Calendar.current.isDateInToday($0.date) && $0.isCompleted
         })
         undoCompletion = latestCompletion

@@ -33,7 +33,7 @@ struct InsightsOverviewView: View {
         let oneWeekAgo = calendar.date(byAdding: .day, value: -7, to: today)!
 
         let rates = habits.map { habit -> Double in
-            let completions = habit.completions.filter { c in
+            let completions = habit.safeCompletions.filter { c in
                 let day = calendar.startOfDay(for: c.date)
                 return day >= twoWeeksAgo && day < oneWeekAgo && c.isCompleted
             }
@@ -118,7 +118,7 @@ struct InsightsOverviewView: View {
 
         let lastSevenDays = (0..<7).reversed().map { daysAgo -> Bool in
             let day = calendar.date(byAdding: .day, value: -daysAgo, to: today)!
-            return best.completions.contains { c in
+            return best.safeCompletions.contains { c in
                 calendar.startOfDay(for: c.date) == day && c.isCompleted
             }
         }
@@ -142,7 +142,7 @@ struct InsightsOverviewView: View {
             let currentRate = habit.weekCompletionRate
             guard currentRate < 0.6 else { return nil }
 
-            let prevCompletions = habit.completions.filter { c in
+            let prevCompletions = habit.safeCompletions.filter { c in
                 let day = calendar.startOfDay(for: c.date)
                 return day >= twoWeeksAgo && day < oneWeekAgo && c.isCompleted
             }
@@ -195,7 +195,7 @@ struct InsightsOverviewView: View {
             let currentRate = avgRate(categoryHabits)
             let prevRate: Double = {
                 let rates = categoryHabits.map { habit -> Double in
-                    let count = habit.completions.filter { c in
+                    let count = habit.safeCompletions.filter { c in
                         let day = calendar.startOfDay(for: c.date)
                         return day >= twoWeeksAgo && day < oneWeekAgo && c.isCompleted
                     }.count

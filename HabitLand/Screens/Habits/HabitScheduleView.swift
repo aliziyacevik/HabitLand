@@ -239,7 +239,7 @@ struct HabitScheduleView: View {
     private func isDateCompleted(_ date: Date) -> Bool {
         let calendar = Calendar.current
         let day = calendar.startOfDay(for: date)
-        return habit.completions.contains { completion in
+        return habit.safeCompletions.contains { completion in
             calendar.startOfDay(for: completion.date) == day && completion.isCompleted
         }
     }

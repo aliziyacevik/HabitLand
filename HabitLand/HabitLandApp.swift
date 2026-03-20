@@ -66,7 +66,9 @@ struct HabitLandApp: App {
                     } else {
                         seedDataIfNeeded()
                     }
-                    requestNotificationsIfNeeded()
+                    if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+                        requestNotificationsIfNeeded()
+                    }
                     setupQuickActions()
                     syncHealthKitHabits()
                 }

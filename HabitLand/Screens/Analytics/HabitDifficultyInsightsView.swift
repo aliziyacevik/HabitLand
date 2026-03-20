@@ -56,7 +56,7 @@ struct HabitDifficultyInsightsView: View {
                 let wd = calendar.component(.weekday, from: day) - 1
                 guard habit.targetDays.contains(wd) else { continue }
                 scheduled += 1
-                if habit.completions.contains(where: { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted }) {
+                if habit.safeCompletions.contains(where: { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted }) {
                     completed += 1
                 }
             }

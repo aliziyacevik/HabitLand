@@ -187,7 +187,7 @@ struct PrivacySettingsView: View {
         for habit in habits {
             csv += "Habit,\"\(habit.name)\",\(dateFormatter.string(from: habit.createdAt)),\(habit.currentStreak) streak,\"\(habit.category.rawValue)\"\n"
 
-            for completion in habit.completions.sorted(by: { $0.date > $1.date }) {
+            for completion in habit.safeCompletions.sorted(by: { $0.date > $1.date }) {
                 csv += "Completion,\"\(habit.name)\",\(dateFormatter.string(from: completion.date)),\(completion.isCompleted ? "Done" : "Skipped"),\(completion.count)\n"
             }
         }
@@ -228,7 +228,7 @@ struct PrivacySettingsView: View {
                 "bestStreak": habit.bestStreak,
                 "totalCompletions": habit.totalCompletions,
                 "createdAt": dateFormatter.string(from: habit.createdAt),
-                "completions": habit.completions.sorted(by: { $0.date > $1.date }).map { c in
+                "completions": habit.safeCompletions.sorted(by: { $0.date > $1.date }).map { c in
                     [
                         "date": dateFormatter.string(from: c.date),
                         "completed": c.isCompleted,

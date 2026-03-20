@@ -38,7 +38,7 @@ struct HabitSuccessTrendsView: View {
         }
         guard !active.isEmpty else { return 0 }
         let completed = active.filter { habit in
-            habit.completions.contains { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted }
+            habit.safeCompletions.contains { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted }
         }.count
         return Double(completed) / Double(active.count)
     }
@@ -61,7 +61,7 @@ struct HabitSuccessTrendsView: View {
                 guard habit.targetDays.contains(wd), habit.createdAt <= day else {
                     return TrendPoint(dayOffset: offset, rate: 0)
                 }
-                let completed = habit.completions.contains { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted }
+                let completed = habit.safeCompletions.contains { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted }
                 return TrendPoint(dayOffset: offset, rate: completed ? 1.0 : 0.0)
             }
             // Smooth with 7-day moving average
@@ -73,7 +73,7 @@ struct HabitSuccessTrendsView: View {
     private var totalCompletions: Int {
         let start = ninetyDaysAgo
         return habits.reduce(0) { total, habit in
-            total + habit.completions.filter { $0.isCompleted && $0.date >= start }.count
+            total + habit.safeCompletions.filter { $0.isCompleted && $0.date >= start }.count
         }
     }
 

@@ -47,7 +47,7 @@ struct WeeklyAnalyticsView: View {
             let total = activeHabits.count
             guard total > 0 else { return (labels[offset], 0, 0, 0) }
             let completed = activeHabits.filter { habit in
-                habit.completions.contains { c in
+                habit.safeCompletions.contains { c in
                     calendar.startOfDay(for: c.date) == dayStart && c.isCompleted
                 }
             }.count
@@ -92,7 +92,7 @@ struct WeeklyAnalyticsView: View {
             guard total > 0 else { continue }
             totalHabits += total
             totalCompleted += activeHabits.filter { habit in
-                habit.completions.contains { c in
+                habit.safeCompletions.contains { c in
                     calendar.startOfDay(for: c.date) == dayStart && c.isCompleted
                 }
             }.count
@@ -126,7 +126,7 @@ struct WeeklyAnalyticsView: View {
                 let weekdayIndex = calendar.component(.weekday, from: day) - 1
                 guard habit.targetDays.contains(weekdayIndex) else { continue }
                 scheduled += 1
-                if habit.completions.contains(where: { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted }) {
+                if habit.safeCompletions.contains(where: { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted }) {
                     completed += 1
                 }
             }

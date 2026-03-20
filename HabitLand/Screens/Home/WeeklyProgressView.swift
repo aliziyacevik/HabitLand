@@ -89,7 +89,7 @@ struct WeeklyProgressView: View {
             var completedCount = 0
 
             for habit in scheduledHabits {
-                let completed = habit.completions.contains { completion in
+                let completed = habit.safeCompletions.contains { completion in
                     calendar.startOfDay(for: completion.date) == dayStart && completion.isCompleted
                 }
                 if completed { completedCount += 1 }

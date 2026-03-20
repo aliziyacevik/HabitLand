@@ -273,7 +273,7 @@ struct DailyHabitsOverview: View {
                 withAnimation(HLAnimation.celebration) {
                     if wasCompleted {
                         let today = Calendar.current.startOfDay(for: Date())
-                        if let completion = habit.completions.first(where: {
+                        if let completion = habit.safeCompletions.first(where: {
                             Calendar.current.startOfDay(for: $0.date) == today && $0.isCompleted
                         }) {
                             modelContext.delete(completion)
@@ -289,7 +289,7 @@ struct DailyHabitsOverview: View {
                     ReviewManager.trackCompletion()
                     // Undo toast
                     undoHabitName = habit.name
-                    let latestCompletion = habit.completions.first(where: {
+                    let latestCompletion = habit.safeCompletions.first(where: {
                         Calendar.current.isDateInToday($0.date) && $0.isCompleted
                     })
                     undoCompletion = latestCompletion

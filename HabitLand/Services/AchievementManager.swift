@@ -127,7 +127,7 @@ struct AchievementManager {
                         let dayStart = calendar.startOfDay(for: day)
                         let activeHabits = habits.filter { !$0.isArchived && $0.targetDays.contains(calendar.component(.weekday, from: day) - 1) && $0.createdAt <= day }
                         guard !activeHabits.isEmpty else { continue }
-                        let allDone = activeHabits.allSatisfy { h in h.completions.contains { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted } }
+                        let allDone = activeHabits.allSatisfy { h in h.safeCompletions.contains { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted } }
                         if allDone { perfectDays += 1 }
                     }
                     achievement.progress = Double(perfectDays) / 7.0
@@ -135,7 +135,7 @@ struct AchievementManager {
                 }
 
             case "Early Bird":
-                let earlyCompletions = habits.flatMap(\.completions).filter { c in
+                let earlyCompletions = habits.flatMap(\.safeCompletions).filter { c in
                     c.isCompleted && calendar.component(.hour, from: c.date) < 7
                 }
                 if !earlyCompletions.isEmpty {
@@ -178,7 +178,7 @@ struct AchievementManager {
                 guard !activeHabits.isEmpty else { continue }
                 hasData = true
                 let allDone = activeHabits.allSatisfy { h in
-                    h.completions.contains { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted }
+                    h.safeCompletions.contains { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted }
                 }
                 if !allDone {
                     allPerfect = false

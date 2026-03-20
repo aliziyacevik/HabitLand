@@ -15,11 +15,11 @@ struct LongTermProgressView: View {
     private var profile: UserProfile? { profiles.first }
 
     private var earliestDate: Date {
-        allHabits.compactMap { $0.completions.min(by: { $0.date < $1.date })?.date }.min() ?? Date()
+        allHabits.compactMap { $0.safeCompletions.min(by: { $0.date < $1.date })?.date }.min() ?? Date()
     }
 
     private var totalDaysTracked: Int {
-        let uniqueDays = Set(allHabits.flatMap { $0.completions.filter(\.isCompleted) }.map { calendar.startOfDay(for: $0.date) })
+        let uniqueDays = Set(allHabits.flatMap { $0.safeCompletions.filter(\.isCompleted) }.map { calendar.startOfDay(for: $0.date) })
         return uniqueDays.count
     }
 
@@ -30,7 +30,7 @@ struct LongTermProgressView: View {
     private var allTimeRate: Double {
         guard !allHabits.isEmpty else { return 0 }
         let rates = allHabits.compactMap { habit -> Double? in
-            let completed = habit.completions.filter(\.isCompleted).count
+            let completed = habit.safeCompletions.filter(\.isCompleted).count
             guard completed > 0 else { return nil }
             let daysSinceCreated = max(1, calendar.dateComponents([.day], from: habit.createdAt, to: today).day ?? 1)
             return Double(completed) / Double(daysSinceCreated)
@@ -69,7 +69,7 @@ struct LongTermProgressView: View {
                 }
                 guard !active.isEmpty else { continue }
                 let completed = active.filter { habit in
-                    habit.completions.contains { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted }
+                    habit.safeCompletions.contains { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted }
                 }.count
                 totalRate += Double(completed) / Double(active.count)
                 count += 1
@@ -85,7 +85,7 @@ struct LongTermProgressView: View {
         fmt.dateFormat = "MMM d, yyyy"
 
         // First completion
-        if let firstCompletion = allHabits.flatMap({ $0.completions.filter(\.isCompleted) }).min(by: { $0.date < $1.date }) {
+        if let firstCompletion = allHabits.flatMap({ $0.safeCompletions.filter(\.isCompleted) }).min(by: { $0.date < $1.date }) {
             result.append(("footprints", "First Habit Completed", "Your journey began", fmt.string(from: firstCompletion.date), .hlPrimary))
         }
 

@@ -196,7 +196,7 @@ struct HabitDetailView: View {
                 }
             }
 
-            let recent = habit.completions
+            let recent = habit.safeCompletions
                 .filter(\.isCompleted)
                 .sorted { $0.date > $1.date }
                 .prefix(5)
@@ -285,7 +285,7 @@ struct HabitDetailView: View {
     private func isDateCompleted(_ date: Date) -> Bool {
         let calendar = Calendar.current
         let day = calendar.startOfDay(for: date)
-        return habit.completions.contains { completion in
+        return habit.safeCompletions.contains { completion in
             calendar.startOfDay(for: completion.date) == day && completion.isCompleted
         }
     }

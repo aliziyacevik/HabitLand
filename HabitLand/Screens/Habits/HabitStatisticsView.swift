@@ -346,7 +346,7 @@ struct HabitStatisticsView: View {
         return (0..<12).reversed().map { weekOffset in
             guard let weekStart = calendar.date(byAdding: .weekOfYear, value: -weekOffset, to: today) else { return 0 }
             let weekEnd = calendar.date(byAdding: .day, value: 7, to: weekStart)!
-            let count = habit.completions.filter { c in
+            let count = habit.safeCompletions.filter { c in
                 let d = calendar.startOfDay(for: c.date)
                 return d >= weekStart && d < weekEnd && c.isCompleted
             }.count
@@ -357,7 +357,7 @@ struct HabitStatisticsView: View {
     private func dayOfWeekStats() -> [Int] {
         let calendar = Calendar.current
         var counts = Array(repeating: 0, count: 7)
-        for completion in habit.completions where completion.isCompleted {
+        for completion in habit.safeCompletions where completion.isCompleted {
             let weekday = calendar.component(.weekday, from: completion.date) - 1
             counts[weekday] += 1
         }
@@ -376,7 +376,7 @@ struct HabitStatisticsView: View {
             }
             let comps = calendar.dateComponents([.year, .month], from: monthDate)
             let daysInMonth = calendar.range(of: .day, in: .month, for: monthDate)?.count ?? 30
-            let count = habit.completions.filter { c in
+            let count = habit.safeCompletions.filter { c in
                 let cComps = calendar.dateComponents([.year, .month], from: c.date)
                 return cComps.year == comps.year && cComps.month == comps.month && c.isCompleted
             }.count
@@ -389,7 +389,7 @@ struct HabitStatisticsView: View {
     private func completionByHour() -> [Int] {
         let calendar = Calendar.current
         var counts = Array(repeating: 0, count: 24)
-        for completion in habit.completions where completion.isCompleted {
+        for completion in habit.safeCompletions where completion.isCompleted {
             let hour = calendar.component(.hour, from: completion.date)
             counts[hour] += 1
         }

@@ -16,7 +16,7 @@ struct PersonalStatisticsView: View {
 
     private var daysActive: Int {
         let uniqueDays = Set(allHabits.flatMap { habit in
-            habit.completions.filter(\.isCompleted).map { calendar.startOfDay(for: $0.date) }
+            habit.safeCompletions.filter(\.isCompleted).map { calendar.startOfDay(for: $0.date) }
         })
         return uniqueDays.count
     }
@@ -24,9 +24,9 @@ struct PersonalStatisticsView: View {
     private var successRate: Double {
         guard !allHabits.isEmpty else { return 0 }
         let rates = allHabits.compactMap { habit -> Double? in
-            let total = habit.completions.count
+            let total = habit.safeCompletions.count
             guard total > 0 else { return nil }
-            let completed = habit.completions.filter(\.isCompleted).count
+            let completed = habit.safeCompletions.filter(\.isCompleted).count
             return Double(completed) / Double(total)
         }
         guard !rates.isEmpty else { return 0 }
@@ -49,7 +49,7 @@ struct PersonalStatisticsView: View {
             let monthDate = calendar.date(byAdding: .month, value: -offset, to: today)!
             let comps = calendar.dateComponents([.year, .month], from: monthDate)
             let count = allHabits.reduce(0) { total, habit in
-                total + habit.completions.filter { c in
+                total + habit.safeCompletions.filter { c in
                     let cComps = calendar.dateComponents([.year, .month], from: c.date)
                     return cComps.year == comps.year && cComps.month == comps.month && c.isCompleted
                 }.count
@@ -95,7 +95,7 @@ struct PersonalStatisticsView: View {
                 guard dayStart <= today else { continue }
                 let active = activeHabits.filter { $0.createdAt <= day && $0.targetDays.contains(calendar.component(.weekday, from: day) - 1) }
                 guard !active.isEmpty else { continue }
-                let completed = active.filter { h in h.completions.contains { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted } }.count
+                let completed = active.filter { h in h.safeCompletions.contains { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted } }.count
                 totalRate += Double(completed) / Double(active.count)
                 count += 1
             }
@@ -113,7 +113,7 @@ struct PersonalStatisticsView: View {
         fmt.dateFormat = "MMMM d, yyyy"
         var dayCounts: [Date: Int] = [:]
         for habit in allHabits {
-            for c in habit.completions where c.isCompleted {
+            for c in habit.safeCompletions where c.isCompleted {
                 let day = calendar.startOfDay(for: c.date)
                 dayCounts[day, default: 0] += 1
             }

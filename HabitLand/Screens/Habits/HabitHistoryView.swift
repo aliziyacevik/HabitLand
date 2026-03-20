@@ -147,11 +147,11 @@ struct HabitHistoryView: View {
     private var filteredCompletions: [HabitCompletion] {
         switch filterOption {
         case .all:
-            return habit.completions.sorted { $0.date > $1.date }
+            return habit.safeCompletions.sorted { $0.date > $1.date }
         case .completed:
-            return habit.completions.filter(\.isCompleted).sorted { $0.date > $1.date }
+            return habit.safeCompletions.filter(\.isCompleted).sorted { $0.date > $1.date }
         case .missed:
-            return habit.completions.filter { !$0.isCompleted }.sorted { $0.date > $1.date }
+            return habit.safeCompletions.filter { !$0.isCompleted }.sorted { $0.date > $1.date }
         }
     }
 

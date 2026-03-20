@@ -36,7 +36,7 @@ final class CloudKitManager: ObservableObject {
 
     func checkiCloudStatus() async {
         do {
-            let status = try await CKContainer.default().accountStatus()
+            let status = try await container.accountStatus()
             iCloudAvailable = status == .available
             if iCloudAvailable {
                 await fetchCurrentUser()

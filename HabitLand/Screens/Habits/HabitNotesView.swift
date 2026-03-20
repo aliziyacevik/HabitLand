@@ -9,7 +9,7 @@ struct HabitNotesView: View {
     @FocusState private var isEditorFocused: Bool
 
     private var completionsWithNotes: [HabitCompletion] {
-        habit.completions
+        habit.safeCompletions
             .filter { $0.note != nil && !($0.note?.isEmpty ?? true) }
             .sorted { $0.date > $1.date }
     }

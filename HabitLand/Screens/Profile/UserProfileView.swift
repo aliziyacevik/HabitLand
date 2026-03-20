@@ -12,7 +12,7 @@ struct UserProfileView: View {
 
     private var daysActive: Int {
         let allDates = Set(habits.flatMap { habit in
-            habit.completions.filter(\.isCompleted).map { Calendar.current.startOfDay(for: $0.date) }
+            habit.safeCompletions.filter(\.isCompleted).map { Calendar.current.startOfDay(for: $0.date) }
         })
         return allDates.count
     }

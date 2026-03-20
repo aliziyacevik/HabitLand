@@ -49,7 +49,7 @@ enum HealthKitMetric: String, Codable, CaseIterable, Identifiable {
         case .exerciseMinutes: return 30
         case .activeCalories: return 500
         case .walkingDistance: return 5
-        case .standHours: return 12
+        case .standHours: return 720
         case .mindfulMinutes: return 10
         case .sleepHours: return 8
         }
@@ -218,7 +218,7 @@ final class HealthKitManager: ObservableObject {
                   let metric = HealthKitMetric(rawValue: metricRaw) else { continue }
 
             // Skip if already completed today
-            let alreadyDone = habit.completions.contains { c in
+            let alreadyDone = habit.safeCompletions.contains { c in
                 calendar.startOfDay(for: c.date) == today && c.isCompleted
             }
             if alreadyDone { continue }

@@ -24,7 +24,12 @@ final class Habit {
     var updatedAt: Date = Date()
     var healthKitMetric: String?
 
-    @Relationship(deleteRule: .cascade) var completions: [HabitCompletion] = []
+    @Relationship(deleteRule: .cascade) var completions: [HabitCompletion]? = []
+
+    /// Safe accessor for completions (CloudKit requires optional relationship)
+    var safeCompletions: [HabitCompletion] {
+        completions ?? []
+    }
 
     init(
         name: String,
@@ -72,21 +77,22 @@ final class Habit {
         var streak = 0
         let calendar = Calendar.current
         var date = calendar.startOfDay(for: Date())
-        let sortedCompletions = completions.sorted { $0.date > $1.date }
+        let sortedCompletions = safeCompletions.sorted { $0.date > $1.date }
 
-        // Grace period: if not completed today, start counting from yesterday
         let hasCompletionToday = sortedCompletions.contains {
             calendar.startOfDay(for: $0.date) == date && $0.isCompleted
         }
         if !hasCompletionToday {
-            date = calendar.date(byAdding: .day, value: -1, to: date)!
+            guard let yesterday = calendar.date(byAdding: .day, value: -1, to: date) else { return 0 }
+            date = yesterday
         }
 
         for completion in sortedCompletions {
             let completionDay = calendar.startOfDay(for: completion.date)
             if completionDay == date && completion.isCompleted {
                 streak += 1
-                date = calendar.date(byAdding: .day, value: -1, to: date)!
+                guard let prevDay = calendar.date(byAdding: .day, value: -1, to: date) else { break }
+                date = prevDay
             } else if completionDay < date {
                 break
             }
@@ -96,7 +102,7 @@ final class Habit {
 
     var todayCompleted: Bool {
         let today = Calendar.current.startOfDay(for: Date())
-        return completions.contains { completion in
+        return safeCompletions.contains { completion in
             Calendar.current.startOfDay(for: completion.date) == today && completion.isCompleted
         }
     }
@@ -104,7 +110,7 @@ final class Habit {
     var todayProgress: Double {
         guard goalCount > 0 else { return 0 }
         let today = Calendar.current.startOfDay(for: Date())
-        let todayCount = completions.filter { completion in
+        let todayCount = safeCompletions.filter { completion in
             Calendar.current.startOfDay(for: completion.date) == today && completion.isCompleted
         }.count
         return min(Double(todayCount) / Double(goalCount), 1.0)
@@ -115,7 +121,7 @@ final class Habit {
         let today = calendar.startOfDay(for: Date())
         guard let weekAgo = calendar.date(byAdding: .day, value: -7, to: today) else { return 0 }
 
-        let weekCompletions = completions.filter { completion in
+        let weekCompletions = safeCompletions.filter { completion in
             let day = calendar.startOfDay(for: completion.date)
             return day >= weekAgo && day <= today && completion.isCompleted
         }
@@ -124,9 +130,9 @@ final class Habit {
     }
 
     var bestStreak: Int {
-        guard !completions.isEmpty else { return 0 }
+        guard !safeCompletions.isEmpty else { return 0 }
         let calendar = Calendar.current
-        let sorted = completions.filter(\.isCompleted).map { calendar.startOfDay(for: $0.date) }.sorted()
+        let sorted = safeCompletions.filter(\.isCompleted).map { calendar.startOfDay(for: $0.date) }.sorted()
         guard !sorted.isEmpty else { return 0 }
 
         var best = 1
@@ -145,7 +151,7 @@ final class Habit {
     }
 
     var totalCompletions: Int {
-        completions.filter(\.isCompleted).count
+        safeCompletions.filter(\.isCompleted).count
     }
 }
 
