@@ -1,34 +1,14 @@
 import SwiftUI
 import SwiftData
 
-struct StarterHabit: Identifiable {
-    let id = UUID()
-    let name: String
-    let icon: String
-    let colorHex: String
-    let category: HabitCategory
-}
-
-private let availableStarterHabits: [StarterHabit] = [
-    StarterHabit(name: "Drink Water", icon: "drop.fill", colorHex: "#338FFF", category: .health),
-    StarterHabit(name: "Morning Walk", icon: "figure.walk", colorHex: "#34C759", category: .fitness),
-    StarterHabit(name: "Meditate", icon: "brain.head.profile", colorHex: "#9966E6", category: .mindfulness),
-    StarterHabit(name: "Read 20 min", icon: "book.fill", colorHex: "#FF9A1A", category: .learning),
-    StarterHabit(name: "Stretch", icon: "figure.flexibility", colorHex: "#F27D8D", category: .fitness),
-    StarterHabit(name: "Journal", icon: "pencil", colorHex: "#6659CC", category: .mindfulness),
-    StarterHabit(name: "Eat Healthy", icon: "fork.knife", colorHex: "#34C759", category: .nutrition),
-    StarterHabit(name: "No Phone Before Bed", icon: "moon.fill", colorHex: "#6659CC", category: .sleep),
-    StarterHabit(name: "Exercise 30 min", icon: "dumbbell.fill", colorHex: "#338FFF", category: .fitness),
-    StarterHabit(name: "Learn Something New", icon: "graduationcap.fill", colorHex: "#FF9A1A", category: .learning),
-    StarterHabit(name: "Take Vitamins", icon: "pill.fill", colorHex: "#F24D4D", category: .health),
-    StarterHabit(name: "Practice Gratitude", icon: "heart.fill", colorHex: "#F27D8D", category: .mindfulness),
-]
-
 struct StarterHabitsView: View {
     @Environment(\.modelContext) private var modelContext
-    var onComplete: () -> Void = {}
+    var onComplete: (Int) -> Void = { _ in }
 
-    @State private var selectedHabits: Set<UUID> = []
+    @State private var selectedTemplates: Set<String> = []
+    @State private var showXPPreview = false
+
+    private let templates = HabitTemplateLibrary.starterPicks
 
     var body: some View {
         VStack(spacing: 0) {
@@ -50,8 +30,8 @@ struct StarterHabitsView: View {
             // Habit Grid
             ScrollView {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: HLSpacing.sm) {
-                    ForEach(availableStarterHabits) { habit in
-                        starterHabitCard(habit)
+                    ForEach(templates) { template in
+                        starterHabitCard(template)
                     }
                 }
                 .padding(.horizontal, HLSpacing.md)
@@ -60,18 +40,31 @@ struct StarterHabitsView: View {
 
             // Bottom bar
             VStack(spacing: HLSpacing.sm) {
+                // XP preview
+                if !selectedTemplates.isEmpty {
+                    HStack(spacing: HLSpacing.xs) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(Color.hlGold)
+                        Text("You'll earn \(selectedTemplates.count * 10) XP for getting started!")
+                            .font(HLFont.caption(.semibold))
+                            .foregroundStyle(Color.hlGold)
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+
                 HLButton(
-                    selectedHabits.isEmpty ? "Skip for Now" : "Add \(selectedHabits.count) Habits",
-                    icon: selectedHabits.isEmpty ? nil : "plus",
-                    style: selectedHabits.isEmpty ? .secondary : .primary,
+                    selectedTemplates.isEmpty ? "Skip for Now" : "Add \(selectedTemplates.count) Habits",
+                    icon: selectedTemplates.isEmpty ? nil : "plus",
+                    style: selectedTemplates.isEmpty ? .secondary : .primary,
                     size: .lg,
                     isFullWidth: true
                 ) {
-                    createSelectedHabits()
-                    onComplete()
+                    let count = createSelectedHabits()
+                    onComplete(count)
                 }
 
-                if !selectedHabits.isEmpty {
+                if !selectedTemplates.isEmpty {
                     Text("Free users can track up to 3 habits")
                         .font(HLFont.caption())
                         .foregroundStyle(Color.hlTextTertiary)
@@ -80,19 +73,20 @@ struct StarterHabitsView: View {
             .padding(.horizontal, HLSpacing.lg)
             .padding(.bottom, HLSpacing.xxl)
             .background(Color.hlBackground)
+            .animation(HLAnimation.standard, value: selectedTemplates.count)
         }
         .background(Color.hlBackground.ignoresSafeArea())
     }
 
-    private func starterHabitCard(_ habit: StarterHabit) -> some View {
-        let isSelected = selectedHabits.contains(habit.id)
-        let atLimit = selectedHabits.count >= 3 && !isSelected && !ProManager.shared.isPro
+    private func starterHabitCard(_ template: HabitTemplate) -> some View {
+        let isSelected = selectedTemplates.contains(template.id)
+        let atLimit = selectedTemplates.count >= 3 && !isSelected && !ProManager.shared.isPro
 
         return Button {
             if isSelected {
-                selectedHabits.remove(habit.id)
+                selectedTemplates.remove(template.id)
             } else if !atLimit {
-                selectedHabits.insert(habit.id)
+                selectedTemplates.insert(template.id)
             } else {
                 HLHaptics.warning()
             }
@@ -101,15 +95,15 @@ struct StarterHabitsView: View {
             VStack(spacing: HLSpacing.xs) {
                 ZStack {
                     RoundedRectangle(cornerRadius: HLRadius.md)
-                        .fill((Color(hex: habit.colorHex) ?? .hlPrimary).opacity(isSelected ? 0.2 : 0.08))
+                        .fill(template.color.opacity(isSelected ? 0.2 : 0.08))
                         .frame(height: 56)
 
-                    Image(systemName: habit.icon)
+                    Image(systemName: template.icon)
                         .font(.system(size: 24))
-                        .foregroundStyle(Color(hex: habit.colorHex) ?? .hlPrimary)
+                        .foregroundStyle(template.color)
                 }
 
-                Text(habit.name)
+                Text(template.name)
                     .font(HLFont.caption(.medium))
                     .foregroundStyle(Color.hlTextPrimary)
                     .lineLimit(1)
@@ -119,26 +113,22 @@ struct StarterHabitsView: View {
             .cornerRadius(HLRadius.lg)
             .overlay(
                 RoundedRectangle(cornerRadius: HLRadius.lg)
-                    .stroke(isSelected ? (Color(hex: habit.colorHex) ?? .hlPrimary) : Color.hlCardBorder, lineWidth: isSelected ? 2 : 1)
+                    .stroke(isSelected ? template.color : Color.hlCardBorder, lineWidth: isSelected ? 2 : 1)
             )
             .opacity(atLimit ? 0.5 : 1)
         }
         .animation(HLAnimation.microSpring, value: isSelected)
     }
 
-    private func createSelectedHabits() {
-        let selected = availableStarterHabits.filter { selectedHabits.contains($0.id) }
-        for (index, starter) in selected.enumerated() {
-            let habit = Habit(
-                name: starter.name,
-                icon: starter.icon,
-                colorHex: starter.colorHex,
-                category: starter.category,
-                sortOrder: index
-            )
+    @discardableResult
+    private func createSelectedHabits() -> Int {
+        let selected = templates.filter { selectedTemplates.contains($0.id) }
+        for (index, template) in selected.enumerated() {
+            let habit = template.toHabit(sortOrder: index)
             modelContext.insert(habit)
         }
         try? modelContext.save()
+        return selected.count
     }
 }
 

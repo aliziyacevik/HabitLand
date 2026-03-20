@@ -107,6 +107,11 @@ struct EditHabitView: View {
                     RoundedRectangle(cornerRadius: HLRadius.md)
                         .stroke(Color.hlCardBorder, lineWidth: 1)
                 )
+                .onChange(of: name) { _, newValue in
+                    if newValue.count > 50 {
+                        name = String(newValue.prefix(50))
+                    }
+                }
         }
     }
 
@@ -308,10 +313,10 @@ struct EditHabitView: View {
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, HLSpacing.md)
-                .background(name.isEmpty ? Color.hlTextTertiary : Color.hlPrimary)
+                .background(name.trimmingCharacters(in: .whitespaces).isEmpty || (frequency == .custom && customDays.isEmpty) ? Color.hlTextTertiary : Color.hlPrimary)
                 .cornerRadius(HLRadius.lg)
         }
-        .disabled(name.isEmpty)
+        .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || (frequency == .custom && customDays.isEmpty))
         .padding(.top, HLSpacing.xs)
     }
 
@@ -357,6 +362,18 @@ struct EditHabitView: View {
         habit.reminderEnabled = reminderEnabled
         habit.reminderTime = reminderEnabled ? reminderTime : nil
         habit.updatedAt = Date()
+
+        // Reschedule or cancel notification
+        NotificationManager.shared.cancelHabitReminder(habitId: habit.id)
+        if reminderEnabled {
+            NotificationManager.shared.scheduleHabitReminder(
+                habitId: habit.id,
+                habitName: name,
+                icon: selectedIcon,
+                at: reminderTime
+            )
+        }
+
         dismiss()
     }
 }

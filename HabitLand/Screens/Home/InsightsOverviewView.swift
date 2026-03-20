@@ -414,9 +414,10 @@ struct InsightsOverviewView: View {
 
     // MARK: - Strongest Habit Card
 
+    @ViewBuilder
     private var strongestHabitCard: some View {
-        let strongest = computedStrongestHabit!
-        return VStack(alignment: .leading, spacing: HLSpacing.sm) {
+        if let strongest = computedStrongestHabit {
+        VStack(alignment: .leading, spacing: HLSpacing.sm) {
             HStack(spacing: HLSpacing.xs) {
                 Image(systemName: HLIcon.trophy)
                     .font(.system(size: 16))
@@ -488,6 +489,7 @@ struct InsightsOverviewView: View {
             RoundedRectangle(cornerRadius: HLRadius.lg)
                 .stroke(Color.hlGold.opacity(0.2), lineWidth: 1)
         )
+        }
     }
 
     // MARK: - Needs Attention Section

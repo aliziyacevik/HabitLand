@@ -412,10 +412,15 @@ struct HabitListView: View {
     // MARK: - Reorder
 
     private func reorderHabit(from sourceIndex: Int, to destIndex: Int) {
-        var reordered = filteredHabits
-        let moved = reordered.remove(at: sourceIndex)
-        reordered.insert(moved, at: destIndex)
-        for (i, habit) in reordered.enumerated() {
+        // Use all non-archived habits sorted by current order for reindexing
+        var allActive = habits.filter { !$0.isArchived }.sorted { $0.sortOrder < $1.sortOrder }
+        let source = filteredHabits[sourceIndex]
+        let dest = filteredHabits[destIndex]
+        guard let fromAll = allActive.firstIndex(where: { $0.id == source.id }),
+              let toAll = allActive.firstIndex(where: { $0.id == dest.id }) else { return }
+        let moved = allActive.remove(at: fromAll)
+        allActive.insert(moved, at: toAll)
+        for (i, habit) in allActive.enumerated() {
             habit.sortOrder = i
         }
         sortOption = .custom

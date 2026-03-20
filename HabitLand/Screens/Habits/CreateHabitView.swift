@@ -16,6 +16,7 @@ struct CreateHabitView: View {
     @State private var reminderEnabled = false
     @State private var reminderTime = Calendar.current.date(from: DateComponents(hour: 8, minute: 0)) ?? Date()
     @State private var showIconPicker = false
+    @State private var showTemplateBrowser = false
 
     private let iconOptions = [
         "checkmark.circle", "star.fill", "heart.fill", "bolt.fill",
@@ -40,6 +41,7 @@ struct CreateHabitView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: HLSpacing.lg) {
+                    browseTemplatesButton
                     nameSection
                     iconSection
                     colorSection
@@ -83,6 +85,11 @@ struct CreateHabitView: View {
                     RoundedRectangle(cornerRadius: HLRadius.md)
                         .stroke(Color.hlCardBorder, lineWidth: 1)
                 )
+                .onChange(of: name) { _, newValue in
+                    if newValue.count > 50 {
+                        name = String(newValue.prefix(50))
+                    }
+                }
         }
     }
 
@@ -299,11 +306,72 @@ struct CreateHabitView: View {
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, HLSpacing.md)
-                .background(name.isEmpty ? Color.hlTextTertiary : Color.hlPrimary)
+                .background(name.trimmingCharacters(in: .whitespaces).isEmpty || (frequency == .custom && customDays.isEmpty) ? Color.hlTextTertiary : Color.hlPrimary)
                 .cornerRadius(HLRadius.lg)
         }
-        .disabled(name.isEmpty)
+        .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || (frequency == .custom && customDays.isEmpty))
         .padding(.top, HLSpacing.xs)
+    }
+
+    // MARK: - Browse Templates
+
+    private var browseTemplatesButton: some View {
+        Button {
+            showTemplateBrowser = true
+        } label: {
+            HStack(spacing: HLSpacing.sm) {
+                Image(systemName: "rectangle.stack.fill")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(.hlGold)
+                    .frame(width: 40, height: 40)
+                    .background(Color.hlGold.opacity(0.12))
+                    .cornerRadius(HLRadius.sm)
+
+                VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
+                    Text("Browse Templates")
+                        .font(HLFont.body(.medium))
+                        .foregroundColor(.hlTextPrimary)
+                    Text("Choose from \(HabitTemplateLibrary.all.count)+ ready-made habits")
+                        .font(HLFont.caption())
+                        .foregroundColor(.hlTextSecondary)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.hlTextTertiary)
+            }
+            .hlCard()
+        }
+        .sheet(isPresented: $showTemplateBrowser) {
+            NavigationStack {
+                TemplateBrowserView { template in
+                    applyTemplate(template)
+                    showTemplateBrowser = false
+                }
+                .navigationTitle("Choose a Template")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Cancel") { showTemplateBrowser = false }
+                    }
+                }
+            }
+        }
+    }
+
+    private func applyTemplate(_ template: HabitTemplate) {
+        name = template.name
+        selectedIcon = template.icon
+        selectedColorHex = template.colorHex
+        selectedCategory = template.category
+        frequency = template.frequency
+        if template.frequency == .custom {
+            customDays = Set(template.targetDays)
+        }
+        goalCount = template.goalCount
+        unit = template.unit
     }
 
     // MARK: - Helpers

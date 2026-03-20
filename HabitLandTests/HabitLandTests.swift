@@ -375,18 +375,34 @@ struct HabitFrequencyTests {
 // MARK: - Sample Data Tests
 
 struct SampleDataTests {
-    @Test func sampleHabitsExist() {
-        #expect(SampleData.habits.count == 10)
+    @Test func habitTemplateLibraryHasTemplates() {
+        #expect(HabitTemplateLibrary.all.count >= 60)
     }
 
     @Test func sampleAchievementsExist() {
         #expect(SampleData.achievements.count == 11)
     }
 
-    @Test func allSampleHabitsHaveValidCategory() {
-        for (_, data) in SampleData.habits {
-            #expect(!data.icon.isEmpty)
-            #expect(data.color.hasPrefix("#"))
+    @Test func allTemplatesHaveValidData() {
+        for template in HabitTemplateLibrary.all {
+            #expect(!template.icon.isEmpty)
+            #expect(template.colorHex.hasPrefix("#"))
+            #expect(!template.name.isEmpty)
+            #expect(!template.description.isEmpty)
+            #expect(template.difficulty >= 1 && template.difficulty <= 3)
+        }
+    }
+
+    @Test func allCategoriesHaveTemplates() {
+        for category in HabitCategory.allCases {
+            #expect(!HabitTemplateLibrary.templates(for: category).isEmpty)
+        }
+    }
+
+    @Test func packsHaveTemplates() {
+        for pack in HabitTemplateLibrary.packs {
+            #expect(!pack.templates.isEmpty)
+            #expect(!pack.name.isEmpty)
         }
     }
 

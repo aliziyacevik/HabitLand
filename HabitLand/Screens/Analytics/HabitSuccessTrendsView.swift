@@ -464,7 +464,7 @@ struct HabitSuccessTrendsView: View {
         }
         let slope = den > 0 ? num / den : 0
         let intercept = yMean - slope * xMean
-        let lastRate = recent.last!.rate
+        guard let lastRate = recent.last?.rate else { return [] }
 
         var result: [TrendPoint] = []
         for d in 0..<days {

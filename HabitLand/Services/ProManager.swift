@@ -15,7 +15,7 @@ final class ProManager: ObservableObject {
     @Published private(set) var isLoading = false
 
     var isPro: Bool {
-        !purchasedProductIDs.isEmpty
+        ProcessInfo.processInfo.arguments.contains("-screenshotMode") || !purchasedProductIDs.isEmpty
     }
 
     var yearlyProduct: Product? {

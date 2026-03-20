@@ -94,8 +94,12 @@ struct PremiumGateModifier: ViewModifier {
     var comingSoon: Bool = false
     @ObservedObject private var proManager = ProManager.shared
 
+    private var isScreenshotMode: Bool {
+        ProcessInfo.processInfo.arguments.contains("-screenshotMode")
+    }
+
     func body(content: Content) -> some View {
-        if proManager.isPro && !comingSoon {
+        if proManager.isPro && (!comingSoon || isScreenshotMode) {
             content
         } else {
             PremiumGateView(feature: feature, icon: icon, comingSoon: comingSoon)

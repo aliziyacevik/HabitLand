@@ -1,18 +1,15 @@
 import SwiftUI
-import UIKit
+import SwiftData
 
 // MARK: - Habit Discovery View
 
 struct HabitDiscoveryView: View {
+    @Environment(\.modelContext) private var modelContext
     @State private var searchText = ""
-    @State private var selectedCategory: HabitCategory?
+    @State private var addedTemplates: Set<String> = []
 
-    private var filteredPopularHabits: [DiscoverableHabit] {
-        if searchText.isEmpty { return DiscoverableHabit.popular }
-        return DiscoverableHabit.popular.filter {
-            $0.name.localizedCaseInsensitiveContains(searchText) ||
-            $0.category.rawValue.localizedCaseInsensitiveContains(searchText)
-        }
+    private var searchResults: [HabitTemplate] {
+        HabitTemplateLibrary.search(searchText)
     }
 
     var body: some View {
@@ -22,14 +19,18 @@ struct HabitDiscoveryView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: HLSpacing.lg) {
-                        forYouSection
-                            .hlStaggeredAppear(index: 0)
+                        if searchText.isEmpty {
+                            packsSection
+                                .hlStaggeredAppear(index: 0)
 
-                        categoriesSection
-                            .hlStaggeredAppear(index: 1)
+                            categoriesSection
+                                .hlStaggeredAppear(index: 1)
 
-                        popularSection
-                            .hlStaggeredAppear(index: 2)
+                            popularSection
+                                .hlStaggeredAppear(index: 2)
+                        } else {
+                            searchResultsSection
+                        }
                     }
                     .padding(.vertical, HLSpacing.sm)
                 }
@@ -39,14 +40,14 @@ struct HabitDiscoveryView: View {
         }
     }
 
-    // MARK: - For You Section
+    // MARK: - Packs Section
 
-    private var forYouSection: some View {
+    private var packsSection: some View {
         VStack(alignment: .leading, spacing: HLSpacing.sm) {
             HStack {
-                Image(systemName: HLIcon.sparkles)
+                Image(systemName: "rectangle.stack.fill")
                     .foregroundColor(.hlGold)
-                Text("For You")
+                Text("Habit Packs")
                     .font(HLFont.title3())
                     .foregroundColor(.hlTextPrimary)
             }
@@ -54,11 +55,11 @@ struct HabitDiscoveryView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: HLSpacing.sm) {
-                    ForEach(DiscoverableHabit.recommended) { habit in
+                    ForEach(HabitTemplateLibrary.packs) { pack in
                         NavigationLink {
-                            RecommendedHabitsView()
+                            HabitPackDetailView(pack: pack)
                         } label: {
-                            RecommendedHabitCard(habit: habit)
+                            PackCard(pack: pack)
                         }
                         .buttonStyle(.plain)
                     }
@@ -107,50 +108,176 @@ struct HabitDiscoveryView: View {
                 .padding(.horizontal, HLSpacing.md)
 
             VStack(spacing: HLSpacing.xs) {
-                ForEach(filteredPopularHabits) { habit in
-                    PopularHabitRow(habit: habit)
-                        .padding(.horizontal, HLSpacing.md)
+                ForEach(HabitTemplateLibrary.popular) { template in
+                    TemplateRow(
+                        template: template,
+                        isAdded: addedTemplates.contains(template.id)
+                    ) {
+                        addTemplate(template)
+                    }
+                    .padding(.horizontal, HLSpacing.md)
                 }
             }
         }
     }
+
+    // MARK: - Search Results
+
+    private var searchResultsSection: some View {
+        VStack(alignment: .leading, spacing: HLSpacing.sm) {
+            Text("\(searchResults.count) results")
+                .font(HLFont.subheadline())
+                .foregroundColor(.hlTextSecondary)
+                .padding(.horizontal, HLSpacing.md)
+
+            VStack(spacing: HLSpacing.xs) {
+                ForEach(searchResults) { template in
+                    TemplateRow(
+                        template: template,
+                        isAdded: addedTemplates.contains(template.id)
+                    ) {
+                        addTemplate(template)
+                    }
+                    .padding(.horizontal, HLSpacing.md)
+                }
+            }
+
+            if searchResults.isEmpty {
+                EmptyStateView(
+                    icon: "magnifyingglass",
+                    title: "No habits found",
+                    subtitle: "Try a different search term or browse categories."
+                )
+                .padding(.top, HLSpacing.xxl)
+            }
+        }
+    }
+
+    // MARK: - Actions
+
+    private func addTemplate(_ template: HabitTemplate) {
+        let habit = template.toHabit()
+        modelContext.insert(habit)
+        AchievementManager.checkAll(context: modelContext)
+        HLHaptics.completionSuccess()
+        withAnimation(HLAnimation.celebration) {
+            addedTemplates.insert(template.id)
+        }
+    }
 }
 
-// MARK: - Recommended Habit Card
+// MARK: - Pack Card
 
-struct RecommendedHabitCard: View {
-    let habit: DiscoverableHabit
+struct PackCard: View {
+    let pack: HabitTemplatePack
 
     var body: some View {
         VStack(alignment: .leading, spacing: HLSpacing.sm) {
             HStack {
-                Image(systemName: habit.icon)
+                Image(systemName: pack.icon)
                     .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(habit.category.color)
+                    .foregroundColor(pack.color)
                 Spacer()
-                Image(systemName: HLIcon.sparkles)
-                    .font(.system(size: 12))
-                    .foregroundColor(.hlGold)
+                Text("\(pack.templates.count) habits")
+                    .font(HLFont.caption())
+                    .foregroundColor(.hlTextTertiary)
             }
 
-            Text(habit.name)
+            Text(pack.name)
                 .font(HLFont.headline())
                 .foregroundColor(.hlTextPrimary)
 
-            Text(habit.reason)
+            Text(pack.subtitle)
                 .font(HLFont.caption())
                 .foregroundColor(.hlTextSecondary)
                 .lineLimit(2)
 
             Spacer()
 
-            Text("Add to My Habits")
-                .font(HLFont.caption(.semibold))
-                .foregroundColor(.hlPrimary)
+            // Template icons preview
+            HStack(spacing: -4) {
+                ForEach(pack.templates.prefix(4)) { template in
+                    Image(systemName: template.icon)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(width: 24, height: 24)
+                        .background(template.color)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.hlSurface, lineWidth: 2))
+                }
+                if pack.templates.count > 4 {
+                    Text("+\(pack.templates.count - 4)")
+                        .font(HLFont.caption2(.semibold))
+                        .foregroundColor(.hlTextTertiary)
+                        .frame(width: 24, height: 24)
+                        .background(Color.hlBackground)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.hlSurface, lineWidth: 2))
+                }
+            }
         }
-        .frame(width: 160, height: 160)
+        .frame(width: 180, height: 180)
         .hlCard()
         .hlInnerHighlight()
+    }
+}
+
+// MARK: - Template Row (shared component)
+
+struct TemplateRow: View {
+    let template: HabitTemplate
+    let isAdded: Bool
+    let onAdd: () -> Void
+
+    var body: some View {
+        HStack(spacing: HLSpacing.sm) {
+            Image(systemName: template.icon)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(template.color)
+                .frame(width: 40, height: 40)
+                .background(template.color.opacity(0.12))
+                .cornerRadius(HLRadius.sm)
+
+            VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
+                Text(template.name)
+                    .font(HLFont.body(.medium))
+                    .foregroundColor(.hlTextPrimary)
+
+                HStack(spacing: HLSpacing.xs) {
+                    Text(template.category.rawValue)
+                        .font(HLFont.caption())
+                        .foregroundColor(.hlTextSecondary)
+
+                    Text("--")
+                        .font(HLFont.caption())
+                        .foregroundColor(.hlTextTertiary)
+
+                    HStack(spacing: 2) {
+                        ForEach(0..<3, id: \.self) { i in
+                            Circle()
+                                .fill(i < template.difficulty ? template.color : Color.hlDivider)
+                                .frame(width: 6, height: 6)
+                        }
+                    }
+                }
+            }
+
+            Spacer()
+
+            Button {
+                onAdd()
+            } label: {
+                Image(systemName: isAdded ? "checkmark" : "plus")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(isAdded ? .white : .hlPrimary)
+                    .frame(width: 32, height: 32)
+                    .background(isAdded ? Color.hlPrimary : Color.hlPrimaryLight)
+                    .cornerRadius(HLRadius.full)
+            }
+            .disabled(isAdded)
+            .accessibilityLabel(isAdded ? "\(template.name) added" : "Add \(template.name)")
+        }
+        .hlCard()
     }
 }
 
@@ -172,7 +299,7 @@ struct CategoryGridItem: View {
                 Text(category.rawValue)
                     .font(HLFont.subheadline(.medium))
                     .foregroundColor(.hlTextPrimary)
-                Text("\(category.habitCount) habits")
+                Text("\(HabitTemplateLibrary.templates(for: category).count) habits")
                     .font(HLFont.caption())
                     .foregroundColor(.hlTextSecondary)
             }
@@ -183,119 +310,9 @@ struct CategoryGridItem: View {
     }
 }
 
-// MARK: - Popular Habit Row
-
-struct PopularHabitRow: View {
-    let habit: DiscoverableHabit
-    @Environment(\.modelContext) private var modelContext
-    @State private var isAdded = false
-
-    var body: some View {
-        HStack(spacing: HLSpacing.sm) {
-            Image(systemName: habit.icon)
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(habit.category.color)
-                .frame(width: 40, height: 40)
-                .background(habit.category.color.opacity(0.12))
-                .cornerRadius(HLRadius.sm)
-
-            VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
-                Text(habit.name)
-                    .font(HLFont.body(.medium))
-                    .foregroundColor(.hlTextPrimary)
-
-                HStack(spacing: HLSpacing.xs) {
-                    Text(habit.category.rawValue)
-                        .font(HLFont.caption())
-                        .foregroundColor(.hlTextSecondary)
-
-                    Text("--")
-                        .font(HLFont.caption())
-                        .foregroundColor(.hlTextTertiary)
-
-                    HStack(spacing: 2) {
-                        ForEach(0..<3, id: \.self) { i in
-                            Circle()
-                                .fill(i < habit.difficulty ? habit.category.color : Color.hlDivider)
-                                .frame(width: 6, height: 6)
-                        }
-                    }
-                }
-            }
-
-            Spacer()
-
-            Button {
-                let newHabit = Habit(
-                    name: habit.name,
-                    icon: habit.icon,
-                    colorHex: habit.category.colorHex,
-                    category: habit.category
-                )
-                modelContext.insert(newHabit)
-                AchievementManager.checkAll(context: modelContext)
-                HLHaptics.completionSuccess()
-                withAnimation(HLAnimation.celebration) { isAdded = true }
-            } label: {
-                Image(systemName: isAdded ? "checkmark" : "plus")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(isAdded ? .white : .hlPrimary)
-                    .frame(width: 32, height: 32)
-                    .background(isAdded ? Color.hlPrimary : Color.hlPrimaryLight)
-                    .cornerRadius(HLRadius.full)
-            }
-            .disabled(isAdded)
-            .accessibilityLabel(isAdded ? "\(habit.name) added" : "Add \(habit.name)")
-        }
-        .hlCard()
-    }
-}
-
-// MARK: - Discoverable Habit Model
-
-struct DiscoverableHabit: Identifiable {
-    let id = UUID()
-    let name: String
-    let icon: String
-    let category: HabitCategory
-    let difficulty: Int // 1-3
-    let reason: String
-
-    static let recommended: [DiscoverableHabit] = [
-        DiscoverableHabit(name: "Morning Meditation", icon: "brain.head.profile", category: .mindfulness, difficulty: 1, reason: "Based on your sleep patterns, morning mindfulness could improve your day."),
-        DiscoverableHabit(name: "Drink 8 Glasses of Water", icon: "drop.fill", category: .health, difficulty: 1, reason: "Hydration pairs well with your existing exercise habits."),
-        DiscoverableHabit(name: "Evening Journal", icon: "note.text", category: .mindfulness, difficulty: 1, reason: "Reflective writing can boost your mindfulness practice."),
-    ]
-
-    static let popular: [DiscoverableHabit] = [
-        DiscoverableHabit(name: "Walk 10k Steps", icon: "figure.walk", category: .fitness, difficulty: 2, reason: ""),
-        DiscoverableHabit(name: "Read 30 Minutes", icon: "book.fill", category: .learning, difficulty: 1, reason: ""),
-        DiscoverableHabit(name: "No Sugar", icon: "leaf.fill", category: .nutrition, difficulty: 3, reason: ""),
-        DiscoverableHabit(name: "Cold Shower", icon: "snowflake", category: .health, difficulty: 3, reason: ""),
-        DiscoverableHabit(name: "Practice Gratitude", icon: "heart.fill", category: .mindfulness, difficulty: 1, reason: ""),
-        DiscoverableHabit(name: "Stretch for 10 min", icon: "figure.flexibility", category: .fitness, difficulty: 1, reason: ""),
-    ]
-}
-
-// MARK: - Category Habit Count Extension
-
-extension HabitCategory {
-    var habitCount: Int {
-        switch self {
-        case .health: return 12
-        case .fitness: return 15
-        case .mindfulness: return 10
-        case .productivity: return 14
-        case .sleep: return 8
-        case .social: return 6
-        case .learning: return 11
-        case .nutrition: return 9
-        }
-    }
-}
-
 // MARK: - Preview
 
 #Preview {
     HabitDiscoveryView()
+        .modelContainer(for: Habit.self, inMemory: true)
 }
