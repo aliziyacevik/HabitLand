@@ -196,7 +196,11 @@ final class CloudKitManager: ObservableObject {
         reverseRecord["toUserID"] = request.fromUserID as CKRecordValue
         reverseRecord["status"] = "accepted" as CKRecordValue
         reverseRecord["sentAt"] = Date() as CKRecordValue
-        try? await publicDB.save(reverseRecord)
+        do {
+            try await publicDB.save(reverseRecord)
+        } catch {
+            print("Failed to save reverse friendship: \(error)")
+        }
 
         // Create local Friend entry
         let friend = Friend(
@@ -207,7 +211,12 @@ final class CloudKitManager: ObservableObject {
         )
         friend.cloudKitRecordName = request.fromUserID
         context.insert(friend)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            print("Failed to save friend locally: \(error)")
+            return false
+        }
 
         // Remove from pending
         pendingRequests.removeAll { $0.recordID == request.recordID }

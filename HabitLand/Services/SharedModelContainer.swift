@@ -33,7 +33,21 @@ enum SharedModelContainer {
         do {
             return try ModelContainer(for: schema, configurations: [config])
         } catch {
-            fatalError("Failed to create shared ModelContainer: \(error)")
+            // Fallback: try without CloudKit sync if iCloud setup fails
+            print("CloudKit ModelContainer failed: \(error). Falling back to local-only.")
+            let fallbackConfig: ModelConfiguration
+            if let groupURL = FileManager.default
+                .containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
+                let url = groupURL.appending(path: "HabitLand.sqlite")
+                fallbackConfig = ModelConfiguration(schema: schema, url: url, cloudKitDatabase: .none)
+            } else {
+                fallbackConfig = ModelConfiguration(schema: schema, cloudKitDatabase: .none)
+            }
+            do {
+                return try ModelContainer(for: schema, configurations: [fallbackConfig])
+            } catch {
+                fatalError("Failed to create ModelContainer even without CloudKit: \(error)")
+            }
         }
     }()
 }

@@ -142,11 +142,11 @@ struct SleepInsightsView: View {
         // Insight: Bedtime and quality correlation
         let earlyBedLogs = sleepLogs.filter {
             let hour = calendar.component(.hour, from: $0.bedTime)
-            return hour >= 0 && hour < 23
+            return hour >= 20 && hour <= 22
         }
         let lateBedLogs = sleepLogs.filter {
             let hour = calendar.component(.hour, from: $0.bedTime)
-            return hour >= 23 && hour < 24
+            return hour >= 23 || hour < 4
         }
         if !earlyBedLogs.isEmpty && !lateBedLogs.isEmpty {
             let earlyAvgQ = earlyBedLogs.map(\.quality.value).reduce(0, +) / Double(earlyBedLogs.count)

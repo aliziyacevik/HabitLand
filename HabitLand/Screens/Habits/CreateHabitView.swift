@@ -470,6 +470,10 @@ struct CreateHabitView: View {
     }
 
     private func createHabit() {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else { return }
+        guard frequency != .custom || !customDays.isEmpty else { return }
+
         let habit = Habit(
             name: name,
             icon: selectedIcon,

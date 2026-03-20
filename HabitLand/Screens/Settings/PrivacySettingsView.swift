@@ -174,27 +174,32 @@ struct PrivacySettingsView: View {
         }
     }
 
+    private func csvEscape(_ value: String) -> String {
+        let escaped = value.replacingOccurrences(of: "\"", with: "\"\"")
+        return "\"\(escaped)\""
+    }
+
     private func exportCSV(habits: [Habit], sleepLogs: [SleepLog], profile: UserProfile?) -> URL? {
         let dateFormatter = ISO8601DateFormatter()
         var csv = "Type,Name,Date,Value,Details\n"
 
         // Profile
         if let p = profile {
-            csv += "Profile,\(p.name),\(dateFormatter.string(from: p.joinedAt)),Level \(p.level),XP: \(p.xp)\n"
+            csv += "Profile,\(csvEscape(p.name)),\(dateFormatter.string(from: p.joinedAt)),Level \(p.level),XP: \(p.xp)\n"
         }
 
         // Habits & completions
         for habit in habits {
-            csv += "Habit,\"\(habit.name)\",\(dateFormatter.string(from: habit.createdAt)),\(habit.currentStreak) streak,\"\(habit.category.rawValue)\"\n"
+            csv += "Habit,\(csvEscape(habit.name)),\(dateFormatter.string(from: habit.createdAt)),\(habit.currentStreak) streak,\(csvEscape(habit.category.rawValue))\n"
 
             for completion in habit.safeCompletions.sorted(by: { $0.date > $1.date }) {
-                csv += "Completion,\"\(habit.name)\",\(dateFormatter.string(from: completion.date)),\(completion.isCompleted ? "Done" : "Skipped"),\(completion.count)\n"
+                csv += "Completion,\(csvEscape(habit.name)),\(dateFormatter.string(from: completion.date)),\(completion.isCompleted ? "Done" : "Skipped"),\(completion.count)\n"
             }
         }
 
         // Sleep logs
         for log in sleepLogs {
-            csv += "Sleep,,\(dateFormatter.string(from: log.bedTime)),\(log.durationFormatted),\"\(log.quality.rawValue)\"\n"
+            csv += "Sleep,,\(dateFormatter.string(from: log.bedTime)),\(log.durationFormatted),\(csvEscape(log.quality.rawValue))\n"
         }
 
         return writeToTempFile(content: csv, filename: "HabitLand_Export.csv")

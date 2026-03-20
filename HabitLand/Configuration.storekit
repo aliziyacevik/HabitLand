@@ -24,7 +24,11 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "yearly_001",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+                "internalID" : "intro_yearly_freetrial",
+                "paymentMode" : "free",
+                "subscriptionPeriod" : "P1W"
+              },
           "localizations" : [
             {
               "description" : "Full access to all HabitLand features",

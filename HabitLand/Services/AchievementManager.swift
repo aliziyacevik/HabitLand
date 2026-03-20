@@ -105,7 +105,8 @@ struct AchievementManager {
 
             case "Night Owl":
                 let midnightLogs = sleepLogs.filter {
-                    calendar.component(.hour, from: $0.bedTime) >= 0 && calendar.component(.hour, from: $0.bedTime) < 4
+                    let hour = calendar.component(.hour, from: $0.bedTime)
+                    return hour >= 23 || hour < 4
                 }.count
                 if midnightLogs >= 5 {
                     shouldUnlock = true
