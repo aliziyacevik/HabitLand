@@ -69,16 +69,16 @@ Welcome to HabitLand! Your new home for building better habits.
 - Local notifications for habit reminders
 
 ## Support URL
-https://<your-github-username>.github.io/HabitLand/support.html
+https://aliziyacevik.github.io/HabitLand/support.html
 
 ## Privacy Policy URL
-https://<your-github-username>.github.io/HabitLand/privacy.html
+https://aliziyacevik.github.io/HabitLand/privacy.html
 
 ## Terms of Service URL
-https://<your-github-username>.github.io/HabitLand/terms.html
+https://aliziyacevik.github.io/HabitLand/terms.html
 
 ## Marketing URL (optional)
-https://<your-github-username>.github.io/HabitLand/
+https://aliziyacevik.github.io/HabitLand/
 
 ## Age Rating
 4+ (No objectionable content)
