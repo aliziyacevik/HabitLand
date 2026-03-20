@@ -137,49 +137,12 @@ struct OnboardingView: View {
         }
     }
 
-    // MARK: - Standard Page View
+    // MARK: - Standard Page View (with animations)
 
     @ViewBuilder
     private func pageView(_ page: OnboardingPage) -> some View {
-        VStack(spacing: HLSpacing.lg) {
-            Spacer()
-
-            ZStack {
-                Circle()
-                    .fill(page.accentColor.opacity(0.12))
-                    .frame(width: 180, height: 180)
-                    .hlGlow(page.accentColor, radius: 20, isActive: true)
-
-                if let emoji = page.emoji {
-                    Text(emoji)
-                        .font(.system(size: 80))
-                } else {
-                    Image(systemName: page.systemImage)
-                        .font(.system(size: 72, weight: .medium))
-                        .foregroundColor(page.accentColor)
-                }
-            }
-
-            Spacer()
-                .frame(height: HLSpacing.xl)
-
-            VStack(spacing: HLSpacing.sm) {
-                Text(page.title)
-                    .font(HLFont.title1())
-                    .foregroundColor(.hlTextPrimary)
-                    .multilineTextAlignment(.center)
-
-                Text(page.subtitle)
-                    .font(HLFont.body())
-                    .foregroundColor(.hlTextSecondary)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(4)
-                    .padding(.horizontal, HLSpacing.lg)
-            }
-
-            Spacer()
-        }
-        .padding(.horizontal, HLSpacing.lg)
+        AnimatedOnboardingPage(page: page)
+            .padding(.horizontal, HLSpacing.lg)
     }
 
     // MARK: - Level Up Page (animated XP preview)
@@ -199,6 +162,183 @@ struct OnboardingView: View {
         guard let profile = try? modelContext.fetch(descriptor).first else { return }
         profile.xp += xpAmount
         try? modelContext.save()
+    }
+}
+
+// MARK: - Animated Onboarding Page
+
+private struct AnimatedOnboardingPage: View {
+    let page: OnboardingPage
+    @State private var showIcon = false
+    @State private var showTitle = false
+    @State private var showSubtitle = false
+    @State private var showDecorations = false
+    @State private var pulseGlow = false
+    @State private var floatOffset: CGFloat = 0
+
+    var body: some View {
+        VStack(spacing: HLSpacing.lg) {
+            Spacer()
+
+            // Animated icon with floating + glow
+            ZStack {
+                // Outer pulse ring
+                Circle()
+                    .stroke(page.accentColor.opacity(0.15), lineWidth: 2)
+                    .frame(width: 200, height: 200)
+                    .scaleEffect(pulseGlow ? 1.1 : 0.9)
+                    .opacity(pulseGlow ? 0 : 0.6)
+
+                // Background circle
+                Circle()
+                    .fill(page.accentColor.opacity(0.12))
+                    .frame(width: 160, height: 160)
+                    .hlGlow(page.accentColor, radius: pulseGlow ? 30 : 15, isActive: true)
+
+                // Icon or emoji
+                if let emoji = page.emoji {
+                    Text(emoji)
+                        .font(.system(size: 72))
+                        .scaleEffect(showIcon ? 1.0 : 0.3)
+                        .opacity(showIcon ? 1 : 0)
+                } else {
+                    Image(systemName: page.systemImage)
+                        .font(.system(size: 60, weight: .medium))
+                        .foregroundStyle(page.accentColor)
+                        .scaleEffect(showIcon ? 1.0 : 0.3)
+                        .opacity(showIcon ? 1 : 0)
+                }
+
+                // Floating particles
+                if showDecorations {
+                    floatingParticles
+                }
+            }
+            .offset(y: floatOffset)
+
+            Spacer()
+                .frame(height: HLSpacing.lg)
+
+            // Feature pills (themed per page)
+            if showDecorations {
+                featurePills
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+
+            Spacer()
+                .frame(height: HLSpacing.sm)
+
+            // Text with staggered entry
+            VStack(spacing: HLSpacing.sm) {
+                Text(page.title)
+                    .font(HLFont.title1())
+                    .foregroundColor(.hlTextPrimary)
+                    .multilineTextAlignment(.center)
+                    .opacity(showTitle ? 1 : 0)
+                    .offset(y: showTitle ? 0 : 20)
+
+                Text(page.subtitle)
+                    .font(HLFont.body())
+                    .foregroundColor(.hlTextSecondary)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
+                    .padding(.horizontal, HLSpacing.lg)
+                    .opacity(showSubtitle ? 1 : 0)
+                    .offset(y: showSubtitle ? 0 : 15)
+            }
+
+            Spacer()
+        }
+        .onAppear { startAnimations() }
+    }
+
+    // MARK: - Animations
+
+    private func startAnimations() {
+        withAnimation(HLAnimation.bouncy.delay(0.1)) {
+            showIcon = true
+        }
+        withAnimation(HLAnimation.standard.delay(0.4)) {
+            showTitle = true
+        }
+        withAnimation(HLAnimation.standard.delay(0.6)) {
+            showSubtitle = true
+        }
+        withAnimation(HLAnimation.standard.delay(0.9)) {
+            showDecorations = true
+        }
+        // Continuous floating
+        withAnimation(.easeInOut(duration: 2.5).repeatForever(autoreverses: true).delay(0.3)) {
+            floatOffset = -8
+        }
+        // Continuous pulse
+        withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true).delay(0.5)) {
+            pulseGlow = true
+        }
+    }
+
+    // MARK: - Feature Pills (themed per page)
+
+    @ViewBuilder
+    private var featurePills: some View {
+        let pills: [(icon: String, text: String, color: Color)] = {
+            if page.emoji != nil {
+                // Welcome page
+                return [
+                    ("lock.shield.fill", "Private", .hlSuccess),
+                    ("gamecontroller.fill", "Gamified", .hlPrimary),
+                    ("bolt.fill", "Free", .hlGold)
+                ]
+            } else if page.systemImage == "checkmark.circle.fill" {
+                // Track habits page
+                return [
+                    ("flame.fill", "Streaks", .hlFlame),
+                    ("bell.fill", "Reminders", .hlInfo),
+                    ("chart.bar.fill", "Analytics", .hlPrimary)
+                ]
+            } else {
+                // Sleep page
+                return [
+                    ("moon.stars.fill", "Quality Score", .hlSleep),
+                    ("chart.xyaxis.line", "Trends", .hlMindfulness),
+                    ("sparkles", "Insights", .hlGold)
+                ]
+            }
+        }()
+
+        HStack(spacing: HLSpacing.sm) {
+            ForEach(Array(pills.enumerated()), id: \.offset) { index, pill in
+                HStack(spacing: HLSpacing.xxs) {
+                    Image(systemName: pill.icon)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(pill.color)
+                    Text(pill.text)
+                        .font(HLFont.caption(.semibold))
+                        .foregroundStyle(Color.hlTextPrimary)
+                }
+                .padding(.horizontal, HLSpacing.sm)
+                .padding(.vertical, HLSpacing.xs)
+                .background(pill.color.opacity(0.1))
+                .cornerRadius(HLRadius.full)
+                .hlStaggeredAppear(index: index)
+            }
+        }
+    }
+
+    // MARK: - Floating Particles
+
+    private var floatingParticles: some View {
+        ZStack {
+            ForEach(0..<5, id: \.self) { i in
+                Circle()
+                    .fill(page.accentColor.opacity(0.3))
+                    .frame(width: CGFloat.random(in: 4...8), height: CGFloat.random(in: 4...8))
+                    .offset(
+                        x: CGFloat([-60, 70, -40, 55, -75][i]),
+                        y: CGFloat([-50, -70, 60, 40, -30][i]) + floatOffset * CGFloat([1.2, -0.8, 1.5, -1.0, 0.7][i])
+                    )
+            }
+        }
     }
 }
 
