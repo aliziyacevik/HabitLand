@@ -13,7 +13,7 @@ struct HabitTests {
         #expect(habit.category == .health)
         #expect(habit.frequency == .daily)
         #expect(habit.isArchived == false)
-        #expect(habit.completions.isEmpty)
+        #expect(habit.safeCompletions.isEmpty)
         #expect(habit.goalCount == 1)
     }
 
@@ -26,7 +26,7 @@ struct HabitTests {
         let habit = Habit(name: "Exercise")
         let completion = HabitCompletion(date: Date())
         completion.habit = habit
-        habit.completions.append(completion)
+        habit.completions = (habit.completions ?? []) + [completion]
         #expect(habit.todayCompleted == true)
     }
 
@@ -35,7 +35,7 @@ struct HabitTests {
         let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
         let completion = HabitCompletion(date: yesterday)
         completion.habit = habit
-        habit.completions.append(completion)
+        habit.completions = (habit.completions ?? []) + [completion]
         #expect(habit.todayCompleted == false)
     }
 
@@ -45,7 +45,7 @@ struct HabitTests {
 
         let c1 = HabitCompletion(date: Date())
         c1.habit = habit
-        habit.completions.append(c1)
+        habit.completions = (habit.completions ?? []) + [c1]
         // 1 of 3
         #expect(abs(habit.todayProgress - (1.0/3.0)) < 0.01)
     }
@@ -54,11 +54,11 @@ struct HabitTests {
         let habit = Habit(name: "Read")
         let c1 = HabitCompletion(date: Date())
         c1.habit = habit
-        habit.completions.append(c1)
+        habit.completions = (habit.completions ?? []) + [c1]
 
         let c2 = HabitCompletion(date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!)
         c2.habit = habit
-        habit.completions.append(c2)
+        habit.completions = (habit.completions ?? []) + [c2]
 
         #expect(habit.totalCompletions == 2)
     }
@@ -73,7 +73,7 @@ struct HabitTests {
             let date = calendar.date(byAdding: .day, value: -dayOffset, to: today)!
             let c = HabitCompletion(date: date)
             c.habit = habit
-            habit.completions.append(c)
+            habit.completions = (habit.completions ?? []) + [c]
         }
 
         #expect(habit.currentStreak == 3)
@@ -87,13 +87,13 @@ struct HabitTests {
         // Today
         let c1 = HabitCompletion(date: today)
         c1.habit = habit
-        habit.completions.append(c1)
+        habit.completions = (habit.completions ?? []) + [c1]
 
         // 2 days ago (gap yesterday)
         let twoDaysAgo = calendar.date(byAdding: .day, value: -2, to: today)!
         let c2 = HabitCompletion(date: twoDaysAgo)
         c2.habit = habit
-        habit.completions.append(c2)
+        habit.completions = (habit.completions ?? []) + [c2]
 
         #expect(habit.currentStreak == 1)
     }
@@ -108,7 +108,7 @@ struct HabitTests {
             let date = calendar.date(byAdding: .day, value: -i, to: today)!
             let c = HabitCompletion(date: date)
             c.habit = habit
-            habit.completions.append(c)
+            habit.completions = (habit.completions ?? []) + [c]
         }
 
         // 2-day current streak
@@ -116,7 +116,7 @@ struct HabitTests {
             let date = calendar.date(byAdding: .day, value: -i, to: today)!
             let c = HabitCompletion(date: date)
             c.habit = habit
-            habit.completions.append(c)
+            habit.completions = (habit.completions ?? []) + [c]
         }
 
         #expect(habit.bestStreak >= 5)
@@ -132,7 +132,7 @@ struct HabitTests {
             let date = calendar.date(byAdding: .day, value: -i, to: today)!
             let c = HabitCompletion(date: date)
             c.habit = habit
-            habit.completions.append(c)
+            habit.completions = (habit.completions ?? []) + [c]
         }
 
         #expect(abs(habit.weekCompletionRate - (3.0/7.0)) < 0.01)
