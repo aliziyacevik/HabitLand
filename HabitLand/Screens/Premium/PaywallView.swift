@@ -16,6 +16,9 @@ struct PaywallView: View {
                 VStack(spacing: 0) {
                     headerSection
                     featuresSection
+                    if proManager.isTrialEligible {
+                        trialBanner
+                    }
                     plansSection
                     purchaseButton
                     restoreButton
@@ -23,6 +26,9 @@ struct PaywallView: View {
                 }
             }
             .background(Color.hlBackground.ignoresSafeArea())
+            .task {
+                await proManager.checkTrialEligibility()
+            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -119,10 +125,52 @@ struct PaywallView: View {
         .padding(.horizontal, HLSpacing.md)
     }
 
+    // MARK: - Trial Banner
+
+    private var trialBanner: some View {
+        HStack(spacing: HLSpacing.sm) {
+            Image(systemName: "gift.fill")
+                .font(.system(size: 20))
+                .foregroundStyle(Color.hlPrimary)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(proManager.trialOfferText ?? "7-day free trial")
+                    .font(HLFont.headline())
+                    .foregroundStyle(Color.hlTextPrimary)
+                Text("Try all Pro features free. Cancel anytime.")
+                    .font(HLFont.caption())
+                    .foregroundStyle(Color.hlTextSecondary)
+            }
+
+            Spacer()
+        }
+        .padding(HLSpacing.md)
+        .background(Color.hlPrimaryLight)
+        .cornerRadius(HLRadius.lg)
+        .overlay(
+            RoundedRectangle(cornerRadius: HLRadius.lg)
+                .stroke(Color.hlPrimary.opacity(0.3), lineWidth: 1)
+        )
+        .padding(.horizontal, HLSpacing.md)
+        .padding(.bottom, HLSpacing.md)
+    }
+
     // MARK: - Plans
 
     private var plansSection: some View {
         VStack(spacing: HLSpacing.sm) {
+            // Yearly — with trial if eligible
+            planCard(
+                id: ProManager.yearlyID,
+                title: "Yearly",
+                price: proManager.yearlyProduct?.displayPrice ?? "$19.99",
+                subtitle: proManager.isTrialEligible
+                    ? (proManager.trialOfferText ?? "7-day free trial") + ", then per year"
+                    : "per year",
+                badge: proManager.isTrialEligible ? "FREE TRIAL" : nil,
+                isSelected: selectedPlan == ProManager.yearlyID
+            )
+
             // Lifetime — Best Deal
             planCard(
                 id: ProManager.lifetimeID,
@@ -132,19 +180,15 @@ struct PaywallView: View {
                 badge: "BEST DEAL",
                 isSelected: selectedPlan == ProManager.lifetimeID
             )
-
-            // Yearly
-            planCard(
-                id: ProManager.yearlyID,
-                title: "Yearly",
-                price: proManager.yearlyProduct?.displayPrice ?? "$19.99",
-                subtitle: "per year",
-                badge: nil,
-                isSelected: selectedPlan == ProManager.yearlyID
-            )
         }
         .padding(.horizontal, HLSpacing.md)
         .padding(.bottom, HLSpacing.lg)
+        .onAppear {
+            // Default to yearly when trial eligible
+            if proManager.isTrialEligible {
+                selectedPlan = ProManager.yearlyID
+            }
+        }
     }
 
     private func planCard(id: String, title: String, price: String, subtitle: String, badge: String?, isSelected: Bool) -> some View {
@@ -210,7 +254,9 @@ struct PaywallView: View {
                     ProgressView()
                         .tint(.white)
                 } else {
-                    Text("Continue")
+                    Text(proManager.isTrialEligible && selectedPlan == ProManager.yearlyID
+                         ? "Start Free Trial"
+                         : "Continue")
                         .font(HLFont.headline())
                 }
             }

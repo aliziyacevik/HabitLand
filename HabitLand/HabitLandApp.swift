@@ -68,6 +68,7 @@ struct HabitLandApp: App {
                     }
                     requestNotificationsIfNeeded()
                     setupQuickActions()
+                    syncHealthKitHabits()
                 }
         }
         .modelContainer(sharedModelContainer)
@@ -233,6 +234,12 @@ struct HabitLandApp: App {
         }
 
         try? context.save()
+    }
+
+    private func syncHealthKitHabits() {
+        Task {
+            await HealthKitManager.shared.syncHealthHabits(context: sharedModelContainer.mainContext)
+        }
     }
 
     private func requestNotificationsIfNeeded() {

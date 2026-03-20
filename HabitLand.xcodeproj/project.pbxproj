@@ -28,14 +28,20 @@
 			remoteGlobalIDString = AA1BE9D62F68400100B17D4A;
 			remoteInfo = HabitLandWidgetExtension;
 		};
-		BB1BE9EB2F68500100B17D4A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 2B1BE9992F683FAF00B17D4A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = BB1BE9E62F68500100B17D4A;
-			remoteInfo = "HabitLandWatch Watch App";
-		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		AA1BE9DA2F68400100B17D4A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2B1BE9A12F683FAF00B17D4A /* HabitLand.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HabitLand.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -95,19 +101,6 @@
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		AA1BE9DA2F68400100B17D4A /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		2B1BE99E2F683FAF00B17D4A /* Frameworks */ = {
@@ -434,11 +427,6 @@
 			target = AA1BE9D62F68400100B17D4A /* HabitLandWidgetExtension */;
 			targetProxy = AA1BE9DB2F68400100B17D4A /* PBXContainerItemProxy */;
 		};
-		BB1BE9EC2F68500100B17D4A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = BB1BE9E62F68500100B17D4A /* HabitLandWatch Watch App */;
-			targetProxy = BB1BE9EB2F68500100B17D4A /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -573,6 +561,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "HabitLand reads Health data to automatically track habits like steps, water intake, and exercise.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "HabitLand does not write to Health.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
@@ -604,6 +594,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "HabitLand reads Health data to automatically track habits like steps, water intake, and exercise.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "HabitLand does not write to Health.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;

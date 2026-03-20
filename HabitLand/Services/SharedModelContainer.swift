@@ -16,11 +16,17 @@ enum SharedModelContainer {
             AppNotification.self,
         ])
 
-        let url = FileManager.default
-            .containerURL(forSecurityApplicationGroupIdentifier: appGroupID)!
-            .appending(path: "HabitLand.sqlite")
+        let config: ModelConfiguration
 
-        let config = ModelConfiguration(schema: schema, url: url)
+        if let groupURL = FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
+            let url = groupURL.appending(path: "HabitLand.sqlite")
+            // cloudKitDatabase: .none prevents SwiftData from auto-enabling CloudKit sync
+            // We use CloudKitManager for manual social sync instead
+            config = ModelConfiguration(schema: schema, url: url, cloudKitDatabase: .none)
+        } else {
+            config = ModelConfiguration(schema: schema, cloudKitDatabase: .none)
+        }
 
         do {
             return try ModelContainer(for: schema, configurations: [config])

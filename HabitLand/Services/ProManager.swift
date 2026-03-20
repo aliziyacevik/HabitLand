@@ -26,6 +26,34 @@ final class ProManager: ObservableObject {
         products.first { $0.id == Self.lifetimeID }
     }
 
+    // MARK: - Free Trial
+
+    @Published private(set) var isTrialEligible = false
+    @Published private(set) var trialDaysRemaining: Int = 0
+
+    /// Check if user is eligible for the free trial (never subscribed before)
+    func checkTrialEligibility() async {
+        guard let yearly = yearlyProduct else { return }
+        if let subscription = yearly.subscription {
+            isTrialEligible = await subscription.isEligibleForIntroOffer
+        }
+    }
+
+    /// Free trial period text from the subscription offer
+    var trialOfferText: String? {
+        guard let yearly = yearlyProduct,
+              let subscription = yearly.subscription,
+              let introOffer = subscription.introductoryOffer else { return nil }
+
+        switch introOffer.period.unit {
+        case .day: return "\(introOffer.period.value)-day free trial"
+        case .week: return "\(introOffer.period.value)-week free trial"
+        case .month: return "\(introOffer.period.value)-month free trial"
+        case .year: return "\(introOffer.period.value)-year free trial"
+        @unknown default: return "Free trial"
+        }
+    }
+
     private var updateListenerTask: Task<Void, Error>?
 
     private init() {

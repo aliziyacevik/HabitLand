@@ -1,0 +1,238 @@
+import HealthKit
+import SwiftData
+import Foundation
+
+// MARK: - HealthKit Metric
+
+enum HealthKitMetric: String, Codable, CaseIterable, Identifiable {
+    case steps = "Steps"
+    case water = "Water"
+    case exerciseMinutes = "Exercise Minutes"
+    case activeCalories = "Active Calories"
+    case walkingDistance = "Walking Distance"
+    case standHours = "Stand Hours"
+    case mindfulMinutes = "Mindful Minutes"
+    case sleepHours = "Sleep Hours"
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .steps: return "figure.walk"
+        case .water: return "drop.fill"
+        case .exerciseMinutes: return "figure.run"
+        case .activeCalories: return "flame.fill"
+        case .walkingDistance: return "map.fill"
+        case .standHours: return "figure.stand"
+        case .mindfulMinutes: return "brain.head.profile"
+        case .sleepHours: return "moon.fill"
+        }
+    }
+
+    var unit: String {
+        switch self {
+        case .steps: return "steps"
+        case .water: return "ml"
+        case .exerciseMinutes: return "minutes"
+        case .activeCalories: return "kcal"
+        case .walkingDistance: return "km"
+        case .standHours: return "hours"
+        case .mindfulMinutes: return "minutes"
+        case .sleepHours: return "hours"
+        }
+    }
+
+    var defaultGoal: Int {
+        switch self {
+        case .steps: return 10000
+        case .water: return 2000
+        case .exerciseMinutes: return 30
+        case .activeCalories: return 500
+        case .walkingDistance: return 5
+        case .standHours: return 12
+        case .mindfulMinutes: return 10
+        case .sleepHours: return 8
+        }
+    }
+
+    var sampleType: HKQuantityType? {
+        switch self {
+        case .steps: return HKQuantityType(.stepCount)
+        case .water: return HKQuantityType(.dietaryWater)
+        case .exerciseMinutes: return HKQuantityType(.appleExerciseTime)
+        case .activeCalories: return HKQuantityType(.activeEnergyBurned)
+        case .walkingDistance: return HKQuantityType(.distanceWalkingRunning)
+        case .standHours: return HKQuantityType(.appleStandTime)
+        case .mindfulMinutes: return nil // uses category type (mindfulSession)
+        case .sleepHours: return nil // uses category type (sleepAnalysis)
+        }
+    }
+
+    var hkUnit: HKUnit {
+        switch self {
+        case .steps: return .count()
+        case .water: return .literUnit(with: .milli)
+        case .exerciseMinutes: return .minute()
+        case .activeCalories: return .kilocalorie()
+        case .walkingDistance: return .meterUnit(with: .kilo)
+        case .standHours: return .minute() // convert later
+        case .mindfulMinutes: return .minute()
+        case .sleepHours: return .hour()
+        }
+    }
+}
+
+// MARK: - HealthKit Manager
+
+@MainActor
+final class HealthKitManager: ObservableObject {
+    static let shared = HealthKitManager()
+
+    private let healthStore = HKHealthStore()
+    @Published var isAuthorized = false
+
+    var isAvailable: Bool {
+        HKHealthStore.isHealthDataAvailable()
+    }
+
+    private init() {}
+
+    // MARK: - Authorization
+
+    func requestAuthorization(for metrics: [HealthKitMetric]) async -> Bool {
+        guard isAvailable else { return false }
+
+        var readTypes: Set<HKObjectType> = []
+
+        for metric in metrics {
+            if metric == .sleepHours {
+                readTypes.insert(HKCategoryType(.sleepAnalysis))
+            } else if metric == .mindfulMinutes {
+                readTypes.insert(HKCategoryType(.mindfulSession))
+            } else if let sampleType = metric.sampleType {
+                readTypes.insert(sampleType)
+            }
+        }
+
+        guard !readTypes.isEmpty else { return false }
+
+        do {
+            try await healthStore.requestAuthorization(toShare: [], read: readTypes)
+            isAuthorized = true
+            return true
+        } catch {
+            print("HealthKit authorization failed: \(error)")
+            return false
+        }
+    }
+
+    // MARK: - Query Today's Value
+
+    func todayValue(for metric: HealthKitMetric) async -> Double {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: Date())
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+
+        if metric == .sleepHours {
+            return await querySleepHours(start: startOfDay, end: endOfDay)
+        }
+
+        if metric == .mindfulMinutes {
+            return await queryMindfulMinutes(start: startOfDay, end: endOfDay)
+        }
+
+        guard let sampleType = metric.sampleType else { return 0 }
+
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay)
+
+        do {
+            let descriptor = HKStatisticsQueryDescriptor(
+                predicate: .quantitySample(type: sampleType, predicate: predicate),
+                options: .cumulativeSum
+            )
+            let result = try await descriptor.result(for: healthStore)
+            return result?.sumQuantity()?.doubleValue(for: metric.hkUnit) ?? 0
+        } catch {
+            print("HealthKit query failed for \(metric.rawValue): \(error)")
+            return 0
+        }
+    }
+
+    private func querySleepHours(start: Date, end: Date) async -> Double {
+        let sleepType = HKCategoryType(.sleepAnalysis)
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end)
+
+        do {
+            let descriptor = HKSampleQueryDescriptor(
+                predicates: [.categorySample(type: sleepType, predicate: predicate)],
+                sortDescriptors: [SortDescriptor(\.startDate)]
+            )
+            let samples = try await descriptor.result(for: healthStore)
+
+            // Sum asleep durations (exclude inBed)
+            var totalSeconds: Double = 0
+            for sample in samples {
+                let value = HKCategoryValueSleepAnalysis(rawValue: sample.value)
+                if value == .asleepCore || value == .asleepDeep || value == .asleepREM || value == .asleepUnspecified {
+                    totalSeconds += sample.endDate.timeIntervalSince(sample.startDate)
+                }
+            }
+            return totalSeconds / 3600.0
+        } catch {
+            return 0
+        }
+    }
+
+    private func queryMindfulMinutes(start: Date, end: Date) async -> Double {
+        let mindfulType = HKCategoryType(.mindfulSession)
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end)
+
+        do {
+            let descriptor = HKSampleQueryDescriptor(
+                predicates: [.categorySample(type: mindfulType, predicate: predicate)],
+                sortDescriptors: [SortDescriptor(\.startDate)]
+            )
+            let samples = try await descriptor.result(for: healthStore)
+
+            var totalMinutes: Double = 0
+            for sample in samples {
+                totalMinutes += sample.endDate.timeIntervalSince(sample.startDate) / 60.0
+            }
+            return totalMinutes
+        } catch {
+            return 0
+        }
+    }
+
+    // MARK: - Check & Auto-Complete Habits
+
+    func syncHealthHabits(context: ModelContext) async {
+        let descriptor = FetchDescriptor<Habit>()
+        guard let habits = try? context.fetch(descriptor) else { return }
+
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+
+        for habit in habits {
+            guard let metricRaw = habit.healthKitMetric,
+                  let metric = HealthKitMetric(rawValue: metricRaw) else { continue }
+
+            // Skip if already completed today
+            let alreadyDone = habit.completions.contains { c in
+                calendar.startOfDay(for: c.date) == today && c.isCompleted
+            }
+            if alreadyDone { continue }
+
+            let value = await todayValue(for: metric)
+            let goal = Double(habit.goalCount)
+
+            if value >= goal {
+                let completion = HabitCompletion(date: Date(), isCompleted: true, count: Int(value))
+                completion.habit = habit
+                context.insert(completion)
+            }
+        }
+
+        try? context.save()
+    }
+}

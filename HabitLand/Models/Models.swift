@@ -22,6 +22,7 @@ final class Habit {
     var sortOrder: Int
     var createdAt: Date
     var updatedAt: Date
+    var healthKitMetric: String?
 
     @Relationship(deleteRule: .cascade) var completions: [HabitCompletion]
 
@@ -56,6 +57,7 @@ final class Habit {
         self.createdAt = Date()
         self.updatedAt = Date()
         self.completions = []
+        self.healthKitMetric = nil
     }
 
     var color: Color {
