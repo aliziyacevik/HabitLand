@@ -23,11 +23,11 @@ enum SharedModelContainer {
             let url = groupURL.appending(path: "HabitLand.sqlite")
             // Use CloudKit private database for automatic habit/completion sync across devices
             // Social features use CloudKitManager with the public database separately
-            config = ModelConfiguration(schema: schema, url: url,
-                                        cloudKitDatabase: .private("iCloud.azc.HabitLand"))
+            // TODO: Re-enable CloudKit when Apple Developer account is approved
+            // cloudKitDatabase: .private("iCloud.azc.HabitLand")
+            config = ModelConfiguration(schema: schema, url: url, cloudKitDatabase: .none)
         } else {
-            config = ModelConfiguration(schema: schema,
-                                        cloudKitDatabase: .private("iCloud.azc.HabitLand"))
+            config = ModelConfiguration(schema: schema, cloudKitDatabase: .none)
         }
 
         do {
