@@ -30,8 +30,6 @@ struct OnboardingView: View {
     @Query private var profiles: [UserProfile]
     private var profile: UserProfile? { profiles.first }
     @State private var showStarterHabits = false
-    @State private var showReferralEntry = false
-    @State private var showNameEntry = false
     @State private var userName = ""
     @State private var habitsCreatedCount = 0
     @FocusState private var nameFieldFocused: Bool
@@ -64,6 +62,12 @@ struct OnboardingView: View {
             accentColor: .hlGold,
             isLevelUpPage: true
         ),
+        OnboardingPage(
+            systemImage: "person.crop.circle.badge.plus",
+            title: "What's your name?",
+            subtitle: "This is how your friends will see you on the leaderboard.",
+            accentColor: .hlPrimary
+        ),
     ]
 
     var body: some View {
@@ -86,7 +90,10 @@ struct OnboardingView: View {
             // Page content
             TabView(selection: $currentPage) {
                 ForEach(Array(pages.enumerated()), id: \.element.id) { index, page in
-                    if page.isLevelUpPage {
+                    if index == pages.count - 1 {
+                        nameEntryPage(page)
+                            .tag(index)
+                    } else if page.isLevelUpPage {
                         levelUpPageView(page)
                             .tag(index)
                     } else {
@@ -112,7 +119,7 @@ struct OnboardingView: View {
             // Next / Get Started button
             HLButton(
                 currentPage == pages.count - 1 ? "Choose My Habits" : "Next",
-                icon: currentPage == pages.count - 1 ? "arrow.right" : "arrow.right",
+                icon: "arrow.right",
                 style: .primary,
                 size: .lg,
                 isFullWidth: true
@@ -122,17 +129,21 @@ struct OnboardingView: View {
                         currentPage += 1
                     }
                 } else {
-                    showNameEntry = true
+                    // Save name before showing starter habits
+                    let trimmed = userName.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !trimmed.isEmpty, let profile = profile {
+                        profile.name = trimmed
+                        profile.username = "@\(trimmed.lowercased().replacingOccurrences(of: " ", with: ""))"
+                        try? modelContext.save()
+                    }
+                    showStarterHabits = true
                 }
             }
+            .disabled(currentPage == pages.count - 1 && userName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .padding(.horizontal, HLSpacing.lg)
             .padding(.bottom, HLSpacing.xxl)
         }
         .background(Color.hlBackground.ignoresSafeArea())
-        .fullScreenCover(isPresented: $showNameEntry) {
-            nameEntrySheet
-                .hlSheetContent()
-        }
         .fullScreenCover(isPresented: $showStarterHabits) {
             StarterHabitsView { count in
                 habitsCreatedCount = count
@@ -142,15 +153,9 @@ struct OnboardingView: View {
                 if habitsCreatedCount > 0 {
                     awardFirstXP()
                 }
-                showReferralEntry = true
+                onComplete()
             }
             .hlSheetContent()
-        }
-        .sheet(isPresented: $showReferralEntry) {
-            onComplete()
-        } content: {
-            referralEntrySheet
-                .hlSheetContent()
         }
     }
 
@@ -170,126 +175,48 @@ struct OnboardingView: View {
             .padding(.horizontal, HLSpacing.lg)
     }
 
-    // MARK: - Referral Entry Sheet
+    // MARK: - Name Entry Page (inline in onboarding)
 
-    private var referralEntrySheet: some View {
-        NavigationStack {
-            VStack(spacing: HLSpacing.lg) {
-                Spacer()
-
-                Image(systemName: "gift.fill")
-                    .font(.system(size: 48))
-                    .foregroundColor(.hlPrimary)
-                    .frame(width: 96, height: 96)
-                    .background(Color.hlPrimaryLight)
-                    .clipShape(Circle())
-
-                Text("Do you have a referral code?")
-                    .font(HLFont.title2())
-                    .foregroundColor(.hlTextPrimary)
-
-                Text("Enter your friend's code — you both get 1 week of Pro!")
-                    .font(HLFont.subheadline())
-                    .foregroundColor(.hlTextSecondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, HLSpacing.lg)
-
-                if let profile = profile {
-                    ReferralCodeEntryView(profile: profile) {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                            showReferralEntry = false
-                        }
-                    }
-                    .padding(.horizontal, HLSpacing.md)
-                }
-
-                Spacer()
-
-                Button {
-                    showReferralEntry = false
-                } label: {
-                    Text("Skip")
-                        .font(HLFont.headline())
-                        .foregroundColor(.hlTextSecondary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, HLSpacing.sm)
-                }
-                .padding(.horizontal, HLSpacing.lg)
-                .padding(.bottom, HLSpacing.lg)
-            }
-            .background(Color.hlBackground.ignoresSafeArea())
-        }
-        .presentationDetents([.large])
-    }
-
-    // MARK: - Name Entry Sheet
-
-    private var nameEntrySheet: some View {
-        VStack(spacing: HLSpacing.xl) {
+    @ViewBuilder
+    private func nameEntryPage(_ page: OnboardingPage) -> some View {
+        VStack(spacing: HLSpacing.lg) {
             Spacer()
 
-            Image(systemName: "person.crop.circle.badge.plus")
-                .font(.system(size: 64))
-                .foregroundColor(.hlPrimary)
+            Image(systemName: page.systemImage)
+                .font(.system(size: 56))
+                .foregroundColor(page.accentColor)
+                .frame(width: 96, height: 96)
+                .background(page.accentColor.opacity(0.12))
+                .clipShape(Circle())
 
-            Text("What's your name?")
+            Text(page.title)
                 .font(HLFont.title2())
                 .foregroundColor(.hlTextPrimary)
 
-            Text("This is how your friends will see you")
+            Text(page.subtitle)
                 .font(HLFont.subheadline())
                 .foregroundColor(.hlTextSecondary)
+                .multilineTextAlignment(.center)
 
             TextField("Your name", text: $userName)
-                .font(HLFont.body())
+                .font(HLFont.title3(.bold))
+                .multilineTextAlignment(.center)
                 .textFieldStyle(.plain)
                 .padding(HLSpacing.md)
-                .background(Color.hlBackground)
+                .background(Color(.systemGray6))
                 .cornerRadius(HLRadius.md)
-                .overlay(
-                    RoundedRectangle(cornerRadius: HLRadius.md)
-                        .stroke(Color.hlCardBorder, lineWidth: 1)
-                )
-                .padding(.horizontal, HLSpacing.lg)
+                .padding(.horizontal, HLSpacing.xl)
                 .focused($nameFieldFocused)
                 .submitLabel(.done)
-                .onSubmit { saveNameAndContinue() }
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        nameFieldFocused = true
+                    }
+                }
 
             Spacer()
-
-            HLButton(
-                "Continue",
-                icon: "arrow.right",
-                style: .primary,
-                size: .lg,
-                isFullWidth: true
-            ) {
-                saveNameAndContinue()
-            }
-            .disabled(userName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            .padding(.horizontal, HLSpacing.lg)
-            .padding(.bottom, HLSpacing.xxl)
         }
-        .background(Color.hlBackground.ignoresSafeArea())
-        .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                nameFieldFocused = true
-            }
-        }
-    }
-
-    private func saveNameAndContinue() {
-        let trimmed = userName.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        if let profile = profile {
-            profile.name = trimmed
-            profile.username = "@\(trimmed.lowercased().replacingOccurrences(of: " ", with: ""))"
-            try? modelContext.save()
-        }
-        showNameEntry = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            showStarterHabits = true
-        }
+        .padding(.horizontal, HLSpacing.lg)
     }
 
     // MARK: - First XP Award
