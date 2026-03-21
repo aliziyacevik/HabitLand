@@ -58,9 +58,11 @@ struct HomeDashboardView: View {
     }
 
     private var greeting: String {
+        #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-screenshotMode") {
             return "Good morning"
         }
+        #endif
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
         case 5..<12: return "Good morning"

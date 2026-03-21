@@ -72,7 +72,11 @@ struct HabitLandApp: App {
     var sharedModelContainer: ModelContainer = SharedModelContainer.container
 
     private var isScreenshotMode: Bool {
-        ProcessInfo.processInfo.arguments.contains("-screenshotMode")
+        #if DEBUG
+        return ProcessInfo.processInfo.arguments.contains("-screenshotMode")
+        #else
+        return false
+        #endif
     }
 
     var body: some Scene {

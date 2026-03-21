@@ -95,7 +95,11 @@ struct PremiumGateModifier: ViewModifier {
     @ObservedObject private var proManager = ProManager.shared
 
     private var isScreenshotMode: Bool {
-        ProcessInfo.processInfo.arguments.contains("-screenshotMode")
+        #if DEBUG
+        return ProcessInfo.processInfo.arguments.contains("-screenshotMode")
+        #else
+        return false
+        #endif
     }
 
     func body(content: Content) -> some View {
@@ -143,7 +147,11 @@ struct BlurredPremiumGateModifier: ViewModifier {
     @State private var showPaywall = false
 
     private var isScreenshotMode: Bool {
-        ProcessInfo.processInfo.arguments.contains("-screenshotMode")
+        #if DEBUG
+        return ProcessInfo.processInfo.arguments.contains("-screenshotMode")
+        #else
+        return false
+        #endif
     }
 
     func body(content: Content) -> some View {

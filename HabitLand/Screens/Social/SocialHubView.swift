@@ -23,7 +23,11 @@ struct SocialHubView: View {
             ZStack {
                 Color.hlBackground.ignoresSafeArea()
 
+                #if DEBUG
                 let isScreenshotMode = ProcessInfo.processInfo.arguments.contains("-screenshotMode")
+                #else
+                let isScreenshotMode = false
+                #endif
                 if !cloudKit.iCloudAvailable && !isScreenshotMode {
                     iCloudUnavailableView
                 } else {
