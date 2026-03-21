@@ -242,7 +242,7 @@ struct HomeDashboardView: View {
                 CreateHabitView()
             }
             .sheet(isPresented: $showPaywall) {
-                PaywallView()
+                PaywallView(context: .habitLimit)
             }
             .overlay(alignment: .bottom) {
                 UndoToast(
