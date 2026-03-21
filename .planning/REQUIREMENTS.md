@@ -27,9 +27,9 @@ Requirements for App Store launch milestone. Each maps to roadmap phases.
 
 ### Quality & Polish
 
-- [ ] **QAL-01**: Debug bypass (`-screenshotMode` Pro unlock) guarded with `#if DEBUG`
-- [ ] **QAL-02**: All `fatalError()` crash paths replaced with graceful error handling
-- [ ] **QAL-03**: All unguarded `print()` statements removed or replaced with `os_log`
+- [x] **QAL-01**: Debug bypass (`-screenshotMode` Pro unlock) guarded with `#if DEBUG`
+- [x] **QAL-02**: All `fatalError()` crash paths replaced with graceful error handling
+- [x] **QAL-03**: All unguarded `print()` statements removed or replaced with `os_log`
 - [ ] **QAL-04**: Free tier experience tested end-to-end on clean device
 - [ ] **QAL-05**: General UI/UX polish pass (animations, transitions, edge cases)
 - [ ] **QAL-06**: Performance optimization (launch time, scroll smoothness, memory)
@@ -96,9 +96,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ASR-04 | Phase 3 | Complete |
 | ASR-05 | Phase 3 | Complete |
 | ASR-06 | Phase 3 | Complete |
-| QAL-01 | Phase 4 | Pending |
-| QAL-02 | Phase 4 | Pending |
-| QAL-03 | Phase 4 | Pending |
+| QAL-01 | Phase 4 | Complete |
+| QAL-02 | Phase 4 | Complete |
+| QAL-03 | Phase 4 | Complete |
 | QAL-04 | Phase 4 | Pending |
 | QAL-05 | Phase 4 | Pending |
 | QAL-06 | Phase 4 | Pending |

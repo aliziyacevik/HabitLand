@@ -78,7 +78,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 04-01-PLAN.md -- HLLogger wrapper + print() replacement + screenshotMode #if DEBUG guards + crash path fix
+- [x] 04-01-PLAN.md -- HLLogger wrapper + print() replacement + screenshotMode #if DEBUG guards + crash path fix
 - [ ] 04-02-PLAN.md -- Sheet transition polish (HLSheetContent modifier) + empty states + edge case fixes
 - [ ] 04-03-PLAN.md -- Automated quality audits + manual free tier QA + performance verification
 
