@@ -50,10 +50,14 @@ enum SharedModelContainer {
                 let inMemoryConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
                 do {
                     return try ModelContainer(for: schema, configurations: [inMemoryConfig])
-                } catch {
-                    assertionFailure("All ModelContainer creation paths failed: \(error)")
-                    HLLogger.data.fault("All ModelContainer paths failed: \(error.localizedDescription, privacy: .public)")
-                    return try! ModelContainer(for: schema)
+                } catch let finalError {
+                    HLLogger.data.fault("All ModelContainer paths failed: \(finalError.localizedDescription, privacy: .public)")
+                    // Absolute last resort — default container with no configuration
+                    if let bare = try? ModelContainer(for: schema) {
+                        return bare
+                    }
+                    // SwiftData itself is broken — nothing we can do
+                    fatalError("SwiftData cannot create any ModelContainer. Device may be out of storage. Error: \(finalError.localizedDescription)")
                 }
             }
         }
