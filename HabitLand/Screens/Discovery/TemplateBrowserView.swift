@@ -7,6 +7,7 @@ struct TemplateBrowserView: View {
 
     @State private var searchText = ""
     @State private var selectedCategory: HabitCategory?
+    @State private var expandedPack: String?
 
     private var filteredTemplates: [HabitTemplate] {
         var results: [HabitTemplate]
@@ -120,15 +121,57 @@ struct TemplateBrowserView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: HLSpacing.xs) {
                     ForEach(HabitTemplateLibrary.packs) { pack in
-                        miniPackCard(pack)
+                        Button {
+                            withAnimation(HLAnimation.standard) {
+                                selectedCategory = nil
+                                expandedPack = expandedPack == pack.id ? nil : pack.id
+                            }
+                            HLHaptics.selection()
+                        } label: {
+                            miniPackCard(pack)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
+            }
+
+            // Expanded pack contents
+            if let packID = expandedPack,
+               let pack = HabitTemplateLibrary.packs.first(where: { $0.id == packID }) {
+                VStack(spacing: HLSpacing.xs) {
+                    HStack {
+                        Image(systemName: pack.icon)
+                            .foregroundColor(pack.color)
+                        Text(pack.name)
+                            .font(HLFont.callout(.semibold))
+                            .foregroundColor(.hlTextPrimary)
+                        Spacer()
+                        Text("\(pack.templates.count) habits")
+                            .font(HLFont.caption())
+                            .foregroundColor(.hlTextTertiary)
+                    }
+                    .padding(.horizontal, HLSpacing.xs)
+
+                    ForEach(pack.templates) { template in
+                        Button {
+                            HLHaptics.selection()
+                            onSelect(template)
+                        } label: {
+                            templateCard(template)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.top, HLSpacing.xs)
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
     }
 
     private func miniPackCard(_ pack: HabitTemplatePack) -> some View {
-        VStack(alignment: .leading, spacing: HLSpacing.xxs) {
+        let isExpanded = expandedPack == pack.id
+
+        return VStack(alignment: .leading, spacing: HLSpacing.xxs) {
             Image(systemName: pack.icon)
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(pack.color)
@@ -144,11 +187,11 @@ struct TemplateBrowserView: View {
         }
         .frame(width: 100)
         .padding(HLSpacing.sm)
-        .background(Color.hlSurface)
+        .background(isExpanded ? pack.color.opacity(0.08) : Color.hlSurface)
         .cornerRadius(HLRadius.md)
         .overlay(
             RoundedRectangle(cornerRadius: HLRadius.md)
-                .stroke(Color.hlCardBorder, lineWidth: 1)
+                .stroke(isExpanded ? pack.color : Color.hlCardBorder, lineWidth: isExpanded ? 2 : 1)
         )
     }
 
