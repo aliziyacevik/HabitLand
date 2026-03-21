@@ -24,6 +24,7 @@ final class CloudKitManager: ObservableObject {
         static let challenge = "SocialChallenge"
         static let challengeParticipant = "ChallengeParticipant"
         static let nudge = "Nudge"
+        static let referralRedemption = "ReferralRedemption"
     }
 
     // MARK: - Init
@@ -452,6 +453,58 @@ final class CloudKitManager: ObservableObject {
 
         entries.sort { $0.xp > $1.xp }
         return entries
+    }
+    // MARK: - Referral System
+
+    func saveReferralRedemption(referrerCode: String, redeemerUserID: String) async -> Bool {
+        let record = CKRecord(recordType: RecordType.referralRedemption)
+        record["referrerCode"] = referrerCode as CKRecordValue
+        record["redeemerUserID"] = redeemerUserID as CKRecordValue
+        record["redeemedAt"] = Date() as CKRecordValue
+
+        do {
+            try await publicDB.save(record)
+            return true
+        } catch {
+            print("Failed to save referral redemption: \(error)")
+            return false
+        }
+    }
+
+    func hasUserRedeemedReferral(userID: String) async -> Bool {
+        let predicate = NSPredicate(format: "redeemerUserID == %@", userID)
+        let query = CKQuery(recordType: RecordType.referralRedemption, predicate: predicate)
+
+        do {
+            let (results, _) = try await publicDB.records(matching: query, resultsLimit: 1)
+            return !results.isEmpty
+        } catch {
+            return false
+        }
+    }
+
+    func fetchReferralCount(forCode code: String) async -> Int {
+        let predicate = NSPredicate(format: "referrerCode == %@", code)
+        let query = CKQuery(recordType: RecordType.referralRedemption, predicate: predicate)
+
+        do {
+            let (results, _) = try await publicDB.records(matching: query)
+            return results.count
+        } catch {
+            return 0
+        }
+    }
+
+    func findReferrerProfile(byCode code: String) async -> CKRecord? {
+        let predicate = NSPredicate(format: "referralCode == %@", code)
+        let query = CKQuery(recordType: RecordType.userProfile, predicate: predicate)
+
+        do {
+            let (results, _) = try await publicDB.records(matching: query, resultsLimit: 1)
+            return try results.first?.1.get()
+        } catch {
+            return nil
+        }
     }
 }
 
