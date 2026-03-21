@@ -32,6 +32,8 @@ Kullanıcıların alışkanlıklarını eğlenceli ve sosyal bir deneyimle kalı
 - ✓ Subscription management in Settings — Phase 1
 - ✓ Security hardening (screenshotMode #if DEBUG, fatalError removed) — Phase 1
 - ✓ Platform activation (iCloud, HealthKit, Push entitlements + UI) — Phase 1
+- ✓ Referral sistemi (kod üretme, paylaşma, redemption, CloudKit tracking) — Phase 2
+- ✓ Referrer Pro ödülü (on-launch check, max 4 stack / 28 gün cap) — Phase 2
 
 ### Active
 - [ ] App Store hazırlığı (metadata, screenshots, açıklama, icon finalizasyonu)
@@ -93,4 +95,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-21 after Phase 1 completion*
+*Last updated: 2026-03-21 after Phase 2 completion*
