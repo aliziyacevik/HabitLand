@@ -133,6 +133,85 @@ struct ProBadge: View {
     }
 }
 
+// MARK: - Blurred Premium Gate (shows content behind blur)
+
+struct BlurredPremiumGateModifier: ViewModifier {
+    let feature: String
+    let icon: String
+    let paywallContext: PaywallContext
+    @ObservedObject private var proManager = ProManager.shared
+    @State private var showPaywall = false
+
+    private var isScreenshotMode: Bool {
+        ProcessInfo.processInfo.arguments.contains("-screenshotMode")
+    }
+
+    func body(content: Content) -> some View {
+        if proManager.isPro || isScreenshotMode {
+            content
+        } else {
+            ZStack {
+                content
+                    .blur(radius: 10)
+                    .allowsHitTesting(false)
+
+                VStack(spacing: HLSpacing.md) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.hlPrimary.opacity(0.12))
+                            .frame(width: 72, height: 72)
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 28))
+                            .foregroundStyle(Color.hlPrimary)
+                    }
+
+                    Text("Unlock \(feature)")
+                        .font(HLFont.title2(.bold))
+                        .foregroundStyle(Color.hlTextPrimary)
+
+                    Text(paywallContext.description)
+                        .font(HLFont.subheadline())
+                        .foregroundStyle(Color.hlTextSecondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, HLSpacing.md)
+
+                    Button {
+                        showPaywall = true
+                        HLHaptics.medium()
+                    } label: {
+                        HStack(spacing: HLSpacing.xs) {
+                            Image(systemName: "crown.fill")
+                            Text("Upgrade to Pro")
+                        }
+                        .font(HLFont.headline())
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: 280)
+                        .padding(.vertical, HLSpacing.md)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.hlPrimary, Color.hlPrimaryDark],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .cornerRadius(HLRadius.lg)
+                    }
+                }
+                .padding(HLSpacing.xl)
+            }
+            .sheet(isPresented: $showPaywall) {
+                PaywallView(context: paywallContext)
+            }
+        }
+    }
+}
+
+extension View {
+    func blurredPremiumGate(feature: String, icon: String, context: PaywallContext) -> some View {
+        modifier(BlurredPremiumGateModifier(feature: feature, icon: icon, paywallContext: context))
+    }
+}
+
 #Preview {
     PremiumGateView(feature: "Advanced Analytics", icon: "chart.bar.fill")
 }

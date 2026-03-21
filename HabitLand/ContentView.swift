@@ -81,14 +81,14 @@ struct ContentView: View {
                 }
 
             SleepDashboardView()
-                .premiumGated(feature: "Sleep Tracking", icon: "moon.fill")
+                .blurredPremiumGate(feature: "Sleep Tracking", icon: "moon.fill", context: .sleepTracking)
                 .tag(HLTab.sleep)
                 .tabItem {
                     Label(HLTab.sleep.title, systemImage: HLTab.sleep.icon)
                 }
 
             SocialHubView()
-                .premiumGated(feature: "Social Features", icon: "person.2.fill")
+                .blurredPremiumGate(feature: "Social Features", icon: "person.2.fill", context: .socialFeatures)
                 .tag(HLTab.social)
                 .tabItem {
                     Label(HLTab.social.title, systemImage: HLTab.social.icon)
