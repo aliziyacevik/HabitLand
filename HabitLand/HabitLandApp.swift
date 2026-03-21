@@ -319,6 +319,13 @@ struct HabitLandApp: App {
             if weeklySummaryEnabled {
                 manager.scheduleWeeklySummary()
             }
+            // Schedule daily notifications (streak risk + morning motivation)
+            let context = sharedModelContainer.mainContext
+            let habits = (try? context.fetch(FetchDescriptor<Habit>())) ?? []
+            let habitData = habits.filter { !$0.isArchived }.map {
+                (id: $0.id, name: $0.name, streak: $0.currentStreak, completed: $0.todayCompleted)
+            }
+            manager.scheduleDailyNotifications(habits: habitData)
         }
     }
 }
