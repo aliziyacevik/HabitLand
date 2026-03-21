@@ -44,11 +44,12 @@ Plans:
   2. User who enters a referral code during onboarding or in settings receives 1 week of free Pro access
   3. Original referrer receives 1 week of free Pro access when their friend redeems the code
   4. Social challenge share links include an app download link for non-users
-**Plans**: 2 plans
+**Plans**: 3 plans
 
 Plans:
 - [x] 02-01-PLAN.md -- Data model + ProManager referral Pro + CloudKit tracking + code entry component
 - [x] 02-02-PLAN.md -- InviteFriendsView refactor + onboarding/settings entry points + challenge share links
+- [ ] 02-03-PLAN.md -- Gap closure: referrer Pro grant + max 4 referral cap + on-launch reward check
 
 ### Phase 3: App Store Readiness
 **Goal**: App Store listing is complete, optimized for discovery, and ready for submission
@@ -86,6 +87,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Monetization & Platform Activation | 0/3 | Planning complete | - |
-| 2. Referral System | 0/2 | Planning complete | - |
+| 2. Referral System | 0/3 | Gap closure planned | - |
 | 3. App Store Readiness | 0/0 | Not started | - |
 | 4. Quality Hardening & Launch | 0/0 | Not started | - |
