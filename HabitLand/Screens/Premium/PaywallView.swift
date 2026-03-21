@@ -2,6 +2,7 @@ import SwiftUI
 import StoreKit
 
 struct PaywallView: View {
+    var context: PaywallContext? = nil
     @Environment(\.dismiss) private var dismiss
     @StateObject private var proManager = ProManager.shared
     @State private var selectedPlan: String = ProManager.lifetimeID
@@ -54,30 +55,53 @@ struct PaywallView: View {
 
     private var headerSection: some View {
         VStack(spacing: HLSpacing.md) {
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.hlPrimary, Color.hlPrimary.opacity(0.6)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+            if let context {
+                // Contextual header per D-04
+                ZStack {
+                    Circle()
+                        .fill(Color.hlPrimary.opacity(0.12))
+                        .frame(width: 80, height: 80)
+                    Image(systemName: context.icon)
+                        .font(.system(size: 36))
+                        .foregroundStyle(Color.hlPrimary)
+                }
+                .padding(.top, HLSpacing.xl)
+
+                Text(context.title)
+                    .font(HLFont.title1(.bold))
+                    .foregroundStyle(Color.hlTextPrimary)
+                Text(context.description)
+                    .font(HLFont.body())
+                    .foregroundStyle(Color.hlTextSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, HLSpacing.lg)
+            } else {
+                // Generic header (existing design)
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.hlPrimary, Color.hlPrimary.opacity(0.6)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
-                    .frame(width: 80, height: 80)
+                        .frame(width: 80, height: 80)
 
-                Image(systemName: "crown.fill")
-                    .font(.system(size: 36))
-                    .foregroundStyle(.white)
+                    Image(systemName: "crown.fill")
+                        .font(.system(size: 36))
+                        .foregroundStyle(.white)
+                }
+                .padding(.top, HLSpacing.xl)
+
+                Text("HabitLand Pro")
+                    .font(HLFont.title1(.bold))
+                    .foregroundStyle(Color.hlTextPrimary)
+
+                Text("Unlock your full potential")
+                    .font(HLFont.body())
+                    .foregroundStyle(Color.hlTextSecondary)
             }
-            .padding(.top, HLSpacing.xl)
-
-            Text("HabitLand Pro")
-                .font(HLFont.title1(.bold))
-                .foregroundStyle(Color.hlTextPrimary)
-
-            Text("Unlock your full potential")
-                .font(HLFont.body())
-                .foregroundStyle(Color.hlTextSecondary)
         }
         .padding(.bottom, HLSpacing.xl)
     }
