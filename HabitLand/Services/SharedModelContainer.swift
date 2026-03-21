@@ -1,5 +1,6 @@
-import SwiftData
 import Foundation
+import os
+import SwiftData
 
 enum SharedModelContainer {
     static let appGroupID = "group.azc.HabitLand"
@@ -32,7 +33,7 @@ enum SharedModelContainer {
             return try ModelContainer(for: schema, configurations: [config])
         } catch {
             // Fallback: try without CloudKit sync if iCloud setup fails
-            print("CloudKit ModelContainer failed: \(error). Falling back to local-only.")
+            HLLogger.data.error("CloudKit ModelContainer failed, falling back to local-only: \(error.localizedDescription, privacy: .public)")
             let fallbackConfig: ModelConfiguration
             if let groupURL = FileManager.default
                 .containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
@@ -44,10 +45,16 @@ enum SharedModelContainer {
             do {
                 return try ModelContainer(for: schema, configurations: [fallbackConfig])
             } catch {
-                print("CRITICAL: ModelContainer creation failed completely: \(error)")
+                HLLogger.data.fault("ModelContainer creation failed completely: \(error.localizedDescription, privacy: .public)")
                 // Last resort: in-memory container so app doesn't crash
                 let inMemoryConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-                return try! ModelContainer(for: schema, configurations: [inMemoryConfig])
+                do {
+                    return try ModelContainer(for: schema, configurations: [inMemoryConfig])
+                } catch {
+                    assertionFailure("All ModelContainer creation paths failed: \(error)")
+                    HLLogger.data.fault("All ModelContainer paths failed: \(error.localizedDescription, privacy: .public)")
+                    return try! ModelContainer(for: schema)
+                }
             }
         }
     }()

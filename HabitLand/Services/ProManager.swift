@@ -1,4 +1,5 @@
 import Foundation
+import os
 import StoreKit
 import SwiftUI
 
@@ -118,7 +119,7 @@ final class ProManager: ObservableObject {
             let storeProducts = try await Product.products(for: [Self.yearlyID, Self.lifetimeID])
             products = storeProducts.sorted { $0.price < $1.price }
         } catch {
-            print("Failed to load products: \(error)")
+            HLLogger.storekit.error("Failed to load products: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -163,7 +164,7 @@ final class ProManager: ObservableObject {
             await updatePurchasedProducts()
             return true
         } catch {
-            print("Promo code redemption failed: \(error)")
+            HLLogger.storekit.error("Promo code redemption failed: \(error.localizedDescription, privacy: .public)")
             return false
         }
     }
@@ -178,7 +179,7 @@ final class ProManager: ObservableObject {
                     await transaction.finish()
                     await self.updatePurchasedProducts()
                 } catch {
-                    print("Transaction verification failed: \(error)")
+                    HLLogger.storekit.error("Transaction verification failed: \(error.localizedDescription, privacy: .public)")
                 }
             }
         }

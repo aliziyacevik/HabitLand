@@ -1,6 +1,7 @@
-import HealthKit
-import SwiftData
 import Foundation
+import HealthKit
+import os
+import SwiftData
 
 // MARK: - HealthKit Metric
 
@@ -121,7 +122,7 @@ final class HealthKitManager: ObservableObject {
             isAuthorized = true
             return true
         } catch {
-            print("HealthKit authorization failed: \(error)")
+            HLLogger.healthkit.error("HealthKit authorization failed: \(error.localizedDescription, privacy: .public)")
             return false
         }
     }
@@ -153,7 +154,7 @@ final class HealthKitManager: ObservableObject {
             let result = try await descriptor.result(for: healthStore)
             return result?.sumQuantity()?.doubleValue(for: metric.hkUnit) ?? 0
         } catch {
-            print("HealthKit query failed for \(metric.rawValue): \(error)")
+            HLLogger.healthkit.error("HealthKit query failed for \(metric.rawValue, privacy: .public): \(error.localizedDescription, privacy: .public)")
             return 0
         }
     }

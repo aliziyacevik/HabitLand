@@ -1,3 +1,4 @@
+import os
 import SwiftUI
 import SwiftData
 import UIKit
@@ -17,11 +18,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         // Token received — will be used when server push is implemented in v2
         let token = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
-        print("APNs device token: \(token)")
+        HLLogger.app.debug("APNs device token: \(token, privacy: .private)")
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        print("APNs registration failed: \(error.localizedDescription)")
+        HLLogger.app.error("APNs registration failed: \(error.localizedDescription, privacy: .public)")
     }
 
     func application(

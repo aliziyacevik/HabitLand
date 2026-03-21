@@ -1,4 +1,5 @@
 import CloudKit
+import os
 import SwiftData
 import SwiftUI
 
@@ -44,7 +45,7 @@ final class CloudKitManager: ObservableObject {
             }
         } catch {
             iCloudAvailable = false
-            print("CloudKit status check failed: \(error)")
+            HLLogger.cloudkit.error("CloudKit status check failed: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -53,7 +54,7 @@ final class CloudKitManager: ObservableObject {
             let recordID = try await container.userRecordID()
             currentUserRecordID = recordID
         } catch {
-            print("Failed to fetch user record ID: \(error)")
+            HLLogger.cloudkit.error("Failed to fetch user record ID: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -83,7 +84,7 @@ final class CloudKitManager: ObservableObject {
         do {
             try await publicDB.save(record)
         } catch {
-            print("Failed to publish profile: \(error)")
+            HLLogger.cloudkit.error("Failed to publish profile: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -101,7 +102,7 @@ final class CloudKitManager: ObservableObject {
             record["lastActive"] = Date() as CKRecordValue
             try await publicDB.save(record)
         } catch {
-            print("Failed to publish stats: \(error)")
+            HLLogger.cloudkit.error("Failed to publish stats: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -117,7 +118,7 @@ final class CloudKitManager: ObservableObject {
             return results.compactMap { try? $0.1.get() }
                 .filter { $0.recordID != currentUserRecordID }
         } catch {
-            print("Search failed: \(error)")
+            HLLogger.cloudkit.error("Search failed: \(error.localizedDescription, privacy: .public)")
             return []
         }
     }
@@ -137,7 +138,7 @@ final class CloudKitManager: ObservableObject {
             try await publicDB.save(record)
             return true
         } catch {
-            print("Failed to send friend request: \(error)")
+            HLLogger.cloudkit.error("Failed to send friend request: \(error.localizedDescription, privacy: .public)")
             return false
         }
     }
@@ -174,7 +175,7 @@ final class CloudKitManager: ObservableObject {
             }
             pendingRequests = requests
         } catch {
-            print("Failed to fetch pending requests: \(error)")
+            HLLogger.cloudkit.error("Failed to fetch pending requests: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -187,7 +188,7 @@ final class CloudKitManager: ObservableObject {
             record["status"] = "accepted" as CKRecordValue
             try await publicDB.save(record)
         } catch {
-            print("Failed to accept request: \(error)")
+            HLLogger.cloudkit.error("Failed to accept request: \(error.localizedDescription, privacy: .public)")
             return false
         }
 
@@ -200,7 +201,7 @@ final class CloudKitManager: ObservableObject {
         do {
             try await publicDB.save(reverseRecord)
         } catch {
-            print("Failed to save reverse friendship: \(error)")
+            HLLogger.cloudkit.error("Failed to save reverse friendship: \(error.localizedDescription, privacy: .public)")
         }
 
         // Create local Friend entry
@@ -215,7 +216,7 @@ final class CloudKitManager: ObservableObject {
         do {
             try context.save()
         } catch {
-            print("Failed to save friend locally: \(error)")
+            HLLogger.cloudkit.error("Failed to save friend locally: \(error.localizedDescription, privacy: .public)")
             return false
         }
 
@@ -232,7 +233,7 @@ final class CloudKitManager: ObservableObject {
             try await publicDB.save(record)
             pendingRequests.removeAll { $0.recordID == request.recordID }
         } catch {
-            print("Failed to decline request: \(error)")
+            HLLogger.cloudkit.error("Failed to decline request: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -255,7 +256,7 @@ final class CloudKitManager: ObservableObject {
                 friend.habitsCompletedToday = record["habitsCompletedToday"] as? Int ?? 0
                 friend.xp = record["xp"] as? Int ?? 0
             } catch {
-                print("Failed to sync friend \(friend.name): \(error)")
+                HLLogger.cloudkit.error("Failed to sync friend \(friend.name, privacy: .public): \(error.localizedDescription, privacy: .public)")
             }
         }
         try? context.save()
@@ -277,7 +278,7 @@ final class CloudKitManager: ObservableObject {
             try await publicDB.save(record)
             return true
         } catch {
-            print("Failed to send nudge: \(error)")
+            HLLogger.cloudkit.error("Failed to send nudge: \(error.localizedDescription, privacy: .public)")
             return false
         }
     }
@@ -314,7 +315,7 @@ final class CloudKitManager: ObservableObject {
             }
             return nudges
         } catch {
-            print("Failed to fetch nudges: \(error)")
+            HLLogger.cloudkit.error("Failed to fetch nudges: \(error.localizedDescription, privacy: .public)")
             return []
         }
     }
@@ -325,7 +326,7 @@ final class CloudKitManager: ObservableObject {
             record["isRead"] = true as CKRecordValue
             try await publicDB.save(record)
         } catch {
-            print("Failed to mark nudge read: \(error)")
+            HLLogger.cloudkit.error("Failed to mark nudge read: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -353,7 +354,7 @@ final class CloudKitManager: ObservableObject {
 
             return saved
         } catch {
-            print("Failed to create challenge: \(error)")
+            HLLogger.cloudkit.error("Failed to create challenge: \(error.localizedDescription, privacy: .public)")
             return nil
         }
     }
@@ -370,7 +371,7 @@ final class CloudKitManager: ObservableObject {
         do {
             try await publicDB.save(record)
         } catch {
-            print("Failed to join challenge: \(error)")
+            HLLogger.cloudkit.error("Failed to join challenge: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -406,7 +407,7 @@ final class CloudKitManager: ObservableObject {
             record["progress"] = progress as CKRecordValue
             try await publicDB.save(record)
         } catch {
-            print("Failed to update challenge progress: \(error)")
+            HLLogger.cloudkit.error("Failed to update challenge progress: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -466,7 +467,7 @@ final class CloudKitManager: ObservableObject {
             try await publicDB.save(record)
             return true
         } catch {
-            print("Failed to save referral redemption: \(error)")
+            HLLogger.cloudkit.error("Failed to save referral redemption: \(error.localizedDescription, privacy: .public)")
             return false
         }
     }
