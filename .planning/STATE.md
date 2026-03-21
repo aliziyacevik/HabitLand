@@ -82,6 +82,8 @@ Recent decisions affecting current work:
 - [Phase 04]: APNs token logged with privacy: .private; error descriptions with privacy: .public
 - [Phase 04]: HLSheetContent uses spring(duration: 0.35, bounce: 0.0) with 8pt offset for refined sheet entrance animation
 - [Phase 04]: All automated quality audits passed without code changes; human QA confirmed App Store readiness
+- [Quick n73]: AvatarType uses rawStorage String encoding for SwiftData associated-value enum compatibility
+- [Quick n73]: Avatar packs as non-consumable IAP with UserDefaults persistence, 3 level-gated free unlocks
 
 ### Pending Todos
 
@@ -94,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T13:19:33.996Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-03-21T13:54:19Z
+Stopped at: Completed quick task 260321-n73 (Avatar Pack IAP System)
 Resume file: None
