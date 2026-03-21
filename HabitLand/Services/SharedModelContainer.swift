@@ -23,11 +23,9 @@ enum SharedModelContainer {
             let url = groupURL.appending(path: "HabitLand.sqlite")
             // Use CloudKit private database for automatic habit/completion sync across devices
             // Social features use CloudKitManager with the public database separately
-            // TODO: Re-enable CloudKit when Apple Developer account is approved
-            // cloudKitDatabase: .private("iCloud.azc.HabitLand")
-            config = ModelConfiguration(schema: schema, url: url, cloudKitDatabase: .none)
+            config = ModelConfiguration(schema: schema, url: url, cloudKitDatabase: .private("iCloud.azc.HabitLand"))
         } else {
-            config = ModelConfiguration(schema: schema, cloudKitDatabase: .none)
+            config = ModelConfiguration(schema: schema, cloudKitDatabase: .private("iCloud.azc.HabitLand"))
         }
 
         do {
@@ -46,7 +44,10 @@ enum SharedModelContainer {
             do {
                 return try ModelContainer(for: schema, configurations: [fallbackConfig])
             } catch {
-                fatalError("Failed to create ModelContainer even without CloudKit: \(error)")
+                print("CRITICAL: ModelContainer creation failed completely: \(error)")
+                // Last resort: in-memory container so app doesn't crash
+                let inMemoryConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+                return try! ModelContainer(for: schema, configurations: [inMemoryConfig])
             }
         }
     }()
