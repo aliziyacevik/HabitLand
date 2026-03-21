@@ -50,7 +50,7 @@ enum HealthKitMetric: String, Codable, CaseIterable, Identifiable {
         case .exerciseMinutes: return 30
         case .activeCalories: return 500
         case .walkingDistance: return 5
-        case .standHours: return 720
+        case .standHours: return 12
         case .mindfulMinutes: return 10
         case .sleepHours: return 8
         }
@@ -76,7 +76,7 @@ enum HealthKitMetric: String, Codable, CaseIterable, Identifiable {
         case .exerciseMinutes: return .minute()
         case .activeCalories: return .kilocalorie()
         case .walkingDistance: return .meterUnit(with: .kilo)
-        case .standHours: return .minute() // convert later
+        case .standHours: return .hour()
         case .mindfulMinutes: return .minute()
         case .sleepHours: return .hour()
         }
