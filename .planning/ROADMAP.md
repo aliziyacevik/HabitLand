@@ -47,7 +47,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md -- Data model + ProManager referral Pro + CloudKit tracking + code entry component
+- [x] 02-01-PLAN.md -- Data model + ProManager referral Pro + CloudKit tracking + code entry component
 - [ ] 02-02-PLAN.md -- InviteFriendsView refactor + onboarding/settings entry points + challenge share links
 
 ### Phase 3: App Store Readiness

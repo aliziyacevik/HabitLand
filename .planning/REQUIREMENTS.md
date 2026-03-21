@@ -36,10 +36,10 @@ Requirements for App Store launch milestone. Each maps to roadmap phases.
 
 ### Growth
 
-- [ ] **GRW-01**: User can generate a referral code and share via share sheet
-- [ ] **GRW-02**: User who redeems a referral code gets 1 week Pro free
-- [ ] **GRW-03**: User who referred gets 1 week Pro free when friend redeems
-- [ ] **GRW-04**: Referral tracking via CloudKit public database
+- [x] **GRW-01**: User can generate a referral code and share via share sheet
+- [x] **GRW-02**: User who redeems a referral code gets 1 week Pro free
+- [x] **GRW-03**: User who referred gets 1 week Pro free when friend redeems
+- [x] **GRW-04**: Referral tracking via CloudKit public database
 - [ ] **GRW-05**: Social challenge share links include app download link for non-users
 
 ### Platform Activation
@@ -102,10 +102,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | QAL-04 | Phase 4 | Pending |
 | QAL-05 | Phase 4 | Pending |
 | QAL-06 | Phase 4 | Pending |
-| GRW-01 | Phase 2 | Pending |
-| GRW-02 | Phase 2 | Pending |
-| GRW-03 | Phase 2 | Pending |
-| GRW-04 | Phase 2 | Pending |
+| GRW-01 | Phase 2 | Complete |
+| GRW-02 | Phase 2 | Complete |
+| GRW-03 | Phase 2 | Complete |
+| GRW-04 | Phase 2 | Complete |
 | GRW-05 | Phase 2 | Pending |
 | PLT-01 | Phase 1 | Complete |
 | PLT-02 | Phase 1 | Complete |

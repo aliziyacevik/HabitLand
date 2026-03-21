@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-02-PLAN.md
-last_updated: "2026-03-21T09:59:34.988Z"
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-03-21T10:25:04.923Z"
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 5
+  completed_plans: 4
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** Kullanicilarin aliskanliklarini eglenceli ve sosyal bir deneyimle kalici hale getirmesi
-**Current focus:** Phase 01 — monetization-platform-activation
+**Current focus:** Phase 02 — referral-system
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
+Phase: 02 (referral-system) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Plan: Not started
 | Phase 01 P01 | 3min | 2 tasks | 2 files |
 | Phase 01 P03 | 3min | 3 tasks | 5 files |
 | Phase 01 P02 | 8min | 4 tasks | 5 files |
+| Phase 02 P01 | 3min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -63,6 +64,8 @@ Recent decisions affecting current work:
 - [Phase 01]: Fallback CloudKit configs remain .none for crash prevention; StoreKit team ID set to PENDING pending Developer account
 - [Phase 01]: BlurredPremiumGateModifier added alongside existing PremiumGateModifier, not replacing it
 - [Phase 01]: Manage Subscription row only shown for yearly subscribers (lifetime has nothing to manage)
+- [Phase 02]: Referral code deterministic from UUID, ambiguous chars excluded, displayed as HBT-XXXXXX
+- [Phase 02]: Referral Pro stacks additively via UserDefaults persistence
 
 ### Pending Todos
 
@@ -75,6 +78,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T09:47:48.032Z
-Stopped at: Completed 01-02-PLAN.md
+Last session: 2026-03-21T10:25:04.921Z
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None
