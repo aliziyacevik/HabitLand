@@ -177,11 +177,11 @@ struct OnboardingView: View {
                     .background(Color.hlPrimaryLight)
                     .clipShape(Circle())
 
-                Text("Davet kodun var mi?")
+                Text("Do you have a referral code?")
                     .font(HLFont.title2())
                     .foregroundColor(.hlTextPrimary)
 
-                Text("Arkadasinin kodunu gir, ikiniz de 1 hafta Pro kazanin!")
+                Text("Enter your friend's code — you both get 1 week of Pro!")
                     .font(HLFont.subheadline())
                     .foregroundColor(.hlTextSecondary)
                     .multilineTextAlignment(.center)
@@ -201,7 +201,7 @@ struct OnboardingView: View {
                 Button {
                     showReferralEntry = false
                 } label: {
-                    Text("Atla")
+                    Text("Skip")
                         .font(HLFont.headline())
                         .foregroundColor(.hlTextSecondary)
                         .frame(maxWidth: .infinity)
