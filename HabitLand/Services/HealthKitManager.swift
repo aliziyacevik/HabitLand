@@ -234,6 +234,10 @@ final class HealthKitManager: ObservableObject {
             }
         }
 
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            HLLogger.healthkit.error("Failed to save HealthKit auto-completions: \(error.localizedDescription, privacy: .public)")
+        }
     }
 }

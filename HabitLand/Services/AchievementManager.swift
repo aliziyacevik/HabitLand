@@ -1,4 +1,5 @@
 import Foundation
+import os
 import SwiftData
 
 /// Checks user progress and unlocks achievements accordingly.
@@ -156,7 +157,11 @@ struct AchievementManager {
             }
         }
 
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            HLLogger.data.error("Failed to save achievements: \(error.localizedDescription, privacy: .public)")
+        }
         return newlyUnlocked
     }
 
@@ -168,7 +173,7 @@ struct AchievementManager {
 
     private static func hasPerfectWeek(habits: [Habit], calendar: Calendar) -> Bool {
         let today = calendar.startOfDay(for: Date())
-        for startOffset in 0..<84 {
+        for startOffset in 0..<16 {
             let weekStart = calendar.date(byAdding: .day, value: -(startOffset + 6), to: today)!
             var allPerfect = true
             var hasData = false

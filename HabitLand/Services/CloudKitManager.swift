@@ -259,7 +259,11 @@ final class CloudKitManager: ObservableObject {
                 HLLogger.cloudkit.error("Failed to sync friend \(friend.name, privacy: .public): \(error.localizedDescription, privacy: .public)")
             }
         }
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            HLLogger.cloudkit.error("Failed to save CloudKit sync data: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     // MARK: - Nudge

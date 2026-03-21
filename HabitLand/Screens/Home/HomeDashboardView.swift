@@ -557,6 +557,7 @@ struct HomeDashboardView: View {
                         let completion = HabitCompletion(date: Date())
                         completion.habit = habit
                         modelContext.insert(completion)
+                        undoCompletion = completion
                     }
                 }
                 if !wasCompleted {
@@ -564,10 +565,6 @@ struct HomeDashboardView: View {
                     ReviewManager.trackCompletion()
                     // Show undo toast
                     undoHabitName = habit.name
-                    let latestCompletion = habit.safeCompletions.sorted(by: { $0.date > $1.date }).first(where: {
-                        Calendar.current.isDateInToday($0.date) && $0.isCompleted
-                    })
-                    undoCompletion = latestCompletion
                     withAnimation(HLAnimation.quick) {
                         showUndoToast = true
                     }
@@ -631,8 +628,8 @@ struct HomeDashboardView: View {
     }
 
     private func completeHabit(_ habit: Habit) {
+        let completion = HabitCompletion(date: Date())
         withAnimation(HLAnimation.celebration) {
-            let completion = HabitCompletion(date: Date())
             completion.habit = habit
             modelContext.insert(completion)
         }
@@ -642,10 +639,7 @@ struct HomeDashboardView: View {
         showAchievementIfNeeded(AchievementManager.checkAll(context: modelContext))
         CompleteHabitIntent.donate(habit: habit.toEntity())
         undoHabitName = habit.name
-        let latestCompletion = habit.safeCompletions.sorted(by: { $0.date > $1.date }).first(where: {
-            Calendar.current.isDateInToday($0.date) && $0.isCompleted
-        })
-        undoCompletion = latestCompletion
+        undoCompletion = completion
         withAnimation(HLAnimation.quick) {
             showUndoToast = true
         }
