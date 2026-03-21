@@ -13,6 +13,7 @@ struct GeneralSettingsView: View {
 
     @ObservedObject private var proManager = ProManager.shared
     @ObservedObject private var healthKitManager = HealthKitManager.shared
+    @StateObject private var cloudKit = CloudKitManager.shared
     @State private var showPaywall = false
     @State private var showPrivacy = false
     @State private var showTerms = false
@@ -115,11 +116,11 @@ struct GeneralSettingsView: View {
                 HStack {
                     settingsRow(icon: "icloud.fill", color: .blue, title: "iCloud Sync")
                     Spacer()
-                    Text("Enabled")
+                    Text(cloudKit.iCloudAvailable ? "Available" : "Unavailable")
                         .font(HLFont.caption())
                         .foregroundStyle(Color.hlTextSecondary)
                     Circle()
-                        .fill(Color.green)
+                        .fill(cloudKit.iCloudAvailable ? Color.green : Color.hlTextTertiary)
                         .frame(width: 8, height: 8)
                 }
 
