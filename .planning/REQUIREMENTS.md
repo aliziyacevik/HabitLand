@@ -71,9 +71,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | AI habit coaching | API costs, complexity, market saturation with mediocre AI features |
 | Banner/ad monetization | Hostile UX for daily-use app, ruins premium feel |
 | Monthly subscription plan | Causes decision paralysis, 60%+ churn within 3 months |
-| Hard paywall on core tracking | Kills funnel — users must experience value before paying |
+| Hard paywall on core tracking | Kills funnel -- users must experience value before paying |
 | External payment links | Complexity, server-side validation needed, not worth for indie |
-| Complex referral backend | CloudKit-only constraint — keep referrals simple |
+| Complex referral backend | CloudKit-only constraint -- keep referrals simple |
 | Android version | iOS-first, future milestone |
 | Enterprise/white-label | Distraction from consumer product-market fit |
 | 7-day free trial | Not selected for v1, can add post-launch |
@@ -84,38 +84,38 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MON-01 | - | Pending |
-| MON-02 | - | Pending |
-| MON-03 | - | Pending |
-| MON-04 | - | Pending |
-| MON-05 | - | Pending |
-| MON-06 | - | Pending |
-| ASR-01 | - | Pending |
-| ASR-02 | - | Pending |
-| ASR-03 | - | Pending |
-| ASR-04 | - | Pending |
-| ASR-05 | - | Pending |
-| ASR-06 | - | Pending |
-| QAL-01 | - | Pending |
-| QAL-02 | - | Pending |
-| QAL-03 | - | Pending |
-| QAL-04 | - | Pending |
-| QAL-05 | - | Pending |
-| QAL-06 | - | Pending |
-| GRW-01 | - | Pending |
-| GRW-02 | - | Pending |
-| GRW-03 | - | Pending |
-| GRW-04 | - | Pending |
-| GRW-05 | - | Pending |
-| PLT-01 | - | Pending |
-| PLT-02 | - | Pending |
-| PLT-03 | - | Pending |
+| MON-01 | Phase 1 | Pending |
+| MON-02 | Phase 1 | Pending |
+| MON-03 | Phase 1 | Pending |
+| MON-04 | Phase 1 | Pending |
+| MON-05 | Phase 1 | Pending |
+| MON-06 | Phase 1 | Pending |
+| ASR-01 | Phase 3 | Pending |
+| ASR-02 | Phase 3 | Pending |
+| ASR-03 | Phase 3 | Pending |
+| ASR-04 | Phase 3 | Pending |
+| ASR-05 | Phase 3 | Pending |
+| ASR-06 | Phase 3 | Pending |
+| QAL-01 | Phase 4 | Pending |
+| QAL-02 | Phase 4 | Pending |
+| QAL-03 | Phase 4 | Pending |
+| QAL-04 | Phase 4 | Pending |
+| QAL-05 | Phase 4 | Pending |
+| QAL-06 | Phase 4 | Pending |
+| GRW-01 | Phase 2 | Pending |
+| GRW-02 | Phase 2 | Pending |
+| GRW-03 | Phase 2 | Pending |
+| GRW-04 | Phase 2 | Pending |
+| GRW-05 | Phase 2 | Pending |
+| PLT-01 | Phase 1 | Pending |
+| PLT-02 | Phase 1 | Pending |
+| PLT-03 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 26 total
-- Mapped to phases: 0
-- Unmapped: 26 ⚠️
+- Mapped to phases: 26
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-21*
-*Last updated: 2026-03-21 after initial definition*
+*Last updated: 2026-03-21 after roadmap creation*
