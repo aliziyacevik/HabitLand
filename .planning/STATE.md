@@ -89,6 +89,12 @@ Recent decisions affecting current work:
 
 None yet.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260321-n73 | Implement Avatar Pack IAP system | 2026-03-21 | ac623e9 | [260321-n73-implement-avatar-pack-iap-system](./quick/260321-n73-implement-avatar-pack-iap-system/) |
+
 ### Blockers/Concerns
 
 - Apple Developer account pending -- gates sandbox IAP testing, CloudKit activation, HealthKit, Push notifications
