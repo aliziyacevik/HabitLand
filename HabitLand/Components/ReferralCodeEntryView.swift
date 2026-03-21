@@ -34,7 +34,7 @@ struct ReferralCodeEntryView: View {
             HStack(spacing: HLSpacing.xs) {
                 Image(systemName: "gift.fill")
                     .foregroundStyle(Color.hlPrimary)
-                Text("Davet Kodu Gir") // Enter Referral Code
+                Text("Enter Referral Code")
                     .font(HLFont.headline())
             }
 
@@ -65,7 +65,7 @@ struct ReferralCodeEntryView: View {
                     } else {
                         Image(systemName: "checkmark.circle.fill")
                     }
-                    Text("Kodu Kullan") // Redeem Code
+                    Text("Redeem Code")
                         .font(HLFont.headline())
                 }
                 .frame(maxWidth: .infinity)

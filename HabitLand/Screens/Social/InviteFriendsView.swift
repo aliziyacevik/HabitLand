@@ -79,7 +79,7 @@ struct InviteFriendsView: View {
                 .background(Color.hlPrimaryLight)
                 .clipShape(Circle())
 
-            Text("Arkadaslarini Davet Et")
+            Text("Invite Friends")
                 .font(HLFont.title3())
                 .foregroundColor(.hlTextPrimary)
 
