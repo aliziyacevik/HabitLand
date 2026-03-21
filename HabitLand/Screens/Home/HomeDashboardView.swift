@@ -16,6 +16,7 @@ struct HomeDashboardView: View {
     @State private var xpGainHabitID: String?
     @State private var showCreateHabit = false
     @State private var showPomodoro = false
+    @State private var showChain = false
     @State private var showPaywall = false
     @State private var showUndoToast = false
     @State private var undoHabitName = ""
@@ -268,6 +269,12 @@ struct HomeDashboardView: View {
             .fullScreenCover(isPresented: $showPomodoro) {
                 PomodoroView()
             }
+            .fullScreenCover(isPresented: $showChain) {
+                HabitChainView(
+                    habits: habits.filter { !$0.todayCompleted },
+                    chainName: "Daily Chain"
+                )
+            }
             .overlay(alignment: .bottom) {
                 UndoToast(
                     message: "\(undoHabitName) completed!",
@@ -437,13 +444,33 @@ struct HomeDashboardView: View {
                     .font(HLFont.subheadline())
                     .foregroundStyle(Color.hlTextSecondary)
 
-                HStack(spacing: HLSpacing.xxs) {
-                    Image(systemName: progressStatusIcon)
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(progressStatusColor)
-                    Text(progressStatusText)
-                        .font(HLFont.caption(.medium))
-                        .foregroundStyle(progressStatusColor)
+                HStack(spacing: HLSpacing.sm) {
+                    HStack(spacing: HLSpacing.xxs) {
+                        Image(systemName: progressStatusIcon)
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(progressStatusColor)
+                        Text(progressStatusText)
+                            .font(HLFont.caption(.medium))
+                            .foregroundStyle(progressStatusColor)
+                    }
+
+                    if completedCount < totalCount && totalCount >= 2 {
+                        Button {
+                            showChain = true
+                        } label: {
+                            HStack(spacing: HLSpacing.xxs) {
+                                Image(systemName: "link")
+                                    .font(.system(size: 10, weight: .bold))
+                                Text("Chain")
+                                    .font(HLFont.caption2(.semibold))
+                            }
+                            .foregroundStyle(Color.hlPrimary)
+                            .padding(.horizontal, HLSpacing.xs)
+                            .padding(.vertical, 3)
+                            .background(Color.hlPrimary.opacity(0.12))
+                            .cornerRadius(HLRadius.full)
+                        }
+                    }
                 }
             }
 
