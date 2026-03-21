@@ -28,11 +28,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. User sees a contextual paywall with clear pricing, trial terms, and cancellation info when hitting free tier limits (4th habit, analytics, challenge join)
   3. User can manage or cancel subscription from Settings, and purchases persist across app reinstall
   4. App syncs data via iCloud, reads real HealthKit data, and delivers push notifications for streak reminders
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md -- Security hardening + PaywallContext enum + contextual PaywallView header
+- [ ] 01-02-PLAN.md -- Blurred premium gates + subscription management UI in Settings
+- [ ] 01-03-PLAN.md -- Platform activation (iCloud, HealthKit, Push entitlements + APNs registration)
 
 ### Phase 2: Referral System
 **Goal**: Users can invite friends and both parties earn Pro rewards, creating a viral growth loop
@@ -83,7 +84,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Monetization & Platform Activation | 0/0 | Not started | - |
+| 1. Monetization & Platform Activation | 0/3 | Planning complete | - |
 | 2. Referral System | 0/0 | Not started | - |
 | 3. App Store Readiness | 0/0 | Not started | - |
 | 4. Quality Hardening & Launch | 0/0 | Not started | - |
