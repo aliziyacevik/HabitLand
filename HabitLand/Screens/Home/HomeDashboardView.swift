@@ -15,6 +15,7 @@ struct HomeDashboardView: View {
     @State private var celebrationMessage = ""
     @State private var xpGainHabitID: String?
     @State private var showCreateHabit = false
+    @State private var showPomodoro = false
     @State private var showPaywall = false
     @State private var showUndoToast = false
     @State private var undoHabitName = ""
@@ -223,6 +224,16 @@ struct HomeDashboardView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
+                        showPomodoro = true
+                    } label: {
+                        Image(systemName: "timer")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundStyle(Color.hlFlame)
+                    }
+                    .accessibilityLabel("Pomodoro Focus")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
                         showNotifications = true
                     } label: {
                         Image(systemName: HLIcon.notification)
@@ -253,6 +264,9 @@ struct HomeDashboardView: View {
             .sheet(isPresented: $showPaywall) {
                 PaywallView(context: .habitLimit)
                     .hlSheetContent()
+            }
+            .fullScreenCover(isPresented: $showPomodoro) {
+                PomodoroView()
             }
             .overlay(alignment: .bottom) {
                 UndoToast(
