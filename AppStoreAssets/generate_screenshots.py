@@ -49,32 +49,32 @@ SIZES = {
 # Screenshot definitions: (filename, headline, subtitle, bg_colors, accent)
 # English headlines per D-05 from CONTEXT.md
 SCREENSHOTS_EN = [
-    ("01_home_dashboard", "Every Day, One Step Closer",
+    ("01_home_dashboard", "Every Day,\nOne Step Closer",
      "Track your daily progress with beautiful insights",
      [(8, 47, 43), (10, 36, 34), (12, 24, 28), (15, 18, 25)],
      (52, 211, 153)),
 
-    ("02_streaks_habits", "Start With 3, Go Unlimited",
+    ("02_streaks_habits", "Start With 3,\nGo Unlimited",
      "Stay consistent and watch your progress grow",
      [(60, 25, 8), (45, 18, 10), (28, 14, 12), (18, 12, 18)],
      (249, 115, 22)),
 
-    ("03_sleep_tracking", "Track Your Sleep, Change Your Life",
+    ("03_sleep_tracking", "Track Your Sleep,\nChange Your Life",
      "Optimize your rest with sleep insights",
      [(35, 15, 60), (28, 12, 52), (18, 10, 38), (14, 10, 25)],
      (139, 92, 246)),
 
-    ("04_social_leaderboard", "Compete With Friends",
+    ("04_social_leaderboard", "Compete\nWith Friends",
      "Leaderboards, challenges and more",
      [(8, 22, 50), (6, 18, 42), (10, 14, 32), (12, 12, 22)],
      (59, 130, 246)),
 
-    ("05_achievements_xp", "Earn Badges, Level Up",
+    ("05_achievements_xp", "Earn Badges,\nLevel Up",
      "Gamified progress that keeps you going",
      [(50, 35, 8), (38, 25, 6), (24, 16, 8), (16, 12, 16)],
      (251, 191, 36)),
 
-    ("06_premium_pro", "Unlimited Experience With Pro",
+    ("06_premium_pro", "Unlimited\nExperience With Pro",
      "Go Pro for unlimited habits & features",
      [(8, 42, 35), (6, 32, 28), (10, 22, 22), (12, 15, 20)],
      (52, 211, 153)),
@@ -82,33 +82,33 @@ SCREENSHOTS_EN = [
 
 # Turkish headlines per D-10 from CONTEXT.md
 SCREENSHOTS_TR = [
-    ("01_home_dashboard", "Her Gun Bir Adim Daha",
-     "Gunluk ilerlemenizi takip edin",
+    ("01_home_dashboard", "Her Gün\nBir Adım Daha",
+     "Günlük ilerlemenizi takip edin",
      [(8, 47, 43), (10, 36, 34), (12, 24, 28), (15, 18, 25)],
      (52, 211, 153)),
 
-    ("02_streaks_habits", "Streak'ini Kirma",
-     "Tutarli ol, ilerlemeyi gor",
+    ("02_streaks_habits", "Streak'ini\nKırma",
+     "Tutarlı ol, ilerlemeyi gör",
      [(60, 25, 8), (45, 18, 10), (28, 14, 12), (18, 12, 18)],
      (249, 115, 22)),
 
-    ("03_sleep_tracking", "Uykunu Takip Et",
-     "Uyku kaliteni iyilestir",
+    ("03_sleep_tracking", "Uykunu\nTakip Et",
+     "Uyku kaliteni iyileştir",
      [(35, 15, 60), (28, 12, 52), (18, 10, 38), (14, 10, 25)],
      (139, 92, 246)),
 
-    ("04_social_leaderboard", "Arkadaslarinla Yaris",
+    ("04_social_leaderboard", "Arkadaşlarınla\nYarış",
      "Liderlik tablosu ve meydan okumalar",
      [(8, 22, 50), (6, 18, 42), (10, 14, 32), (12, 12, 22)],
      (59, 130, 246)),
 
     ("05_achievements_xp", "Rozetler Kazan",
-     "Seviye atla, basarilarini ac",
+     "Seviye atla, başarılarını aç",
      [(50, 35, 8), (38, 25, 6), (24, 16, 8), (16, 12, 16)],
      (251, 191, 36)),
 
-    ("06_premium_pro", "Sinirsiz Deneyim",
-     "Pro ile tum ozelliklere eris",
+    ("06_premium_pro", "Sınırsız\nDeneyim",
+     "Pro ile tüm özelliklere eriş",
      [(8, 42, 35), (6, 32, 28), (10, 22, 22), (12, 15, 20)],
      (52, 211, 153)),
 ]
@@ -146,19 +146,19 @@ def add_glow(canvas, cx, cy, radius, color, alpha=40):
     ), (0, 0), glow)
 
 
-def draw_phone_frame(canvas, screen_img, x, y, frame_w, frame_h, corner_radius=50):
-    draw = ImageDraw.Draw(canvas)
-    bezel = 8
+def draw_phone_frame(canvas, screen_img, x, y, frame_w, frame_h, corner_radius=44):
+    """Draw a modern iPhone-style device frame with Dynamic Island."""
+    bezel = 6
 
-    # Shadow
+    # Outer shadow (softer, more layers)
     shadow = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
     sdraw = ImageDraw.Draw(shadow)
-    for i in range(6):
-        offset = (6 - i) * 5
-        a = 8 + i * 4
+    for i in range(10):
+        offset = (10 - i) * 3
+        a = 4 + i * 3
         sdraw.rounded_rectangle(
-            (x - bezel - offset, y - bezel - offset + 4,
-             x + frame_w + bezel + offset, y + frame_h + bezel + offset + 8),
+            (x - bezel - offset, y - bezel - offset + 6,
+             x + frame_w + bezel + offset, y + frame_h + bezel + offset + 10),
             radius=corner_radius + bezel + offset,
             fill=(0, 0, 0, a))
     canvas.paste(Image.alpha_composite(
@@ -167,17 +167,28 @@ def draw_phone_frame(canvas, screen_img, x, y, frame_w, frame_h, corner_radius=5
 
     draw = ImageDraw.Draw(canvas)
 
-    # Bezel
+    # Outer edge highlight (simulates metal frame catching light)
     draw.rounded_rectangle(
-        (x - bezel - 2, y - bezel - 2, x + frame_w + bezel + 2, y + frame_h + bezel + 2),
-        radius=corner_radius + bezel + 2, fill=(25, 25, 30, 255))
+        (x - bezel - 3, y - bezel - 3, x + frame_w + bezel + 3, y + frame_h + bezel + 3),
+        radius=corner_radius + bezel + 3, fill=(60, 60, 68, 255))
+
+    # Main frame body
     draw.rounded_rectangle(
         (x - bezel, y - bezel, x + frame_w + bezel, y + frame_h + bezel),
-        radius=corner_radius + bezel, fill=(40, 40, 48, 255))
+        radius=corner_radius + bezel, fill=(18, 18, 22, 255))
+
+    # Inner edge (subtle inset)
+    draw.rounded_rectangle(
+        (x - 1, y - 1, x + frame_w + 1, y + frame_h + 1),
+        radius=corner_radius + 1, fill=(10, 10, 14, 255))
 
     # Screen area
     draw.rounded_rectangle((x, y, x + frame_w, y + frame_h), radius=corner_radius,
                             fill=(255, 255, 255, 255))
+
+    # Auto-rotate landscape screenshots to portrait
+    if screen_img.width > screen_img.height:
+        screen_img = screen_img.rotate(90, expand=True)
 
     # Paste real screenshot
     resized = screen_img.resize((frame_w, frame_h), Image.LANCZOS)
@@ -189,11 +200,46 @@ def draw_phone_frame(canvas, screen_img, x, y, frame_w, frame_h, corner_radius=5
         resized = resized.convert("RGBA")
     canvas.paste(resized, (x, y), mask)
 
+    # Dynamic Island
+    di_w = int(frame_w * 0.28)
+    di_h = int(frame_h * 0.016)
+    di_x = x + (frame_w - di_w) // 2
+    di_y = y + int(frame_h * 0.014)
+    di_radius = di_h // 2
+    draw = ImageDraw.Draw(canvas)
+    draw.rounded_rectangle(
+        (di_x, di_y, di_x + di_w, di_y + di_h),
+        radius=di_radius, fill=(0, 0, 0, 255))
 
-def text_centered(draw, text, y, width, font, fill=(255, 255, 255)):
-    bbox = draw.textbbox((0, 0), text, font=font)
-    tw = bbox[2] - bbox[0]
-    draw.text(((width - tw) // 2, y), text, font=font, fill=fill)
+    # Home indicator bar at bottom
+    bar_w = int(frame_w * 0.35)
+    bar_h = max(4, int(frame_h * 0.004))
+    bar_x = x + (frame_w - bar_w) // 2
+    bar_y = y + frame_h - int(frame_h * 0.016)
+    draw.rounded_rectangle(
+        (bar_x, bar_y, bar_x + bar_w, bar_y + bar_h),
+        radius=bar_h // 2, fill=(255, 255, 255, 180))
+
+
+def text_multiline_centered(draw, text, y, width, font, fill=(255, 255, 255), line_spacing=1.15):
+    """Draw multi-line centered text. Supports \\n in text."""
+    lines = text.split("\n")
+    # Calculate total height
+    line_heights = []
+    for line in lines:
+        bbox = draw.textbbox((0, 0), line, font=font)
+        line_heights.append(bbox[3] - bbox[1])
+
+    total_h = sum(line_heights) + int(line_heights[0] * (line_spacing - 1)) * (len(lines) - 1)
+
+    current_y = y
+    for i, line in enumerate(lines):
+        bbox = draw.textbbox((0, 0), line, font=font)
+        tw = bbox[2] - bbox[0]
+        draw.text(((width - tw) // 2, current_y), line, font=font, fill=fill)
+        current_y += int(line_heights[i] * line_spacing)
+
+    return current_y
 
 
 def create_store_screenshot(raw_filename, headline, subtitle, bg_colors, accent, dims):
@@ -217,7 +263,7 @@ def create_store_screenshot(raw_filename, headline, subtitle, bg_colors, accent,
 
     draw = ImageDraw.Draw(canvas)
 
-    # Headline
+    # Headline — use multiline with centered alignment
     title_font = font_heavy(int(w * 0.078))
     sub_font = font_medium(int(w * 0.034))
 
@@ -228,28 +274,19 @@ def create_store_screenshot(raw_filename, headline, subtitle, bg_colors, accent,
         min(255, accent[2] // 2 + 128),
     )
 
-    text_centered(draw, headline, int(h * 0.045), w, title_font, (255, 255, 255))
-    text_centered(draw, subtitle, int(h * 0.1), w, sub_font, sub_color)
+    # Calculate text position — headline starts at top with padding
+    headline_y = int(h * 0.035)
+    subtitle_y = text_multiline_centered(draw, headline, headline_y, w, title_font, (255, 255, 255))
+    subtitle_y += int(h * 0.008)
+    text_multiline_centered(draw, subtitle, subtitle_y, w, sub_font, sub_color)
 
-    # Phone frame dimensions
-    frame_h = int(h * 0.68)
+    # Phone frame dimensions — larger phone, positioned lower
+    frame_h = int(h * 0.72)
     frame_w = int(frame_h * 0.462)
     frame_x = (w - frame_w) // 2
-    frame_y = int(h * 0.22)
+    frame_y = h - frame_h - int(h * 0.02)  # phone extends to near bottom
 
     draw_phone_frame(canvas, screen, frame_x, frame_y, frame_w, frame_h)
-
-    # Bottom pill badge
-    draw = ImageDraw.Draw(canvas)
-    pill_font = font_demibold(int(w * 0.024))
-    pill_text = "HabitLand"
-    bbox = draw.textbbox((0, 0), pill_text, font=pill_font)
-    ptw = bbox[2] - bbox[0]
-    px = (w - ptw - 24) // 2
-    py = int(h * 0.945)
-    draw.rounded_rectangle((px, py, px + ptw + 24, py + 28), radius=14,
-                            fill=(255, 255, 255, 20))
-    draw.text((px + 12, py + 4), pill_text, font=pill_font, fill=(255, 255, 255, 150))
 
     return canvas.convert("RGB")
 

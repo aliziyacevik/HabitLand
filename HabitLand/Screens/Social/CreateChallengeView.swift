@@ -191,11 +191,7 @@ struct CreateChallengeView: View {
 
     private func invitePreview(_ friend: Friend) -> some View {
         HStack(spacing: HLSpacing.sm) {
-            Text(friend.avatarEmoji)
-                .font(.system(size: 28))
-                .frame(width: 40, height: 40)
-                .background(Color.hlPrimaryLight)
-                .cornerRadius(HLRadius.full)
+            AvatarView(name: friend.name, size: 40)
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                 Text("Challenging \(friend.name)")

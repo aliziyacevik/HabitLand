@@ -47,9 +47,14 @@ final class ScreenshotTests: XCTestCase {
         sleep(1)
         saveScreenshot(app, named: "03_sleep_tracking", toDir: dir)
 
-        // 4. Social Tab
+        // 4. Social Tab - navigate to Leaderboard
         tapTab(app, "Social")
         sleep(1)
+        let leaderboardTab = app.buttons["Leaderboard"]
+        if leaderboardTab.waitForExistence(timeout: 3) {
+            leaderboardTab.tap()
+            sleep(1)
+        }
         saveScreenshot(app, named: "04_social_leaderboard", toDir: dir)
 
         // 5. Profile Tab

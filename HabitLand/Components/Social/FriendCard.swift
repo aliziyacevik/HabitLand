@@ -28,11 +28,7 @@ struct FriendCard: View {
     var body: some View {
         HStack(spacing: HLSpacing.sm) {
             // Avatar
-            Text(friend.avatarEmoji)
-                .font(.system(size: 32))
-                .frame(width: 48, height: 48)
-                .background(Color.hlPrimaryLight)
-                .clipShape(Circle())
+            AvatarView(name: friend.name, size: 48)
 
             // Info
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {

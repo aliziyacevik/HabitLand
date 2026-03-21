@@ -241,11 +241,11 @@ struct HabitLandApp: App {
 
         // Create friends for leaderboard
         let friends: [(name: String, emoji: String, level: Int, streak: Int)] = [
-            ("Sarah", "👩", 12, 42),
-            ("Mike", "🧑", 10, 28),
-            ("Emma", "👧", 7, 14),
-            ("James", "👨", 4, 5),
-            ("Lily", "👩‍🦰", 3, 3),
+            ("Sarah", "🦊", 12, 42),
+            ("Mike", "🐻", 10, 28),
+            ("Emma", "🐼", 7, 14),
+            ("James", "🐸", 4, 5),
+            ("Lily", "🦋", 3, 3),
         ]
 
         for f in friends {

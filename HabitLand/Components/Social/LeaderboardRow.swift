@@ -58,11 +58,7 @@ struct LeaderboardRow: View {
         HStack(spacing: HLSpacing.sm) {
             rankBadge
 
-            Text(entry.avatarEmoji)
-                .font(.system(size: isTopThree ? 28 : 24))
-                .frame(width: isTopThree ? 44 : 36, height: isTopThree ? 44 : 36)
-                .background(isTopThree ? rankColor.opacity(0.15) : Color.hlBackground)
-                .clipShape(Circle())
+            AvatarView(name: entry.isCurrentUser ? "You" : entry.name, size: isTopThree ? 44 : 36)
 
             Text(entry.isCurrentUser ? "You" : entry.name)
                 .font(isTopThree ? HLFont.headline() : HLFont.body())

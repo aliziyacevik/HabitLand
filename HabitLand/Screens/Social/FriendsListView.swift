@@ -113,11 +113,7 @@ struct FriendsListView: View {
     private func friendRow(_ friend: Friend) -> some View {
         HStack(spacing: HLSpacing.sm) {
             // Avatar
-            Text(friend.avatarEmoji)
-                .font(.system(size: 32))
-                .frame(width: 48, height: 48)
-                .background(Color.hlPrimaryLight)
-                .cornerRadius(HLRadius.full)
+            AvatarView(name: friend.name, size: 48)
 
             // Info
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {

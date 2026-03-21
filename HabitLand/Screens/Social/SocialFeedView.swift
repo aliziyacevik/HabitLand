@@ -121,11 +121,7 @@ struct SocialFeedView: View {
     private func feedItemCard(_ item: FeedEntry) -> some View {
         VStack(alignment: .leading, spacing: HLSpacing.sm) {
             HStack(spacing: HLSpacing.sm) {
-                Text(item.avatarEmoji)
-                    .font(.system(size: 28))
-                    .frame(width: 40, height: 40)
-                    .background(Color.hlPrimaryLight)
-                    .clipShape(Circle())
+                AvatarView(name: item.userName, size: 40)
 
                 VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                     Text(item.userName)

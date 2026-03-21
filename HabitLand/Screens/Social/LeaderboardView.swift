@@ -152,11 +152,7 @@ struct LeaderboardView: View {
                     .foregroundColor(.hlGold)
             }
 
-            Text(entry.avatarEmoji)
-                .font(.system(size: 36))
-                .frame(width: 56, height: 56)
-                .background(color.opacity(0.15))
-                .cornerRadius(HLRadius.full)
+            AvatarView(name: entry.name, size: 56)
                 .overlay(
                     Circle().stroke(color, lineWidth: 3)
                 )
@@ -205,11 +201,7 @@ struct LeaderboardView: View {
                 .foregroundColor(rankColor(rank))
                 .frame(width: 28, alignment: .center)
 
-            Text(entry.avatarEmoji)
-                .font(.system(size: 24))
-                .frame(width: 40, height: 40)
-                .background(entry.isCurrentUser ? Color.hlPrimaryLight : Color.hlBackground)
-                .cornerRadius(HLRadius.full)
+            AvatarView(name: entry.isCurrentUser ? "You" : entry.name, size: 40)
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                 Text(entry.isCurrentUser ? "You" : entry.name)

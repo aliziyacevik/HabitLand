@@ -270,11 +270,7 @@ struct InviteFriendsView: View {
         let alreadySent = sentRequests.contains(recordName)
 
         return HStack(spacing: HLSpacing.sm) {
-            Text(emoji)
-                .font(.system(size: 32))
-                .frame(width: 48, height: 48)
-                .background(Color.hlPrimaryLight)
-                .cornerRadius(HLRadius.full)
+            AvatarView(name: name, size: 48)
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                 HStack(spacing: HLSpacing.xs) {

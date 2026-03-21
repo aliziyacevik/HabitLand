@@ -1,1 +1,1 @@
-aliskanlik,rutin,hedef,saglik,uyku,takip,motivasyon,gunluk,hatirlatici,oyunlastirma,ilerleme,streak
+alışkanlık,rutin,hedef,sağlık,uyku,takip,motivasyon,günlük,hatırlatıcı,oyunlaştırma,ilerleme,streak

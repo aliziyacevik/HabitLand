@@ -57,14 +57,7 @@ struct UserProfileView: View {
 
     private var profileHeader: some View {
         VStack(spacing: HLSpacing.md) {
-            ZStack {
-                Circle()
-                    .fill(Color.hlPrimaryLight)
-                    .frame(width: 96, height: 96)
-
-                Text(profile?.avatarEmoji ?? "🌱")
-                    .font(.system(size: 48))
-            }
+            AvatarView(name: profile?.name ?? "User", size: 96)
 
             VStack(spacing: HLSpacing.xxs) {
                 Text(profile?.name ?? "New User")
