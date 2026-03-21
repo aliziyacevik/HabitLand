@@ -87,6 +87,7 @@ struct HabitLandApp: App {
                         requestNotificationsIfNeeded()
                     }
                     setupQuickActions()
+                    Task { await checkReferralRewards() }
                     syncHealthKitHabits()
                 }
         }
@@ -252,6 +253,36 @@ struct HabitLandApp: App {
             context.insert(friend)
         }
 
+        try? context.save()
+    }
+
+    private func checkReferralRewards() async {
+        let context = sharedModelContainer.mainContext
+        let descriptor = FetchDescriptor<UserProfile>()
+        guard let profile = try? context.fetch(descriptor).first,
+              let referralCode = profile.referralCode else { return }
+
+        let cloudKit = CloudKitManager.shared
+        guard cloudKit.iCloudAvailable else { return }
+
+        let cloudCount = await cloudKit.fetchReferralCount(forCode: referralCode)
+        let localCount = profile.referralCount
+
+        guard cloudCount > localCount else { return }
+
+        let newRedemptions = cloudCount - localCount
+        let proManager = ProManager.shared
+        let maxStacks = ProManager.maxReferralStacks
+
+        // Grant Pro for each new redemption, up to the cap
+        for i in 0..<newRedemptions {
+            let totalAfterThis = localCount + i + 1
+            if totalAfterThis > maxStacks { break }
+            proManager.extendReferralPro()
+        }
+
+        // Update local count to match cloud (even if capped, so we don't re-process)
+        profile.referralCount = cloudCount
         try? context.save()
     }
 
