@@ -31,7 +31,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md -- Security hardening + PaywallContext enum + contextual PaywallView header
+- [x] 01-01-PLAN.md -- Security hardening + PaywallContext enum + contextual PaywallView header
 - [ ] 01-02-PLAN.md -- Blurred premium gates + subscription management UI in Settings
 - [ ] 01-03-PLAN.md -- Platform activation (iCloud, HealthKit, Push entitlements + APNs registration)
 

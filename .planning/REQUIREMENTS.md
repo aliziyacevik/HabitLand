@@ -9,12 +9,12 @@ Requirements for App Store launch milestone. Each maps to roadmap phases.
 
 ### Monetization
 
-- [ ] **MON-01**: User can purchase yearly Pro subscription ($19.99/yr) via StoreKit 2
-- [ ] **MON-02**: User can purchase lifetime Pro unlock ($39.99) via StoreKit 2
+- [x] **MON-01**: User can purchase yearly Pro subscription ($19.99/yr) via StoreKit 2
+- [x] **MON-02**: User can purchase lifetime Pro unlock ($39.99) via StoreKit 2
 - [ ] **MON-03**: User sees contextual paywall when hitting free tier limits (4th habit, analytics, challenge join)
 - [ ] **MON-04**: User can manage/cancel subscription from Settings via deep link to iOS subscription management
-- [ ] **MON-05**: User's purchase persists across app reinstall via receipt verification
-- [ ] **MON-06**: Pricing strategy finalized as $19.99/yr + $39.99 lifetime
+- [x] **MON-05**: User's purchase persists across app reinstall via receipt verification
+- [x] **MON-06**: Pricing strategy finalized as $19.99/yr + $39.99 lifetime
 
 ### App Store Readiness
 
@@ -84,12 +84,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MON-01 | Phase 1 | Pending |
-| MON-02 | Phase 1 | Pending |
+| MON-01 | Phase 1 | Complete |
+| MON-02 | Phase 1 | Complete |
 | MON-03 | Phase 1 | Pending |
 | MON-04 | Phase 1 | Pending |
-| MON-05 | Phase 1 | Pending |
-| MON-06 | Phase 1 | Pending |
+| MON-05 | Phase 1 | Complete |
+| MON-06 | Phase 1 | Complete |
 | ASR-01 | Phase 3 | Pending |
 | ASR-02 | Phase 3 | Pending |
 | ASR-03 | Phase 3 | Pending |
