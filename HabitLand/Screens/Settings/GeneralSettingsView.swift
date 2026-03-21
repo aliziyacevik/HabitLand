@@ -41,8 +41,50 @@ struct GeneralSettingsView: View {
             }
 
             Section {
+                // Current plan status (D-06)
+                HStack(spacing: HLSpacing.sm) {
+                    Image(systemName: proManager.currentPlanDisplay.icon)
+                        .font(.system(size: 14))
+                        .foregroundColor(.white)
+                        .frame(width: 28, height: 28)
+                        .background(
+                            proManager.isPro
+                                ? LinearGradient(colors: [Color.hlPrimary, Color.hlPrimaryDark], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                : LinearGradient(colors: [Color.hlTextSecondary, Color.hlTextTertiary], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        )
+                        .cornerRadius(HLRadius.xs)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(proManager.currentPlanDisplay.name)
+                            .font(HLFont.body(.semibold))
+                            .foregroundColor(.hlTextPrimary)
+                        if proManager.isPro {
+                            Text("All features unlocked")
+                                .font(HLFont.caption())
+                                .foregroundColor(.hlTextSecondary)
+                        }
+                    }
+
+                    Spacer()
+
+                    if proManager.isPro {
+                        ProBadge()
+                    }
+                }
+
                 NavigationLink(destination: EditProfileView()) {
                     settingsRow(icon: "person.fill", color: .hlPrimary, title: "Edit Profile")
+                }
+
+                // Manage Subscription deep link (D-05) — only for Pro users with yearly subscription
+                if proManager.purchasedProductIDs.contains(ProManager.yearlyID) {
+                    Button {
+                        if let url = URL(string: "itms-apps://apps.apple.com/account/subscriptions") {
+                            UIApplication.shared.open(url)
+                        }
+                    } label: {
+                        settingsRow(icon: "creditcard.fill", color: .hlPrimary, title: "Manage Subscription")
+                    }
                 }
             } header: {
                 Text("Account")
