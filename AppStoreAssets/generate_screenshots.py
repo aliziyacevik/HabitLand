@@ -3,6 +3,12 @@
 Generate professional App Store screenshots for HabitLand.
 Uses REAL app screenshots captured from simulator, wrapped in
 device frames with gradient backgrounds and headlines.
+
+Produces 4 output directories:
+  - AppStore_6.7/    (English, 1290x2796)
+  - AppStore_5.5/    (English, 1242x2208)
+  - AppStore_6.7_tr/ (Turkish, 1290x2796)
+  - AppStore_5.5_tr/ (Turkish, 1242x2208)
 """
 
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -10,21 +16,30 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RAW_DIR = os.path.join(BASE_DIR, "Screenshots")
+
+# Output directories
 OUTPUT_67 = os.path.join(BASE_DIR, "AppStore_6.7")
 OUTPUT_55 = os.path.join(BASE_DIR, "AppStore_5.5")
-os.makedirs(OUTPUT_67, exist_ok=True)
-os.makedirs(OUTPUT_55, exist_ok=True)
+OUTPUT_67_TR = os.path.join(BASE_DIR, "AppStore_6.7_tr")
+OUTPUT_55_TR = os.path.join(BASE_DIR, "AppStore_5.5_tr")
+
+for d in [OUTPUT_67, OUTPUT_55, OUTPUT_67_TR, OUTPUT_55_TR]:
+    os.makedirs(d, exist_ok=True)
 
 AVENIR = "/System/Library/Fonts/Avenir Next.ttc"
+
 
 def font_heavy(size):
     return ImageFont.truetype(AVENIR, size, index=8)
 
+
 def font_medium(size):
     return ImageFont.truetype(AVENIR, size, index=5)
 
+
 def font_demibold(size):
     return ImageFont.truetype(AVENIR, size, index=2)
+
 
 SIZES = {
     "6.7": (1290, 2796),
@@ -32,19 +47,20 @@ SIZES = {
 }
 
 # Screenshot definitions: (filename, headline, subtitle, bg_colors, accent)
-SCREENSHOTS = [
-    ("01_home_dashboard", "Build Better Habits",
+# English headlines per D-05 from CONTEXT.md
+SCREENSHOTS_EN = [
+    ("01_home_dashboard", "Every Day, One Step Closer",
      "Track your daily progress with beautiful insights",
      [(8, 47, 43), (10, 36, 34), (12, 24, 28), (15, 18, 25)],
      (52, 211, 153)),
 
-    ("02_streaks_habits", "Never Break a Streak",
+    ("02_streaks_habits", "Start With 3, Go Unlimited",
      "Stay consistent and watch your progress grow",
      [(60, 25, 8), (45, 18, 10), (28, 14, 12), (18, 12, 18)],
      (249, 115, 22)),
 
-    ("03_sleep_tracking", "Sleep Better Tonight",
-     "Track patterns and optimize your rest",
+    ("03_sleep_tracking", "Track Your Sleep, Change Your Life",
+     "Optimize your rest with sleep insights",
      [(35, 15, 60), (28, 12, 52), (18, 10, 38), (14, 10, 25)],
      (139, 92, 246)),
 
@@ -53,13 +69,46 @@ SCREENSHOTS = [
      [(8, 22, 50), (6, 18, 42), (10, 14, 32), (12, 12, 22)],
      (59, 130, 246)),
 
-    ("05_achievements_xp", "Earn XP & Level Up",
+    ("05_achievements_xp", "Earn Badges, Level Up",
      "Gamified progress that keeps you going",
      [(50, 35, 8), (38, 25, 6), (24, 16, 8), (16, 12, 16)],
      (251, 191, 36)),
 
-    ("06_premium_pro", "Unlock Everything",
+    ("06_premium_pro", "Unlimited Experience With Pro",
      "Go Pro for unlimited habits & features",
+     [(8, 42, 35), (6, 32, 28), (10, 22, 22), (12, 15, 20)],
+     (52, 211, 153)),
+]
+
+# Turkish headlines per D-10 from CONTEXT.md
+SCREENSHOTS_TR = [
+    ("01_home_dashboard", "Her Gun Bir Adim Daha",
+     "Gunluk ilerlemenizi takip edin",
+     [(8, 47, 43), (10, 36, 34), (12, 24, 28), (15, 18, 25)],
+     (52, 211, 153)),
+
+    ("02_streaks_habits", "Streak'ini Kirma",
+     "Tutarli ol, ilerlemeyi gor",
+     [(60, 25, 8), (45, 18, 10), (28, 14, 12), (18, 12, 18)],
+     (249, 115, 22)),
+
+    ("03_sleep_tracking", "Uykunu Takip Et",
+     "Uyku kaliteni iyilestir",
+     [(35, 15, 60), (28, 12, 52), (18, 10, 38), (14, 10, 25)],
+     (139, 92, 246)),
+
+    ("04_social_leaderboard", "Arkadaslarinla Yaris",
+     "Liderlik tablosu ve meydan okumalar",
+     [(8, 22, 50), (6, 18, 42), (10, 14, 32), (12, 12, 22)],
+     (59, 130, 246)),
+
+    ("05_achievements_xp", "Rozetler Kazan",
+     "Seviye atla, basarilarini ac",
+     [(50, 35, 8), (38, 25, 6), (24, 16, 8), (16, 12, 16)],
+     (251, 191, 36)),
+
+    ("06_premium_pro", "Sinirsiz Deneyim",
+     "Pro ile tum ozelliklere eris",
      [(8, 42, 35), (6, 32, 28), (10, 22, 22), (12, 15, 20)],
      (52, 211, 153)),
 ]
@@ -206,22 +255,37 @@ def create_store_screenshot(raw_filename, headline, subtitle, bg_colors, accent,
 
 
 def main():
-    for size_name, dims in SIZES.items():
-        output_dir = OUTPUT_67 if size_name == "6.7" else OUTPUT_55
-        print(f"\nGenerating {size_name}\" screenshots ({dims[0]}x{dims[1]})...")
+    # Generate for each language and size combination
+    language_configs = [
+        ("English", SCREENSHOTS_EN, {
+            "6.7": OUTPUT_67,
+            "5.5": OUTPUT_55,
+        }),
+        ("Turkish", SCREENSHOTS_TR, {
+            "6.7": OUTPUT_67_TR,
+            "5.5": OUTPUT_55_TR,
+        }),
+    ]
 
-        for filename, headline, subtitle, bg_colors, accent in SCREENSHOTS:
-            img = create_store_screenshot(filename, headline, subtitle, bg_colors, accent, dims)
-            if img:
-                path = os.path.join(output_dir, f"{filename}.png")
-                img.save(path, "PNG", quality=100)
-                print(f"  Done: {filename}.png")
-            else:
-                print(f"  SKIPPED: {filename}.png (no raw screenshot)")
+    for lang_name, screenshots, output_dirs in language_configs:
+        for size_name, dims in SIZES.items():
+            output_dir = output_dirs[size_name]
+            print(f"\nGenerating {lang_name} {size_name}\" screenshots ({dims[0]}x{dims[1]})...")
+
+            for filename, headline, subtitle, bg_colors, accent in screenshots:
+                img = create_store_screenshot(filename, headline, subtitle, bg_colors, accent, dims)
+                if img:
+                    path = os.path.join(output_dir, f"{filename}.png")
+                    img.save(path, "PNG", quality=100)
+                    print(f"  Done: {filename}.png")
+                else:
+                    print(f"  SKIPPED: {filename}.png (no raw screenshot)")
 
     print(f"\nAll screenshots generated!")
-    print(f"  6.7\" -> {OUTPUT_67}")
-    print(f"  5.5\" -> {OUTPUT_55}")
+    print(f"  English 6.7\" -> {OUTPUT_67}")
+    print(f"  English 5.5\" -> {OUTPUT_55}")
+    print(f"  Turkish 6.7\" -> {OUTPUT_67_TR}")
+    print(f"  Turkish 5.5\" -> {OUTPUT_55_TR}")
 
 
 if __name__ == "__main__":
