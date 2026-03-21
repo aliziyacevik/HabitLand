@@ -22,6 +22,7 @@ struct HomeDashboardView: View {
     @State private var achievementCelebration: AchievementCelebrationData?
     @State private var levelUpData: LevelUpData?
     @ObservedObject private var proManager = ProManager.shared
+    @ObservedObject private var questManager = WeeklyQuestManager.shared
 
     // MARK: - Computed Properties
 
@@ -170,8 +171,10 @@ struct HomeDashboardView: View {
                                 .hlStaggeredAppear(index: 2)
                             streakCard
                                 .hlStaggeredAppear(index: 3)
-                            todaysHabitsSection
+                            weeklyQuestsCard
                                 .hlStaggeredAppear(index: 4)
+                            todaysHabitsSection
+                                .hlStaggeredAppear(index: 5)
                             quickInsightsCard
                                 .hlStaggeredAppear(index: 5)
                             weeklyOverviewCard
@@ -475,6 +478,70 @@ struct HomeDashboardView: View {
             }
         }
         .hlCard()
+    }
+
+    // MARK: - Weekly Quests Card
+
+    private var weeklyQuestsCard: some View {
+        VStack(alignment: .leading, spacing: HLSpacing.sm) {
+            HStack {
+                Image(systemName: "scroll.fill")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color.hlGold)
+                Text("Weekly Quests")
+                    .font(HLFont.headline())
+                    .foregroundStyle(Color.hlTextPrimary)
+                Spacer()
+                Text("\(questManager.quests.filter(\.isCompleted).count)/\(questManager.quests.count)")
+                    .font(HLFont.caption(.bold))
+                    .foregroundStyle(Color.hlGold)
+            }
+
+            ForEach(questManager.quests) { quest in
+                HStack(spacing: HLSpacing.sm) {
+                    ZStack {
+                        Circle()
+                            .fill(quest.isCompleted ? Color.hlPrimary.opacity(0.15) : Color.hlDivider.opacity(0.5))
+                            .frame(width: 36, height: 36)
+                        Image(systemName: quest.isCompleted ? "checkmark.circle.fill" : quest.icon)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(quest.isCompleted ? Color.hlPrimary : Color.hlTextTertiary)
+                    }
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(quest.title)
+                            .font(HLFont.callout(.medium))
+                            .foregroundStyle(quest.isCompleted ? Color.hlTextTertiary : Color.hlTextPrimary)
+                            .strikethrough(quest.isCompleted)
+
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                RoundedRectangle(cornerRadius: HLRadius.full)
+                                    .fill(Color.hlDivider)
+                                    .frame(height: 4)
+                                RoundedRectangle(cornerRadius: HLRadius.full)
+                                    .fill(quest.isCompleted ? Color.hlPrimary : Color.hlGold)
+                                    .frame(width: geo.size.width * quest.progressFraction, height: 4)
+                            }
+                        }
+                        .frame(height: 4)
+                    }
+
+                    Text("\(quest.progress)/\(quest.target)")
+                        .font(HLFont.caption2(.medium))
+                        .foregroundStyle(Color.hlTextTertiary)
+                        .frame(width: 36)
+
+                    Text("+\(quest.xpReward)")
+                        .font(HLFont.caption2(.bold))
+                        .foregroundStyle(quest.isCompleted ? Color.hlPrimary : Color.hlGold)
+                }
+            }
+        }
+        .hlCard()
+        .onAppear {
+            questManager.updateProgress(context: modelContext)
+        }
     }
 
     // MARK: - Today's Habits Section

@@ -340,6 +340,8 @@ struct DailyHabitsOverview: View {
                     }
                     // Check achievements
                     showAchievementIfNeeded(AchievementManager.checkAll(context: modelContext))
+                    // Update weekly quests
+                    WeeklyQuestManager.shared.updateProgress(context: modelContext)
                     // Donate to Siri/Spotlight
                     CompleteHabitIntent.donate(habit: habit.toEntity())
                 } else {
