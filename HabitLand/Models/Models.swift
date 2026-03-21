@@ -227,6 +227,11 @@ final class UserProfile {
     var sleepGoalHours: Double = 8.0
     var dailyHabitGoal: Int = 5
 
+    // MARK: - Referral System
+    var referralCode: String?
+    var referredByCode: String?
+    var referralCount: Int = 0
+
     init(
         name: String = "",
         username: String = "",
@@ -251,6 +256,24 @@ final class UserProfile {
 
     var levelProgress: Double {
         Double(xp) / Double(xpForNextLevel)
+    }
+
+    // MARK: - Referral Code Generation
+
+    static func generateReferralCode(from uuid: UUID) -> String {
+        let allowedChars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789" // No I, L, O, 0, 1
+        let hashBytes = Array(uuid.uuidString.utf8)
+        var code = ""
+        for i in 0..<6 {
+            let index = Int(hashBytes[i]) % allowedChars.count
+            code.append(allowedChars[allowedChars.index(allowedChars.startIndex, offsetBy: index)])
+        }
+        return code
+    }
+
+    var displayReferralCode: String {
+        guard let code = referralCode else { return "" }
+        return "HBT-\(code)"
     }
 
     var levelTitle: String {

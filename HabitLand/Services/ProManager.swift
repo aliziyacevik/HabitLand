@@ -14,6 +14,9 @@ final class ProManager: ObservableObject {
     @Published private(set) var purchasedProductIDs: Set<String> = []
     @Published private(set) var isLoading = false
 
+    // MARK: - Referral Pro
+    @Published var referralProExpiresAt: Date?
+
     /// Debug override — only works in DEBUG builds
     #if DEBUG
     @Published var debugProEnabled = false
@@ -24,6 +27,9 @@ final class ProManager: ObservableObject {
         if debugProEnabled { return true }
         if ProcessInfo.processInfo.arguments.contains("-screenshotMode") { return true }
         #endif
+        if let expiresAt = referralProExpiresAt, expiresAt > Date.now {
+            return true
+        }
         return !purchasedProductIDs.isEmpty
     }
 
@@ -32,6 +38,9 @@ final class ProManager: ObservableObject {
             return ("Pro (Lifetime)", "crown.fill")
         } else if purchasedProductIDs.contains(Self.yearlyID) {
             return ("Pro (Yearly)", "crown.fill")
+        } else if let expiresAt = referralProExpiresAt, expiresAt > Date.now {
+            let days = Calendar.current.dateComponents([.day], from: Date.now, to: expiresAt).day ?? 0
+            return ("Pro (Referral - \(days)d left)", "gift.fill")
         }
         return ("Free Plan", "person.fill")
     }
@@ -75,9 +84,19 @@ final class ProManager: ObservableObject {
     private var updateListenerTask: Task<Void, Error>?
 
     private init() {
+        referralProExpiresAt = UserDefaults.standard.object(forKey: "referralProExpiresAt") as? Date
         updateListenerTask = listenForTransactions()
         Task { await loadProducts() }
         Task { await updatePurchasedProducts() }
+    }
+
+    // MARK: - Referral Pro Extension
+
+    func extendReferralPro(days: Int = 7) {
+        let baseDate = referralProExpiresAt ?? Date.now
+        let startDate = max(baseDate, Date.now)
+        referralProExpiresAt = Calendar.current.date(byAdding: .day, value: days, to: startDate)
+        UserDefaults.standard.set(referralProExpiresAt, forKey: "referralProExpiresAt")
     }
 
     deinit {
