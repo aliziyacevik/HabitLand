@@ -22,8 +22,18 @@ final class ProManager: ObservableObject {
     var isPro: Bool {
         #if DEBUG
         if debugProEnabled { return true }
+        if ProcessInfo.processInfo.arguments.contains("-screenshotMode") { return true }
         #endif
-        return ProcessInfo.processInfo.arguments.contains("-screenshotMode") || !purchasedProductIDs.isEmpty
+        return !purchasedProductIDs.isEmpty
+    }
+
+    var currentPlanDisplay: (name: String, icon: String) {
+        if purchasedProductIDs.contains(Self.lifetimeID) {
+            return ("Pro (Lifetime)", "crown.fill")
+        } else if purchasedProductIDs.contains(Self.yearlyID) {
+            return ("Pro (Yearly)", "crown.fill")
+        }
+        return ("Free Plan", "person.fill")
     }
 
     var yearlyProduct: Product? {
@@ -187,6 +197,42 @@ final class ProManager: ObservableObject {
 
     func canCreateHabit(currentCount: Int) -> Bool {
         isPro || currentCount < Self.freeHabitLimit
+    }
+}
+
+// MARK: - Paywall Context
+
+enum PaywallContext {
+    case habitLimit
+    case sleepTracking
+    case socialFeatures
+    case achievements
+
+    var title: String {
+        switch self {
+        case .habitLimit: return "Unlock Unlimited Habits"
+        case .sleepTracking: return "Unlock Sleep Tracking"
+        case .socialFeatures: return "Unlock Social Features"
+        case .achievements: return "Unlock All Achievements"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .habitLimit: return "infinity"
+        case .sleepTracking: return "moon.fill"
+        case .socialFeatures: return "person.2.fill"
+        case .achievements: return "trophy.fill"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .habitLimit: return "You've been tracking 3 habits — unlock unlimited to keep growing"
+        case .sleepTracking: return "Track and improve your sleep patterns with detailed analytics"
+        case .socialFeatures: return "Connect with friends, join challenges, and climb the leaderboard"
+        case .achievements: return "Unlock all 20+ achievements and showcase your progress"
+        }
     }
 }
 
