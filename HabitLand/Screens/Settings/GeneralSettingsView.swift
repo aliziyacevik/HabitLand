@@ -2,6 +2,7 @@ import SwiftUI
 
 struct GeneralSettingsView: View {
     @ObservedObject private var proManager = ProManager.shared
+    @ObservedObject private var healthKitManager = HealthKitManager.shared
     @State private var showPaywall = false
     @State private var showPrivacy = false
     @State private var showTerms = false
@@ -45,6 +46,47 @@ struct GeneralSettingsView: View {
                 }
             } header: {
                 Text("Account")
+            }
+
+            Section {
+                // iCloud Sync status (D-08)
+                HStack {
+                    settingsRow(icon: "icloud.fill", color: .blue, title: "iCloud Sync")
+                    Spacer()
+                    Text("Enabled")
+                        .font(HLFont.caption())
+                        .foregroundStyle(Color.hlTextSecondary)
+                    Circle()
+                        .fill(Color.green)
+                        .frame(width: 8, height: 8)
+                }
+
+                // HealthKit connection status (D-09)
+                HStack {
+                    settingsRow(icon: "heart.fill", color: .red, title: "Apple Health")
+                    Spacer()
+                    if healthKitManager.isAuthorized {
+                        Text("Connected")
+                            .font(HLFont.caption())
+                            .foregroundStyle(Color.hlTextSecondary)
+                        Circle()
+                            .fill(Color.green)
+                            .frame(width: 8, height: 8)
+                    } else if healthKitManager.isAvailable {
+                        Text("Not Connected")
+                            .font(HLFont.caption())
+                            .foregroundStyle(Color.hlTextTertiary)
+                        Circle()
+                            .fill(Color.hlTextTertiary)
+                            .frame(width: 8, height: 8)
+                    } else {
+                        Text("Unavailable")
+                            .font(HLFont.caption())
+                            .foregroundStyle(Color.hlTextTertiary)
+                    }
+                }
+            } header: {
+                Text("Connected Services")
             }
 
             Section {
