@@ -49,7 +49,7 @@ Plans:
 Plans:
 - [x] 02-01-PLAN.md -- Data model + ProManager referral Pro + CloudKit tracking + code entry component
 - [x] 02-02-PLAN.md -- InviteFriendsView refactor + onboarding/settings entry points + challenge share links
-- [ ] 02-03-PLAN.md -- Gap closure: referrer Pro grant + max 4 referral cap + on-launch reward check
+- [x] 02-03-PLAN.md -- Gap closure: referrer Pro grant + max 4 referral cap + on-launch reward check
 
 ### Phase 3: App Store Readiness
 **Goal**: App Store listing is complete, optimized for discovery, and ready for submission
