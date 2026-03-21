@@ -220,6 +220,7 @@ final class UserProfile {
     var name: String = ""
     var username: String = ""
     var avatarEmoji: String = "🌱"
+    var avatarTypeRaw: String = "initial"
     var level: Int = 1
     var xp: Int = 0
     var joinedAt: Date = Date()
@@ -232,6 +233,11 @@ final class UserProfile {
     var referredByCode: String?
     var referralCount: Int = 0
 
+    var avatarType: AvatarType {
+        get { AvatarType(rawStorage: avatarTypeRaw) ?? .initial }
+        set { avatarTypeRaw = newValue.rawStorage }
+    }
+
     init(
         name: String = "",
         username: String = "",
@@ -242,6 +248,7 @@ final class UserProfile {
         self.name = name
         self.username = username
         self.avatarEmoji = avatarEmoji
+        self.avatarTypeRaw = "initial"
         self.level = 1
         self.xp = 0
         self.joinedAt = Date()
@@ -329,6 +336,7 @@ final class Friend {
     var name: String = ""
     var username: String = ""
     var avatarEmoji: String = "😊"
+    var avatarTypeRaw: String = "initial"
     var level: Int = 1
     var currentStreak: Int = 0
     var sharedChallenges: Int = 0
@@ -338,6 +346,11 @@ final class Friend {
     var totalCompletions: Int = 0
     var habitsCompletedToday: Int = 0
     var xp: Int = 0
+
+    var avatarType: AvatarType {
+        get { AvatarType(rawStorage: avatarTypeRaw) ?? .initial }
+        set { avatarTypeRaw = newValue.rawStorage }
+    }
 
     init(
         name: String,
@@ -351,6 +364,7 @@ final class Friend {
         self.name = name
         self.username = username
         self.avatarEmoji = avatarEmoji
+        self.avatarTypeRaw = "initial"
         self.level = level
         self.currentStreak = currentStreak
         self.sharedChallenges = sharedChallenges

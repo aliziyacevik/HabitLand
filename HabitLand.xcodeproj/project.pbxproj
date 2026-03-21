@@ -55,6 +55,7 @@
 		AA1BE9DD2F68400100B17D4A /* Exceptions for "HabitLand" folder in "HabitLandWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Models/AvatarType.swift,
 				Models/Models.swift,
 				Services/HLLogger.swift,
 				Services/SharedModelContainer.swift,
@@ -64,6 +65,7 @@
 		BB1BE9ED2F68500100B17D4A /* Exceptions for "HabitLand" folder in "HabitLandWatch Watch App" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Models/AvatarType.swift,
 				Models/Models.swift,
 				Services/HLLogger.swift,
 				Services/SharedModelContainer.swift,
