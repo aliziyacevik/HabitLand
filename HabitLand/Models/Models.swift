@@ -126,7 +126,7 @@ final class Habit {
             return day >= weekAgo && day <= today && completion.isCompleted
         }
         let expectedDays = max(targetDays.count, 1)
-        return Double(weekCompletions.count) / Double(expectedDays)
+        return min(Double(weekCompletions.count) / Double(expectedDays), 1.0)
     }
 
     var bestStreak: Int {

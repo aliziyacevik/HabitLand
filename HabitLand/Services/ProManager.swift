@@ -43,6 +43,11 @@ final class ProManager: ObservableObject {
             let days = Calendar.current.dateComponents([.day], from: Date.now, to: expiresAt).day ?? 0
             return ("Pro (Referral - \(days)d left)", "gift.fill")
         }
+        #if DEBUG
+        if debugProEnabled || ProcessInfo.processInfo.arguments.contains("-screenshotMode") {
+            return ("Pro (Debug)", "crown.fill")
+        }
+        #endif
         return ("Free Plan", "person.fill")
     }
 

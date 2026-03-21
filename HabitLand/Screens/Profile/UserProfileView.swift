@@ -180,7 +180,10 @@ struct UserProfileView: View {
             quickLink(icon: "chart.bar.fill", title: "Personal Statistics", destination: AnyView(PersonalStatisticsView()))
             quickLink(icon: "trophy.fill", title: "Achievements", destination: AnyView(AchievementsShowcaseView()))
             quickLink(icon: "gearshape", title: "Settings", destination: AnyView(GeneralSettingsView()))
-            quickLink(icon: "square.and.arrow.up", title: "Share Profile", destination: nil)
+            ShareLink(item: "Check out my profile on HabitLand! I'm Level \(profile?.level ?? 1) with a \(profile?.xp ?? 0) XP streak. Download: https://apps.apple.com/app/habitland/id0000000000") {
+                quickLinkContent(icon: "square.and.arrow.up", title: "Share Profile")
+            }
+            .buttonStyle(.plain)
         }
     }
 

@@ -95,6 +95,11 @@ struct CreateHabitView: View {
                         name = String(newValue.prefix(50))
                     }
                 }
+
+            Text("\(name.count)/50")
+                .font(HLFont.caption2())
+                .foregroundColor(name.count >= 45 ? .hlError : .hlTextTertiary)
+                .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
 
