@@ -228,6 +228,10 @@ final class UserProfile {
     var sleepGoalHours: Double = 8.0
     var dailyHabitGoal: Int = 5
 
+    // MARK: - Daily Bonus
+    var dailyBonusStreak: Int = 0
+    var lastDailyBonusDate: Date?
+
     // MARK: - Referral System
     var referralCode: String?
     var referredByCode: String?

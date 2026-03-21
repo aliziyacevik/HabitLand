@@ -297,8 +297,11 @@ struct DailyHabitsOverview: View {
                     withAnimation(HLAnimation.quick) {
                         showUndoToast = true
                     }
-                    // XP gain with streak multiplier
-                    let xpAmount = streakXP(for: habit)
+                    // Daily bonus (first completion of the day)
+                    let dailyBonus = claimDailyBonus()
+
+                    // XP gain with streak multiplier + daily bonus
+                    let xpAmount = streakXP(for: habit) + dailyBonus
                     lastXPGainAmount = xpAmount
                     gainXP(xpAmount)
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -307,6 +310,15 @@ struct DailyHabitsOverview: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
                         xpGainHabitID = nil
                     }
+                    // Daily bonus celebration
+                    if dailyBonus > 0 {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            let streak = profile?.dailyBonusStreak ?? 1
+                            celebrationMessage = "Day \(streak) bonus: +\(dailyBonus) XP"
+                            showCelebration = true
+                        }
+                    }
+
                     // All-complete celebration
                     let newCompleted = completedCount + 1
                     if newCompleted == totalCount && totalCount > 0 {
@@ -346,6 +358,37 @@ struct DailyHabitsOverview: View {
             )
         }
         ReviewManager.requestIfAppropriate()
+    }
+
+    private func claimDailyBonus() -> Int {
+        guard let profile else { return 0 }
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+
+        // Already claimed today
+        if let lastDate = profile.lastDailyBonusDate, calendar.isDateInToday(lastDate) {
+            return 0
+        }
+
+        // Check if streak continues from yesterday
+        if let lastDate = profile.lastDailyBonusDate, calendar.isDateInYesterday(lastDate) {
+            profile.dailyBonusStreak += 1
+        } else {
+            profile.dailyBonusStreak = 1
+        }
+        profile.lastDailyBonusDate = today
+
+        // Bonus scales with streak
+        let streak = profile.dailyBonusStreak
+        let bonus: Int
+        switch streak {
+        case 1...2: bonus = 5
+        case 3...6: bonus = 15
+        case 7...13: bonus = 30
+        case 14...29: bonus = 50
+        default: bonus = 100  // 30+ day daily streak
+        }
+        return bonus
     }
 
     private func streakXP(for habit: Habit) -> Int {
