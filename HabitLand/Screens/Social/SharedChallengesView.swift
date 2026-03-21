@@ -5,6 +5,8 @@ import SwiftData
 
 struct SharedChallengesView: View {
     @Query private var challenges: [Challenge]
+    @Query private var profiles: [UserProfile]
+    private var profile: UserProfile? { profiles.first }
     @Environment(\.modelContext) private var modelContext
     @State private var showCreateChallenge = false
 
@@ -201,6 +203,16 @@ struct SharedChallengesView: View {
                 }
 
                 Spacer()
+
+                ShareLink(
+                    item: URL(string: challengeShareURL)!,
+                    subject: Text(challenge.name),
+                    message: Text(challengeShareMessage(for: challenge))
+                ) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 14))
+                        .foregroundColor(.hlTextSecondary)
+                }
             }
 
             // Participants
@@ -264,6 +276,28 @@ struct SharedChallengesView: View {
                 .foregroundColor(.hlSuccess)
         }
         .hlCard()
+    }
+
+    // MARK: - Share Helpers
+
+    private var isTurkish: Bool {
+        Locale.current.language.languageCode == .turkish
+    }
+
+    private var challengeShareURL: String {
+        let baseURL = "https://apps.apple.com/app/habitland/id000000000"
+        if let code = profile?.referralCode {
+            return "\(baseURL)?ref=\(code)"
+        }
+        return baseURL
+    }
+
+    private func challengeShareMessage(for challenge: Challenge) -> String {
+        if isTurkish {
+            return "Bu challenge'a katil! \(challenge.name) -- HabitLand'i indir ve birlikte aliskanlik olusturalim!"
+        } else {
+            return "Join this challenge! \(challenge.name) -- Download HabitLand and let's build habits together!"
+        }
     }
 }
 
