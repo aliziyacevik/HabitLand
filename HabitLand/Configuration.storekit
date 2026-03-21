@@ -5,7 +5,7 @@
   "localizations" : [],
   "settings" : {
     "_applicationInternalID" : "1234567890",
-    "_developerTeamID" : "XXXXXXXXXX",
+    "_developerTeamID" : "PENDING",
     "_failTransactionsEnabled" : false,
     "_locale" : "en_US",
     "_storefront" : "USA",

@@ -7,6 +7,23 @@ import UIKit
 class AppDelegate: NSObject, UIApplicationDelegate {
     static var pendingShortcut: HabitLandApp.QuickAction?
 
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        // Register for remote push notifications (D-10)
+        // Local notifications remain primary; APNs registration prepares for future server-triggered notifications
+        application.registerForRemoteNotifications()
+        return true
+    }
+
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        // Token received — will be used when server push is implemented in v2
+        let token = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
+        print("APNs device token: \(token)")
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("APNs registration failed: \(error.localizedDescription)")
+    }
+
     func application(
         _ application: UIApplication,
         configurationForConnecting connectingSceneSession: UISceneSession,
