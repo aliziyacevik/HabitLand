@@ -180,6 +180,10 @@ struct PomodoroView: View {
                     }
                 }
 
+                // Ambient sounds
+                AmbientSoundPicker()
+                    .padding(.horizontal, HLSpacing.lg)
+
                 // Session summary
                 if completedSessions > 0 {
                     Text("\(completedSessions) session\(completedSessions > 1 ? "s" : "") completed")
@@ -198,6 +202,7 @@ struct PomodoroView: View {
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
             stopTimer()
+            AmbientSoundManager.shared.stop()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
             handleBackground()

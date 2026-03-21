@@ -103,9 +103,16 @@ struct HabitTimerView: View {
                     }
                 }
 
+                // Ambient sounds
+                AmbientSoundPicker()
+                    .padding(.horizontal, HLSpacing.lg)
+
                 Spacer()
                     .frame(height: HLSpacing.xxl)
             }
+        }
+        .onDisappear {
+            AmbientSoundManager.shared.stop()
         }
         .onReceive(NotificationCenter.default.publisher(for: .habitTimerCompleted)) { _ in
             completeHabit()
