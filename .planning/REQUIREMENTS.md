@@ -19,11 +19,11 @@ Requirements for App Store launch milestone. Each maps to roadmap phases.
 ### App Store Readiness
 
 - [ ] **ASR-01**: App Store screenshots created for 6.7" and 5.5" device sizes
-- [ ] **ASR-02**: App Store description, subtitle (30 chars), and keyword field (100 chars) optimized for ASO
-- [ ] **ASR-03**: Privacy policy and terms of use URLs set and accessible
-- [ ] **ASR-04**: App icon verified at all required sizes (1024x1024 down to 40x40)
-- [ ] **ASR-05**: Turkish localization for App Store listing (description, keywords, screenshots)
-- [ ] **ASR-06**: Custom Product Pages configured for different audiences (fitness, productivity, sleep)
+- [x] **ASR-02**: App Store description, subtitle (30 chars), and keyword field (100 chars) optimized for ASO
+- [x] **ASR-03**: Privacy policy and terms of use URLs set and accessible
+- [x] **ASR-04**: App icon verified at all required sizes (1024x1024 down to 40x40)
+- [x] **ASR-05**: Turkish localization for App Store listing (description, keywords, screenshots)
+- [x] **ASR-06**: Custom Product Pages configured for different audiences (fitness, productivity, sleep)
 
 ### Quality & Polish
 
@@ -91,11 +91,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MON-05 | Phase 1 | Complete |
 | MON-06 | Phase 1 | Complete |
 | ASR-01 | Phase 3 | Pending |
-| ASR-02 | Phase 3 | Pending |
-| ASR-03 | Phase 3 | Pending |
-| ASR-04 | Phase 3 | Pending |
-| ASR-05 | Phase 3 | Pending |
-| ASR-06 | Phase 3 | Pending |
+| ASR-02 | Phase 3 | Complete |
+| ASR-03 | Phase 3 | Complete |
+| ASR-04 | Phase 3 | Complete |
+| ASR-05 | Phase 3 | Complete |
+| ASR-06 | Phase 3 | Complete |
 | QAL-01 | Phase 4 | Pending |
 | QAL-02 | Phase 4 | Pending |
 | QAL-03 | Phase 4 | Pending |

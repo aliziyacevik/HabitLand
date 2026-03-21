@@ -63,8 +63,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md -- ASO metadata (EN+TR), legal URL verification, icon check, CPP configuration
-- [ ] 03-02-PLAN.md -- Screenshot pipeline Turkish localization + headline updates + visual verification
+- [x] 03-01-PLAN.md -- ASO metadata (EN+TR), legal URL verification, icon check, CPP configuration
+- [x] 03-02-PLAN.md -- Screenshot pipeline Turkish localization + headline updates + visual verification
 
 ### Phase 4: Quality Hardening & Launch
 **Goal**: App is production-clean, crash-free, and verified from a fresh free-tier perspective before App Store submission

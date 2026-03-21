@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-03-21T10:57:22.276Z"
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-21T11:22:39.036Z"
 progress:
   total_phases: 4
-  completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
+  completed_phases: 3
+  total_plans: 8
+  completed_plans: 8
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** Kullanicilarin aliskanliklarini eglenceli ve sosyal bir deneyimle kalici hale getirmesi
-**Current focus:** Phase 02 — referral-system
+**Current focus:** Phase 03 — app-store-readiness
 
 ## Current Position
 
-Phase: 3
-Plan: Not started
+Phase: 03 (app-store-readiness) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Plan: Not started
 | Phase 02 P01 | 3min | 2 tasks | 4 files |
 | Phase 02 P02 | 6min | 2 tasks | 4 files |
 | Phase 02 P03 | 4min | 2 tasks | 2 files |
+| Phase 03 P01 | 3min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,7 @@ Recent decisions affecting current work:
 - [Phase 02]: Referral entry as sheet after StarterHabitsView (not TabView page) per Pitfall 6
 - [Phase 02]: Challenge share URL uses ?ref= query parameter for referral attribution
 - [Phase 02]: Referrer Pro grant uses on-launch CloudKit delta polling, not push -- no server needed
+- [Phase 03]: Legal base URL as static constant for easy GitHub Pages update
 
 ### Pending Todos
 
@@ -83,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T10:54:24.551Z
-Stopped at: Completed 02-03-PLAN.md
+Last session: 2026-03-21T11:22:23.964Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None
