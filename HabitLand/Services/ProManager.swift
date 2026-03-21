@@ -92,7 +92,14 @@ final class ProManager: ObservableObject {
 
     // MARK: - Referral Pro Extension
 
-    func extendReferralPro(days: Int = 7) {
+    static let maxReferralStacks = 4
+
+    func canReceiveReferralReward(currentCount: Int) -> Bool {
+        currentCount < Self.maxReferralStacks
+    }
+
+    func extendReferralPro(days: Int = 7, referralCount: Int = 0) {
+        if referralCount >= Self.maxReferralStacks { return }
         let baseDate = referralProExpiresAt ?? Date.now
         let startDate = max(baseDate, Date.now)
         referralProExpiresAt = Calendar.current.date(byAdding: .day, value: days, to: startDate)
