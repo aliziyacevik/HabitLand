@@ -75,10 +75,12 @@ Plans:
   2. Free tier experience works end-to-end on a clean device: 3-habit limit enforced, paywall triggers correctly, every Pro-gated screen shows upsell
   3. No unguarded `print()` statements remain -- all logging uses `os_log` or is removed
   4. UI animations, transitions, and edge cases are polished; launch time and scroll performance meet acceptable thresholds
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: TBD
+- [ ] 04-01-PLAN.md -- HLLogger wrapper + print() replacement + screenshotMode #if DEBUG guards + crash path fix
+- [ ] 04-02-PLAN.md -- Sheet transition polish (HLSheetContent modifier) + empty states + edge case fixes
+- [ ] 04-03-PLAN.md -- Automated quality audits + manual free tier QA + performance verification
 
 ## Progress
 
@@ -90,4 +92,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | 1. Monetization & Platform Activation | 0/3 | Planning complete | - |
 | 2. Referral System | 0/3 | Gap closure planned | - |
 | 3. App Store Readiness | 0/2 | Planning complete | - |
-| 4. Quality Hardening & Launch | 0/0 | Not started | - |
+| 4. Quality Hardening & Launch | 0/3 | Planning complete | - |
