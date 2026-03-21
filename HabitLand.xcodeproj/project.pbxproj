@@ -565,6 +565,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "HabitLand reads your health data (steps, exercise, sleep) to automatically track habit completions and show progress insights.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "HabitLand saves workout and activity data to Apple Health when you complete fitness habits.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
@@ -596,6 +598,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "HabitLand reads your health data (steps, exercise, sleep) to automatically track habit completions and show progress insights.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "HabitLand saves workout and activity data to Apple Health when you complete fitness habits.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
