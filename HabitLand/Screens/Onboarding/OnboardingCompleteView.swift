@@ -2,8 +2,6 @@ import SwiftUI
 
 struct OnboardingCompleteView: View {
     let habitsCreated: Int
-    let dailyHabitGoal: Int
-    let sleepGoalHours: Double
     var onGetStarted: () -> Void = {}
 
     @State private var showContent = false
@@ -52,7 +50,7 @@ struct OnboardingCompleteView: View {
                         .offset(y: showContent ? 0 : 20)
                         .animation(HLAnimation.standard.delay(0.4), value: showContent)
 
-                    Text("Here's a summary of your setup")
+                    Text("Your journey starts now")
                         .font(HLFont.body())
                         .foregroundColor(.hlTextSecondary)
                         .opacity(showContent ? 1 : 0)
@@ -71,23 +69,7 @@ struct OnboardingCompleteView: View {
                             label: "Habits created",
                             value: "\(habitsCreated)"
                         )
-                    }
 
-                    summaryRow(
-                        icon: HLIcon.target,
-                        color: .hlFitness,
-                        label: "Daily goal",
-                        value: "\(dailyHabitGoal) habits"
-                    )
-
-                    summaryRow(
-                        icon: HLIcon.moon,
-                        color: .hlSleep,
-                        label: "Sleep goal",
-                        value: sleepGoalFormatted
-                    )
-
-                    if habitsCreated > 0 {
                         summaryRow(
                             icon: "sparkles",
                             color: .hlGold,
@@ -155,14 +137,6 @@ struct OnboardingCompleteView: View {
         .hlShadow(HLShadow.sm)
     }
 
-    // MARK: - Helpers
-
-    private var sleepGoalFormatted: String {
-        let h = Int(sleepGoalHours)
-        let m = Int((sleepGoalHours - Double(h)) * 60)
-        return m > 0 ? "\(h)h \(m)m" : "\(h)h"
-    }
-
     private func spawnConfetti() {
         let colors: [Color] = [.hlPrimary, .hlGold, .hlFitness, .hlMindfulness, .hlFlame]
         for i in 0..<20 {
@@ -193,9 +167,5 @@ private struct ConfettiItem: Identifiable {
 }
 
 #Preview {
-    OnboardingCompleteView(
-        habitsCreated: 3,
-        dailyHabitGoal: 5,
-        sleepGoalHours: 8
-    )
+    OnboardingCompleteView(habitsCreated: 3)
 }

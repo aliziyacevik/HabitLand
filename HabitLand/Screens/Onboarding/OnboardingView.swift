@@ -37,8 +37,6 @@ struct OnboardingView: View {
     @State private var userName = ""
     @State private var selectedAvatar = "🌱"
     @State private var habitsCreatedCount = 0
-    @State private var dailyHabitGoal = 5
-    @State private var sleepGoalHours = 8.0
 
     @FocusState private var nameFieldFocused: Bool
     var onComplete: () -> Void = {}
@@ -94,14 +92,7 @@ struct OnboardingView: View {
                 }
                 .transition(.move(edge: .trailing).combined(with: .opacity))
             case 2:
-                GoalSetupView { goal, sleep in
-                    dailyHabitGoal = goal
-                    sleepGoalHours = sleep
-                    if let profile = profile {
-                        profile.dailyHabitGoal = goal
-                        profile.sleepGoalHours = sleep
-                        try? modelContext.save()
-                    }
+                ThemeOnboardingView {
                     withAnimation(HLAnimation.gentleSpring) {
                         currentStep = 3
                     }
@@ -128,9 +119,7 @@ struct OnboardingView: View {
                 .transition(.move(edge: .trailing).combined(with: .opacity))
             case 4:
                 OnboardingCompleteView(
-                    habitsCreated: habitsCreatedCount,
-                    dailyHabitGoal: dailyHabitGoal,
-                    sleepGoalHours: sleepGoalHours
+                    habitsCreated: habitsCreatedCount
                 ) {
                     if habitsCreatedCount > 0 {
                         awardFirstXP()

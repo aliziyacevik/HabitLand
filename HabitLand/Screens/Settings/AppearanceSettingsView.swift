@@ -2,9 +2,6 @@ import SwiftUI
 
 struct AppearanceSettingsView: View {
     @ObservedObject private var themeManager = ThemeManager.shared
-    @ObservedObject private var proManager = ProManager.shared
-    @State private var showPaywall = false
-    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         List {
@@ -18,38 +15,20 @@ struct AppearanceSettingsView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 if themeManager.hasUnsavedChanges {
                     Button {
-                        if proManager.isPro {
-                            themeManager.save()
-                            HLHaptics.success()
-                        } else {
-                            showPaywall = true
-                        }
+                        themeManager.save()
+                        HLHaptics.success()
                     } label: {
-                        if proManager.isPro {
-                            Text("Save")
-                                .font(HLFont.headline())
-                                .foregroundStyle(Color.hlPrimary)
-                        } else {
-                            HStack(spacing: HLSpacing.xxs) {
-                                Image(systemName: "crown.fill")
-                                    .font(.system(size: 12))
-                                Text("Save")
-                                    .font(HLFont.headline())
-                            }
-                            .foregroundStyle(Color.hlGold)
-                        }
+                        Text("Save")
+                            .font(HLFont.headline())
+                            .foregroundStyle(Color.hlPrimary)
                     }
                 }
             }
         }
         .onDisappear {
-            if !proManager.isPro && themeManager.hasUnsavedChanges {
+            if themeManager.hasUnsavedChanges {
                 themeManager.revert()
             }
-        }
-        .sheet(isPresented: $showPaywall) {
-            PaywallView()
-                .hlSheetContent()
         }
     }
 
