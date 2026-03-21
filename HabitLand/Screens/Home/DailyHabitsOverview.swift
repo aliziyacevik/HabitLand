@@ -19,6 +19,7 @@ struct DailyHabitsOverview: View {
     @State private var showUndoToast = false
     @State private var showTimer = false
     @ObservedObject private var timerManager = HabitTimerManager.shared
+    @State private var showDailyOverviewForHabit: String?
     @State private var undoHabitName = ""
     @State private var undoCompletion: HabitCompletion?
 
@@ -381,6 +382,41 @@ struct DailyHabitsOverview: View {
             .accessibilityLabel(habit.todayCompleted ? "Mark \(habit.name) incomplete" : "Complete \(habit.name)")
         }
         .hlCard(padding: HLSpacing.sm)
+        .contextMenu {
+            if habit.unit == "minutes" && habit.goalCount > 0 && !habit.todayCompleted {
+                Button {
+                    timerManager.start(habit: (
+                        id: habit.id,
+                        name: habit.name,
+                        icon: habit.icon,
+                        color: habit.color,
+                        minutes: habit.goalCount
+                    ))
+                    showTimer = true
+                } label: {
+                    Label("Start Timer", systemImage: "timer")
+                }
+            }
+
+            Button {
+                showDailyOverviewForHabit = habit.id.uuidString
+            } label: {
+                Label("View Details", systemImage: "info.circle")
+            }
+
+            if !habit.todayCompleted {
+                Button {
+                    addNoteForHabit(habit)
+                } label: {
+                    Label("Add Note", systemImage: "note.text")
+                }
+            }
+        }
+    }
+
+    private func addNoteForHabit(_ habit: Habit) {
+        // Opens detail view where notes can be edited
+        showDailyOverviewForHabit = habit.id.uuidString
     }
 
     private func showAchievementIfNeeded(_ unlocked: [Achievement]) {
