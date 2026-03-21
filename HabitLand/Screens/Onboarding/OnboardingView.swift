@@ -31,7 +31,10 @@ struct OnboardingView: View {
     private var profile: UserProfile? { profiles.first }
     @State private var showStarterHabits = false
     @State private var showReferralEntry = false
+    @State private var showNameEntry = false
+    @State private var userName = ""
     @State private var habitsCreatedCount = 0
+    @FocusState private var nameFieldFocused: Bool
     var onComplete: () -> Void = {}
 
     private let pages: [OnboardingPage] = [
@@ -119,13 +122,17 @@ struct OnboardingView: View {
                         currentPage += 1
                     }
                 } else {
-                    showStarterHabits = true
+                    showNameEntry = true
                 }
             }
             .padding(.horizontal, HLSpacing.lg)
             .padding(.bottom, HLSpacing.xxl)
         }
         .background(Color.hlBackground.ignoresSafeArea())
+        .fullScreenCover(isPresented: $showNameEntry) {
+            nameEntrySheet
+                .hlSheetContent()
+        }
         .fullScreenCover(isPresented: $showStarterHabits) {
             StarterHabitsView { count in
                 habitsCreatedCount = count
@@ -213,6 +220,76 @@ struct OnboardingView: View {
             .background(Color.hlBackground.ignoresSafeArea())
         }
         .presentationDetents([.large])
+    }
+
+    // MARK: - Name Entry Sheet
+
+    private var nameEntrySheet: some View {
+        VStack(spacing: HLSpacing.xl) {
+            Spacer()
+
+            Image(systemName: "person.crop.circle.badge.plus")
+                .font(.system(size: 64))
+                .foregroundColor(.hlPrimary)
+
+            Text("What's your name?")
+                .font(HLFont.title2())
+                .foregroundColor(.hlTextPrimary)
+
+            Text("This is how your friends will see you")
+                .font(HLFont.subheadline())
+                .foregroundColor(.hlTextSecondary)
+
+            TextField("Your name", text: $userName)
+                .font(HLFont.body())
+                .textFieldStyle(.plain)
+                .padding(HLSpacing.md)
+                .background(Color.hlBackground)
+                .cornerRadius(HLRadius.md)
+                .overlay(
+                    RoundedRectangle(cornerRadius: HLRadius.md)
+                        .stroke(Color.hlCardBorder, lineWidth: 1)
+                )
+                .padding(.horizontal, HLSpacing.lg)
+                .focused($nameFieldFocused)
+                .submitLabel(.done)
+                .onSubmit { saveNameAndContinue() }
+
+            Spacer()
+
+            HLButton(
+                "Continue",
+                icon: "arrow.right",
+                style: .primary,
+                size: .lg,
+                isFullWidth: true
+            ) {
+                saveNameAndContinue()
+            }
+            .disabled(userName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .padding(.horizontal, HLSpacing.lg)
+            .padding(.bottom, HLSpacing.xxl)
+        }
+        .background(Color.hlBackground.ignoresSafeArea())
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                nameFieldFocused = true
+            }
+        }
+    }
+
+    private func saveNameAndContinue() {
+        let trimmed = userName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        if let profile = profile {
+            profile.name = trimmed
+            profile.username = "@\(trimmed.lowercased().replacingOccurrences(of: " ", with: ""))"
+            try? modelContext.save()
+        }
+        showNameEntry = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            showStarterHabits = true
+        }
     }
 
     // MARK: - First XP Award
