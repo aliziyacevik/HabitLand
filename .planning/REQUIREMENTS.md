@@ -18,7 +18,7 @@ Requirements for App Store launch milestone. Each maps to roadmap phases.
 
 ### App Store Readiness
 
-- [ ] **ASR-01**: App Store screenshots created for 6.7" and 5.5" device sizes
+- [x] **ASR-01**: App Store screenshots created for 6.7" and 5.5" device sizes
 - [x] **ASR-02**: App Store description, subtitle (30 chars), and keyword field (100 chars) optimized for ASO
 - [x] **ASR-03**: Privacy policy and terms of use URLs set and accessible
 - [x] **ASR-04**: App icon verified at all required sizes (1024x1024 down to 40x40)
@@ -90,7 +90,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MON-04 | Phase 1 | Complete |
 | MON-05 | Phase 1 | Complete |
 | MON-06 | Phase 1 | Complete |
-| ASR-01 | Phase 3 | Pending |
+| ASR-01 | Phase 3 | Complete |
 | ASR-02 | Phase 3 | Complete |
 | ASR-03 | Phase 3 | Complete |
 | ASR-04 | Phase 3 | Complete |
