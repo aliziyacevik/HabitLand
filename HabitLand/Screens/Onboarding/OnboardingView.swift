@@ -73,16 +73,8 @@ struct OnboardingView: View {
     private let avatarOptions = ["🌱", "😊", "😎", "🦊", "🐱", "🐶", "🦁", "🐼", "🦄", "🎯", "⭐", "🔥"]
 
     var body: some View {
-        ZStack {
-            Color.hlBackground.ignoresSafeArea()
-
+        Group {
             switch currentStep {
-            case 0:
-                pagesView
-                    .transition(.asymmetric(
-                        insertion: .move(edge: .leading).combined(with: .opacity),
-                        removal: .move(edge: .leading).combined(with: .opacity)
-                    ))
             case 1:
                 StarterHabitsView { count in
                     habitsCreatedCount = count
@@ -90,14 +82,12 @@ struct OnboardingView: View {
                         currentStep = 2
                     }
                 }
-                .transition(.move(edge: .trailing).combined(with: .opacity))
             case 2:
                 ThemeOnboardingView {
                     withAnimation(HLAnimation.gentleSpring) {
                         currentStep = 3
                     }
                 }
-                .transition(.move(edge: .trailing).combined(with: .opacity))
             case 3:
                 NotificationSetupView(
                     onEnable: {
@@ -116,7 +106,6 @@ struct OnboardingView: View {
                         }
                     }
                 )
-                .transition(.move(edge: .trailing).combined(with: .opacity))
             case 4:
                 OnboardingCompleteView(
                     habitsCreated: habitsCreatedCount
@@ -126,12 +115,11 @@ struct OnboardingView: View {
                     }
                     onComplete()
                 }
-                .transition(.move(edge: .trailing).combined(with: .opacity))
             default:
-                EmptyView()
+                pagesView
             }
         }
-        .animation(HLAnimation.gentleSpring, value: currentStep)
+        .background(Color.hlBackground.ignoresSafeArea())
     }
 
     // MARK: - Pages View (TabView with progress bar)
