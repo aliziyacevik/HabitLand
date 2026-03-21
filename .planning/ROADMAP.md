@@ -33,7 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 01-01-PLAN.md -- Security hardening + PaywallContext enum + contextual PaywallView header
 - [ ] 01-02-PLAN.md -- Blurred premium gates + subscription management UI in Settings
-- [ ] 01-03-PLAN.md -- Platform activation (iCloud, HealthKit, Push entitlements + APNs registration)
+- [x] 01-03-PLAN.md -- Platform activation (iCloud, HealthKit, Push entitlements + APNs registration)
 
 ### Phase 2: Referral System
 **Goal**: Users can invite friends and both parties earn Pro rewards, creating a viral growth loop

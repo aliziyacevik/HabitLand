@@ -44,9 +44,9 @@ Requirements for App Store launch milestone. Each maps to roadmap phases.
 
 ### Platform Activation
 
-- [ ] **PLT-01**: iCloud sync enabled after Apple Developer account approval
-- [ ] **PLT-02**: HealthKit permissions activated for real health data access
-- [ ] **PLT-03**: Push notifications enabled for streak reminders and weekly reports
+- [x] **PLT-01**: iCloud sync enabled after Apple Developer account approval
+- [x] **PLT-02**: HealthKit permissions activated for real health data access
+- [x] **PLT-03**: Push notifications enabled for streak reminders and weekly reports
 
 ## v2 Requirements
 
@@ -107,9 +107,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GRW-03 | Phase 2 | Pending |
 | GRW-04 | Phase 2 | Pending |
 | GRW-05 | Phase 2 | Pending |
-| PLT-01 | Phase 1 | Pending |
-| PLT-02 | Phase 1 | Pending |
-| PLT-03 | Phase 1 | Pending |
+| PLT-01 | Phase 1 | Complete |
+| PLT-02 | Phase 1 | Complete |
+| PLT-03 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 26 total
