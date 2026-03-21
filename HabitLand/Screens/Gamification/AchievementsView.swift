@@ -3,7 +3,9 @@ import SwiftData
 
 struct AchievementsView: View {
     @Query(sort: \Achievement.name) private var achievements: [Achievement]
+    @ObservedObject private var proManager = ProManager.shared
     @State private var selectedCategory: AchievementCategory?
+    @State private var showPaywall = false
 
     private var filteredAchievements: [Achievement] {
         guard let category = selectedCategory else { return achievements }
@@ -45,6 +47,9 @@ struct AchievementsView: View {
         .background(Color.hlBackground)
         .navigationTitle("Achievements")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(context: .achievements)
+        }
     }
 
     // MARK: - Stats Header
@@ -192,6 +197,12 @@ struct AchievementsView: View {
         }
         .padding(HLSpacing.sm)
         .background(Color.hlSurface, in: RoundedRectangle(cornerRadius: HLRadius.md))
+        .onTapGesture {
+            if isLocked && !proManager.isPro {
+                showPaywall = true
+                HLHaptics.medium()
+            }
+        }
     }
 
     // MARK: - Empty State
