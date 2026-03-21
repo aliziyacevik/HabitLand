@@ -68,6 +68,9 @@ extension HLAnimation {
     // Gamification
     static let celebration = Animation.spring(response: 0.35, dampingFraction: 0.55)
     static let shimmerLoop = Animation.linear(duration: 1.8).repeatForever(autoreverses: false)
+
+    // MARK: - Sheet Transitions
+    static let sheetContentAppear = Animation.easeOut(duration: 0.3)
 }
 
 // MARK: - Shimmer Effect
@@ -101,6 +104,30 @@ struct ShimmerModifier: ViewModifier {
 extension View {
     func hlShimmer() -> some View {
         modifier(ShimmerModifier())
+    }
+}
+
+// MARK: - Sheet Content Modifier
+
+struct HLSheetContent: ViewModifier {
+    @State private var appeared = false
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(appeared ? 1 : 0)
+            .offset(y: appeared ? 0 : 8)
+            .animation(.spring(duration: 0.35, bounce: 0.0), value: appeared)
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    appeared = true
+                }
+            }
+    }
+}
+
+extension View {
+    func hlSheetContent() -> some View {
+        modifier(HLSheetContent())
     }
 }
 
