@@ -51,6 +51,7 @@ struct FriendsListView: View {
             .navigationTitle("Friends")
             .sheet(isPresented: $showAddFriends) {
                 InviteFriendsView()
+                    .hlSheetContent()
             }
         }
     }

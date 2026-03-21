@@ -270,12 +270,15 @@ struct GeneralSettingsView: View {
         .navigationBarTitleDisplayMode(.large)
         .sheet(isPresented: $showPaywall) {
             PaywallView()
+                .hlSheetContent()
         }
         .sheet(isPresented: $showPrivacy) {
             PrivacyPolicyView()
+                .hlSheetContent()
         }
         .sheet(isPresented: $showTerms) {
             TermsOfUseView()
+                .hlSheetContent()
         }
         .sheet(isPresented: $showReferralEntry) {
             if let profile = profile {
@@ -301,6 +304,7 @@ struct GeneralSettingsView: View {
                         }
                     }
                 }
+                .hlSheetContent()
             }
         }
     }

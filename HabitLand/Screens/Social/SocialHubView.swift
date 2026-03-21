@@ -97,6 +97,7 @@ struct SocialHubView: View {
             }
             .sheet(isPresented: $showNudges) {
                 NudgesSheetView(nudges: $nudges)
+                    .hlSheetContent()
             }
             .task {
                 await refreshSocialData()

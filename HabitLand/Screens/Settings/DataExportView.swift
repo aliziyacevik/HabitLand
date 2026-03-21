@@ -80,6 +80,7 @@ struct DataExportView: View {
         }
         .sheet(item: $shareItem) { item in
             ShareSheet(activityItems: [item.url])
+                .hlSheetContent()
         }
     }
 

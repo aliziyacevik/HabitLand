@@ -353,9 +353,11 @@ struct PaywallView: View {
         .padding(.bottom, HLSpacing.xl)
         .sheet(isPresented: $showTerms) {
             TermsOfUseView()
+                .hlSheetContent()
         }
         .sheet(isPresented: $showPrivacy) {
             PrivacyPolicyView()
+                .hlSheetContent()
         }
     }
 

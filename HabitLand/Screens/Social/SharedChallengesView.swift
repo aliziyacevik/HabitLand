@@ -56,6 +56,7 @@ struct SharedChallengesView: View {
             }
             .sheet(isPresented: $showCreateChallenge) {
                 CreateChallengeView()
+                    .hlSheetContent()
             }
         }
     }

@@ -49,6 +49,7 @@ struct NotificationCenterView: View {
             }
             .sheet(item: $showingDetail) { notification in
                 NotificationDetailView(notification: notification)
+                    .hlSheetContent()
             }
         }
     }

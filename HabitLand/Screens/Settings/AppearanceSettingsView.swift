@@ -49,6 +49,7 @@ struct AppearanceSettingsView: View {
         }
         .sheet(isPresented: $showPaywall) {
             PaywallView()
+                .hlSheetContent()
         }
     }
 

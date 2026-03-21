@@ -45,9 +45,11 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showQuickAddHabit) {
             CreateHabitView()
+                .hlSheetContent()
         }
         .sheet(isPresented: $showQuickDailyOverview) {
             DailyHabitsOverview()
+                .hlSheetContent()
         }
     }
 

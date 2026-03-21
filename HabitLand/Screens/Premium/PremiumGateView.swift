@@ -82,6 +82,7 @@ struct PremiumGateView: View {
         .background(Color.hlBackground.ignoresSafeArea())
         .sheet(isPresented: $showPaywall) {
             PaywallView()
+                .hlSheetContent()
         }
     }
 }
@@ -209,6 +210,7 @@ struct BlurredPremiumGateModifier: ViewModifier {
             }
             .sheet(isPresented: $showPaywall) {
                 PaywallView(context: paywallContext)
+                    .hlSheetContent()
             }
         }
     }

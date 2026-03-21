@@ -231,20 +231,25 @@ struct HomeDashboardView: View {
             }
             .sheet(isPresented: $showNotifications) {
                 NotificationCenterView()
+                    .hlSheetContent()
             }
             .sheet(isPresented: $showDailyOverview) {
                 DailyHabitsOverview()
+                    .hlSheetContent()
             }
             .sheet(isPresented: $showWeeklyProgress) {
                 WeeklyProgressView()
+                    .hlSheetContent()
             }
             .sheet(isPresented: $showCreateHabit, onDismiss: {
                 showAchievementIfNeeded(AchievementManager.checkAll(context: modelContext))
             }) {
                 CreateHabitView()
+                    .hlSheetContent()
             }
             .sheet(isPresented: $showPaywall) {
                 PaywallView(context: .habitLimit)
+                    .hlSheetContent()
             }
             .overlay(alignment: .bottom) {
                 UndoToast(

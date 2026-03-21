@@ -438,6 +438,7 @@ struct CreateHabitView: View {
                     }
                 }
             }
+            .hlSheetContent()
         }
     }
 

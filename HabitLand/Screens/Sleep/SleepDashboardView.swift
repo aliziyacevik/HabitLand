@@ -83,6 +83,7 @@ struct SleepDashboardView: View {
             }
             .sheet(isPresented: $showLogSleep) {
                 LogSleepView()
+                    .hlSheetContent()
             }
             .navigationDestination(isPresented: $showAnalytics) {
                 SleepAnalyticsView()
@@ -137,10 +138,19 @@ struct SleepDashboardView: View {
                     }
                 }
             } else {
-                Text("No sleep logged yet")
-                    .font(HLFont.body())
-                    .foregroundStyle(Color.hlTextTertiary)
-                    .padding(.vertical, HLSpacing.lg)
+                VStack(spacing: HLSpacing.sm) {
+                    Image(systemName: "moon.zzz.fill")
+                        .font(.system(size: 32))
+                        .foregroundStyle(Color.hlPrimary.opacity(0.5))
+                    Text("No sleep logged yet")
+                        .font(HLFont.body(.semibold))
+                        .foregroundStyle(Color.hlTextSecondary)
+                    Text("Log your first night to see insights")
+                        .font(HLFont.caption())
+                        .foregroundStyle(Color.hlTextTertiary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, HLSpacing.lg)
             }
         }
         .hlCard()

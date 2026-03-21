@@ -49,6 +49,7 @@ struct AchievementsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showPaywall) {
             PaywallView(context: .achievements)
+                .hlSheetContent()
         }
     }
 

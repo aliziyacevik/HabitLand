@@ -220,6 +220,7 @@ struct MonthlyAnalyticsView: View {
         .sheet(isPresented: $showShareReport) {
             if let url = reportURL {
                 ShareSheetView(url: url)
+                    .hlSheetContent()
             }
         }
     }

@@ -125,9 +125,11 @@ struct HabitListView: View {
             .searchable(text: $searchText, prompt: "Search habits...")
             .sheet(isPresented: $showCreateHabit) {
                 CreateHabitView()
+                    .hlSheetContent()
             }
             .sheet(isPresented: $showPaywall) {
                 PaywallView()
+                    .hlSheetContent()
             }
             .alert("Habit Limit Reached", isPresented: $showLimitAlert) {
                 Button("Upgrade to Pro") {
@@ -508,7 +510,8 @@ struct HabitCardView: View {
                 Text(habit.name)
                     .font(HLFont.headline())
                     .foregroundStyle(Color.hlTextPrimary)
-                    .lineLimit(1)
+                    .lineLimit(2)
+                    .truncationMode(.tail)
                 HStack(spacing: HLSpacing.xxs) {
                     Image(systemName: habit.category.icon)
                         .font(.system(size: 10))

@@ -138,6 +138,7 @@ struct PrivacySettingsView: View {
         .sheet(isPresented: $showExportSheet) {
             if let url = exportURL {
                 ShareSheetView(url: url)
+                    .hlSheetContent()
             }
         }
     }

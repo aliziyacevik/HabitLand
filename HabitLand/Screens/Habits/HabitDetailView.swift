@@ -54,6 +54,7 @@ struct HabitDetailView: View {
         }
         .sheet(isPresented: $showEditSheet) {
             EditHabitView(habit: habit)
+                .hlSheetContent()
         }
         .alert("Delete Habit?", isPresented: $showDeleteAlert) {
             Button("Delete", role: .destructive) {
@@ -82,6 +83,8 @@ struct HabitDetailView: View {
             Text(habit.name)
                 .font(HLFont.title2())
                 .foregroundStyle(Color.hlTextPrimary)
+                .lineLimit(2)
+                .truncationMode(.tail)
 
             // Category Badge
             HStack(spacing: HLSpacing.xxs) {

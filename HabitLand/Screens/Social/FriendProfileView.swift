@@ -206,6 +206,7 @@ struct FriendProfileView: View {
         }
         .sheet(isPresented: $showChallengeCreate) {
             CreateChallengeView(inviteFriend: friend)
+                .hlSheetContent()
         }
     }
 

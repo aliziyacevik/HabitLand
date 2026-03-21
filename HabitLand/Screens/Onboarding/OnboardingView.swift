@@ -137,11 +137,13 @@ struct OnboardingView: View {
                 }
                 showReferralEntry = true
             }
+            .hlSheetContent()
         }
         .sheet(isPresented: $showReferralEntry) {
             onComplete()
         } content: {
             referralEntrySheet
+                .hlSheetContent()
         }
     }
 
