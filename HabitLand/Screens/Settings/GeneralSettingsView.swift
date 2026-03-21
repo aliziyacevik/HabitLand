@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import StoreKit
 
 struct GeneralSettingsView: View {
     // MARK: - Legal URLs
@@ -219,9 +220,29 @@ struct GeneralSettingsView: View {
             }
 
             Section {
-                settingsRow(icon: "questionmark.circle", color: .hlTextSecondary, title: "Help Center")
-                settingsRow(icon: "envelope", color: .hlTextSecondary, title: "Contact Support")
-                settingsRow(icon: "star", color: .hlGold, title: "Rate HabitLand")
+                Button {
+                    if let url = URL(string: "https://azc.github.io/HabitLand/help") {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    settingsRow(icon: "questionmark.circle", color: .hlTextSecondary, title: "Help Center")
+                }
+
+                Button {
+                    if let url = URL(string: "mailto:support@habitland.app?subject=HabitLand%20Support") {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    settingsRow(icon: "envelope", color: .hlTextSecondary, title: "Contact Support")
+                }
+
+                Button {
+                    if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+                        SKStoreReviewController.requestReview(in: scene)
+                    }
+                } label: {
+                    settingsRow(icon: "star", color: .hlGold, title: "Rate HabitLand")
+                }
             } header: {
                 Text("Support")
             }
