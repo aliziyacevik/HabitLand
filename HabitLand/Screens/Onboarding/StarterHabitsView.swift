@@ -65,7 +65,7 @@ struct StarterHabitsView: View {
                 }
 
                 if !selectedTemplates.isEmpty {
-                    Text("Free users can track up to 3 habits")
+                    Text("Free users can track up to 5 habits")
                         .font(HLFont.caption())
                         .foregroundStyle(Color.hlTextTertiary)
                 }
@@ -80,7 +80,7 @@ struct StarterHabitsView: View {
 
     private func starterHabitCard(_ template: HabitTemplate) -> some View {
         let isSelected = selectedTemplates.contains(template.id)
-        let atLimit = selectedTemplates.count >= 3 && !isSelected && !ProManager.shared.isPro
+        let atLimit = selectedTemplates.count >= 5 && !isSelected && !ProManager.shared.isPro
 
         return Button {
             if isSelected {

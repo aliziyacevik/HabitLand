@@ -1,9 +1,9 @@
 import SwiftUI
 
 struct OnboardingCompleteView: View {
+    let habitsCreated: Int
     let dailyHabitGoal: Int
     let sleepGoalHours: Double
-    let selectedCategories: Set<HabitCategory>
     var onGetStarted: () -> Void = {}
 
     @State private var showContent = false
@@ -52,7 +52,7 @@ struct OnboardingCompleteView: View {
                         .offset(y: showContent ? 0 : 20)
                         .animation(HLAnimation.standard.delay(0.4), value: showContent)
 
-                    Text("Here's a summary of your goals")
+                    Text("Here's a summary of your setup")
                         .font(HLFont.body())
                         .foregroundColor(.hlTextSecondary)
                         .opacity(showContent ? 1 : 0)
@@ -64,11 +64,20 @@ struct OnboardingCompleteView: View {
 
                 // Summary cards
                 VStack(spacing: HLSpacing.sm) {
+                    if habitsCreated > 0 {
+                        summaryRow(
+                            icon: "checkmark.circle.fill",
+                            color: .hlPrimary,
+                            label: "Habits created",
+                            value: "\(habitsCreated)"
+                        )
+                    }
+
                     summaryRow(
                         icon: HLIcon.target,
-                        color: .hlPrimary,
-                        label: "Daily habits",
-                        value: "\(dailyHabitGoal)"
+                        color: .hlFitness,
+                        label: "Daily goal",
+                        value: "\(dailyHabitGoal) habits"
                     )
 
                     summaryRow(
@@ -78,12 +87,14 @@ struct OnboardingCompleteView: View {
                         value: sleepGoalFormatted
                     )
 
-                    summaryRow(
-                        icon: HLIcon.star,
-                        color: .hlGold,
-                        label: "Categories",
-                        value: "\(selectedCategories.count) selected"
-                    )
+                    if habitsCreated > 0 {
+                        summaryRow(
+                            icon: "sparkles",
+                            color: .hlGold,
+                            label: "XP earned",
+                            value: "+\(habitsCreated * 10) XP"
+                        )
+                    }
                 }
                 .padding(.horizontal, HLSpacing.lg)
                 .opacity(showContent ? 1 : 0)
@@ -94,7 +105,7 @@ struct OnboardingCompleteView: View {
 
                 // Get Started button
                 HLButton(
-                    "Get Started",
+                    "Let's Go!",
                     icon: "arrow.right",
                     style: .primary,
                     size: .lg,
@@ -183,8 +194,8 @@ private struct ConfettiItem: Identifiable {
 
 #Preview {
     OnboardingCompleteView(
+        habitsCreated: 3,
         dailyHabitGoal: 5,
-        sleepGoalHours: 8,
-        selectedCategories: [.health, .fitness, .mindfulness]
+        sleepGoalHours: 8
     )
 }

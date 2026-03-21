@@ -26,12 +26,20 @@ private struct OnboardingPage: Identifiable {
 
 struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
-    @State private var currentPage = 0
     @Query private var profiles: [UserProfile]
     private var profile: UserProfile? { profiles.first }
-    @State private var showStarterHabits = false
+
+    // Page state
+    @State private var currentPage = 0
+    @State private var currentStep = 0 // 0=pages, 1=habits, 2=goals, 3=notifications, 4=complete
+
+    // Data collected
     @State private var userName = ""
+    @State private var selectedAvatar = "🌱"
     @State private var habitsCreatedCount = 0
+    @State private var dailyHabitGoal = 5
+    @State private var sleepGoalHours = 8.0
+
     @FocusState private var nameFieldFocused: Bool
     var onComplete: () -> Void = {}
 
@@ -44,16 +52,10 @@ struct OnboardingView: View {
             accentColor: .hlPrimary
         ),
         OnboardingPage(
-            systemImage: "checkmark.circle.fill",
-            title: "Track Your Habits",
-            subtitle: "Create daily habits, track your streaks, and watch your consistency grow over time.",
+            systemImage: "chart.line.uptrend.xyaxis",
+            title: "Track Everything",
+            subtitle: "Build daily habits, track your streaks, log your sleep, and discover patterns for peak performance.",
             accentColor: .hlFitness
-        ),
-        OnboardingPage(
-            systemImage: "moon.fill",
-            title: "Sleep Better",
-            subtitle: "Log your sleep, discover patterns, and optimize your rest for peak performance.",
-            accentColor: .hlSleep
         ),
         OnboardingPage(
             systemImage: "trophy.fill",
@@ -70,22 +72,120 @@ struct OnboardingView: View {
         ),
     ]
 
+    private let avatarOptions = ["🌱", "😊", "😎", "🦊", "🐱", "🐶", "🦁", "🐼", "🦄", "🎯", "⭐", "🔥"]
+
     var body: some View {
+        ZStack {
+            Color.hlBackground.ignoresSafeArea()
+
+            switch currentStep {
+            case 0:
+                pagesView
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .leading).combined(with: .opacity),
+                        removal: .move(edge: .leading).combined(with: .opacity)
+                    ))
+            case 1:
+                StarterHabitsView { count in
+                    habitsCreatedCount = count
+                    withAnimation(HLAnimation.gentleSpring) {
+                        currentStep = 2
+                    }
+                }
+                .transition(.move(edge: .trailing).combined(with: .opacity))
+            case 2:
+                GoalSetupView { goal, sleep in
+                    dailyHabitGoal = goal
+                    sleepGoalHours = sleep
+                    if let profile = profile {
+                        profile.dailyHabitGoal = goal
+                        profile.sleepGoalHours = sleep
+                        try? modelContext.save()
+                    }
+                    withAnimation(HLAnimation.gentleSpring) {
+                        currentStep = 3
+                    }
+                }
+                .transition(.move(edge: .trailing).combined(with: .opacity))
+            case 3:
+                NotificationSetupView(
+                    onEnable: {
+                        Task {
+                            _ = await NotificationManager.shared.requestPermission()
+                            await MainActor.run {
+                                withAnimation(HLAnimation.gentleSpring) {
+                                    currentStep = 4
+                                }
+                            }
+                        }
+                    },
+                    onSkip: {
+                        withAnimation(HLAnimation.gentleSpring) {
+                            currentStep = 4
+                        }
+                    }
+                )
+                .transition(.move(edge: .trailing).combined(with: .opacity))
+            case 4:
+                OnboardingCompleteView(
+                    habitsCreated: habitsCreatedCount,
+                    dailyHabitGoal: dailyHabitGoal,
+                    sleepGoalHours: sleepGoalHours
+                ) {
+                    if habitsCreatedCount > 0 {
+                        awardFirstXP()
+                    }
+                    onComplete()
+                }
+                .transition(.move(edge: .trailing).combined(with: .opacity))
+            default:
+                EmptyView()
+            }
+        }
+        .animation(HLAnimation.gentleSpring, value: currentStep)
+    }
+
+    // MARK: - Pages View (TabView with progress bar)
+
+    private var pagesView: some View {
         VStack(spacing: 0) {
-            // Skip button
+            // Top bar: Back + Skip
             HStack {
+                if currentPage > 0 {
+                    Button {
+                        withAnimation(HLAnimation.standard) {
+                            currentPage -= 1
+                        }
+                    } label: {
+                        HStack(spacing: HLSpacing.xxs) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 14, weight: .semibold))
+                            Text("Back")
+                                .font(HLFont.callout(.medium))
+                        }
+                        .foregroundColor(.hlTextSecondary)
+                    }
+                    .padding(.leading, HLSpacing.lg)
+                }
+
                 Spacer()
+
                 if currentPage < pages.count - 1 {
                     Button("Skip") {
-                        showStarterHabits = true
+                        saveName()
+                        withAnimation(HLAnimation.gentleSpring) {
+                            currentStep = 1
+                        }
                     }
                     .font(HLFont.callout(.medium))
                     .foregroundColor(.hlTextSecondary)
                     .padding(.trailing, HLSpacing.lg)
-                    .padding(.top, HLSpacing.md)
                 }
             }
             .frame(height: 44)
+
+            // Progress bar
+            progressBar
 
             // Page content
             TabView(selection: $currentPage) {
@@ -105,18 +205,7 @@ struct OnboardingView: View {
             .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(HLAnimation.gentleSpring, value: currentPage)
 
-            // Page indicators
-            HStack(spacing: HLSpacing.xs) {
-                ForEach(0..<pages.count, id: \.self) { index in
-                    Capsule()
-                        .fill(index == currentPage ? Color.hlPrimary : Color.hlDivider)
-                        .frame(width: index == currentPage ? 24 : 8, height: 8)
-                        .animation(HLAnimation.standard, value: currentPage)
-                }
-            }
-            .padding(.bottom, HLSpacing.xl)
-
-            // Next / Get Started button
+            // Next / Choose My Habits button
             HLButton(
                 currentPage == pages.count - 1 ? "Choose My Habits" : "Next",
                 icon: "arrow.right",
@@ -129,37 +218,51 @@ struct OnboardingView: View {
                         currentPage += 1
                     }
                 } else {
-                    // Save name before showing starter habits
-                    let trimmed = userName.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if !trimmed.isEmpty, let profile = profile {
-                        profile.name = trimmed
-                        profile.username = "@\(trimmed.lowercased().replacingOccurrences(of: " ", with: ""))"
-                        try? modelContext.save()
+                    saveName()
+                    withAnimation(HLAnimation.gentleSpring) {
+                        currentStep = 1
                     }
-                    showStarterHabits = true
                 }
             }
             .disabled(currentPage == pages.count - 1 && userName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .padding(.horizontal, HLSpacing.lg)
             .padding(.bottom, HLSpacing.xxl)
         }
-        .background(Color.hlBackground.ignoresSafeArea())
-        .fullScreenCover(isPresented: $showStarterHabits) {
-            StarterHabitsView { count in
-                habitsCreatedCount = count
-                showStarterHabits = false
-            }
-            .onDisappear {
-                if habitsCreatedCount > 0 {
-                    awardFirstXP()
-                }
-                onComplete()
-            }
-            .hlSheetContent()
-        }
     }
 
-    // MARK: - Standard Page View (with animations)
+    // MARK: - Progress Bar
+
+    private var progressBar: some View {
+        VStack(spacing: HLSpacing.xxs) {
+            Text("Step \(currentPage + 1) of \(pages.count)")
+                .font(HLFont.caption(.medium))
+                .foregroundColor(.hlTextTertiary)
+
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: HLRadius.full)
+                        .fill(Color.hlDivider)
+                        .frame(height: 4)
+
+                    RoundedRectangle(cornerRadius: HLRadius.full)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.hlPrimary, Color.hlPrimary.opacity(0.7)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(width: geo.size.width * CGFloat(currentPage + 1) / CGFloat(pages.count), height: 4)
+                        .animation(HLAnimation.standard, value: currentPage)
+                }
+            }
+            .frame(height: 4)
+            .padding(.horizontal, HLSpacing.xl)
+        }
+        .padding(.bottom, HLSpacing.sm)
+    }
+
+    // MARK: - Standard Page View
 
     @ViewBuilder
     private func pageView(_ page: OnboardingPage) -> some View {
@@ -167,7 +270,7 @@ struct OnboardingView: View {
             .padding(.horizontal, HLSpacing.lg)
     }
 
-    // MARK: - Level Up Page (animated XP preview)
+    // MARK: - Level Up Page
 
     @ViewBuilder
     private func levelUpPageView(_ page: OnboardingPage) -> some View {
@@ -175,19 +278,22 @@ struct OnboardingView: View {
             .padding(.horizontal, HLSpacing.lg)
     }
 
-    // MARK: - Name Entry Page (inline in onboarding)
+    // MARK: - Name Entry + Avatar Picker
 
     @ViewBuilder
     private func nameEntryPage(_ page: OnboardingPage) -> some View {
         VStack(spacing: HLSpacing.lg) {
             Spacer()
 
-            Image(systemName: page.systemImage)
-                .font(.system(size: 56))
-                .foregroundColor(page.accentColor)
-                .frame(width: 96, height: 96)
-                .background(page.accentColor.opacity(0.12))
-                .clipShape(Circle())
+            // Selected avatar display
+            ZStack {
+                Circle()
+                    .fill(page.accentColor.opacity(0.12))
+                    .frame(width: 96, height: 96)
+
+                Text(selectedAvatar)
+                    .font(.system(size: 48))
+            }
 
             Text(page.title)
                 .font(HLFont.title2())
@@ -198,6 +304,39 @@ struct OnboardingView: View {
                 .foregroundColor(.hlTextSecondary)
                 .multilineTextAlignment(.center)
 
+            // Avatar picker
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: HLSpacing.xs) {
+                    ForEach(avatarOptions, id: \.self) { emoji in
+                        Button {
+                            selectedAvatar = emoji
+                            HLHaptics.selection()
+                        } label: {
+                            Text(emoji)
+                                .font(.system(size: 28))
+                                .frame(width: 48, height: 48)
+                                .background(
+                                    selectedAvatar == emoji
+                                        ? Color.hlPrimary.opacity(0.15)
+                                        : Color(.systemGray6)
+                                )
+                                .clipShape(Circle())
+                                .overlay(
+                                    Circle()
+                                        .stroke(
+                                            selectedAvatar == emoji ? Color.hlPrimary : Color.clear,
+                                            lineWidth: 2
+                                        )
+                                )
+                        }
+                        .scaleEffect(selectedAvatar == emoji ? 1.1 : 1.0)
+                        .animation(HLAnimation.microSpring, value: selectedAvatar)
+                    }
+                }
+                .padding(.horizontal, HLSpacing.lg)
+            }
+
+            // Name field
             TextField("Your name", text: $userName)
                 .font(HLFont.title3(.bold))
                 .multilineTextAlignment(.center)
@@ -217,6 +356,20 @@ struct OnboardingView: View {
             Spacer()
         }
         .padding(.horizontal, HLSpacing.lg)
+    }
+
+    // MARK: - Save Name & Avatar
+
+    private func saveName() {
+        let trimmed = userName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let profile = profile else { return }
+
+        if !trimmed.isEmpty {
+            profile.name = trimmed
+            profile.username = "@\(trimmed.lowercased().replacingOccurrences(of: " ", with: ""))"
+        }
+        profile.avatarEmoji = selectedAvatar
+        try? modelContext.save()
     }
 
     // MARK: - First XP Award
@@ -248,20 +401,17 @@ private struct AnimatedOnboardingPage: View {
 
             // Animated icon with floating + glow
             ZStack {
-                // Outer pulse ring
                 Circle()
                     .stroke(page.accentColor.opacity(0.15), lineWidth: 2)
                     .frame(width: 200, height: 200)
                     .scaleEffect(pulseGlow ? 1.1 : 0.9)
                     .opacity(pulseGlow ? 0 : 0.6)
 
-                // Background circle
                 Circle()
                     .fill(page.accentColor.opacity(0.12))
                     .frame(width: 160, height: 160)
                     .hlGlow(page.accentColor, radius: pulseGlow ? 30 : 15, isActive: true)
 
-                // Icon or emoji
                 if let emoji = page.emoji {
                     Text(emoji)
                         .font(.system(size: 72))
@@ -275,7 +425,6 @@ private struct AnimatedOnboardingPage: View {
                         .opacity(showIcon ? 1 : 0)
                 }
 
-                // Floating particles
                 if showDecorations {
                     floatingParticles
                 }
@@ -285,7 +434,7 @@ private struct AnimatedOnboardingPage: View {
             Spacer()
                 .frame(height: HLSpacing.lg)
 
-            // Feature pills (themed per page)
+            // Feature pills
             if showDecorations {
                 featurePills
                     .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -294,7 +443,7 @@ private struct AnimatedOnboardingPage: View {
             Spacer()
                 .frame(height: HLSpacing.sm)
 
-            // Text with staggered entry
+            // Text
             VStack(spacing: HLSpacing.sm) {
                 Text(page.title)
                     .font(HLFont.title1())
@@ -318,8 +467,6 @@ private struct AnimatedOnboardingPage: View {
         .onAppear { startAnimations() }
     }
 
-    // MARK: - Animations
-
     private func startAnimations() {
         withAnimation(HLAnimation.bouncy.delay(0.1)) {
             showIcon = true
@@ -333,17 +480,13 @@ private struct AnimatedOnboardingPage: View {
         withAnimation(HLAnimation.standard.delay(0.9)) {
             showDecorations = true
         }
-        // Continuous floating
         withAnimation(.easeInOut(duration: 2.5).repeatForever(autoreverses: true).delay(0.3)) {
             floatOffset = -8
         }
-        // Continuous pulse
         withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true).delay(0.5)) {
             pulseGlow = true
         }
     }
-
-    // MARK: - Feature Pills (themed per page)
 
     @ViewBuilder
     private var featurePills: some View {
@@ -355,19 +498,12 @@ private struct AnimatedOnboardingPage: View {
                     ("gamecontroller.fill", "Gamified", .hlPrimary),
                     ("bolt.fill", "Free", .hlGold)
                 ]
-            } else if page.systemImage == "checkmark.circle.fill" {
-                // Track habits page
+            } else {
+                // Track Everything (merged features page)
                 return [
                     ("flame.fill", "Streaks", .hlFlame),
-                    ("bell.fill", "Reminders", .hlInfo),
+                    ("moon.stars.fill", "Sleep", .hlSleep),
                     ("chart.bar.fill", "Analytics", .hlPrimary)
-                ]
-            } else {
-                // Sleep page
-                return [
-                    ("moon.stars.fill", "Quality Score", .hlSleep),
-                    ("chart.xyaxis.line", "Trends", .hlMindfulness),
-                    ("sparkles", "Insights", .hlGold)
                 ]
             }
         }()
@@ -390,8 +526,6 @@ private struct AnimatedOnboardingPage: View {
             }
         }
     }
-
-    // MARK: - Floating Particles
 
     private var floatingParticles: some View {
         ZStack {
@@ -421,7 +555,6 @@ private struct LevelUpPreviewPage: View {
         VStack(spacing: HLSpacing.lg) {
             Spacer()
 
-            // Animated trophy
             ZStack {
                 Circle()
                     .fill(page.accentColor.opacity(0.12))
@@ -435,7 +568,6 @@ private struct LevelUpPreviewPage: View {
                     .animation(HLAnimation.bouncy.delay(0.2), value: showLevel)
             }
 
-            // Animated XP bar demo
             VStack(spacing: HLSpacing.sm) {
                 HStack(spacing: HLSpacing.sm) {
                     Text("LV1")
@@ -481,7 +613,6 @@ private struct LevelUpPreviewPage: View {
                 }
                 .padding(.horizontal, HLSpacing.xl)
 
-                // Achievement badges preview
                 if showBadges {
                     HStack(spacing: HLSpacing.sm) {
                         achievementBadge(icon: "flame.fill", color: .hlFlame, label: "Streaks")
@@ -495,7 +626,6 @@ private struct LevelUpPreviewPage: View {
             Spacer()
                 .frame(height: HLSpacing.md)
 
-            // Text
             VStack(spacing: HLSpacing.sm) {
                 Text(page.title)
                     .font(HLFont.title1())
@@ -513,7 +643,6 @@ private struct LevelUpPreviewPage: View {
             Spacer()
         }
         .onAppear {
-            // Animate the XP bar filling up
             withAnimation(HLAnimation.standard.delay(0.3)) {
                 showLevel = true
             }
