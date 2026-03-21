@@ -27,7 +27,9 @@ struct SleepDashboardView: View {
     }
 
     private var consistencyPercent: Int {
-        Int((Double(weekLogs.count) / 7.0) * 100)
+        let calendar = Calendar.current
+        let uniqueDays = Set(weekLogs.map { calendar.startOfDay(for: $0.bedTime) }).count
+        return min(Int((Double(uniqueDays) / 7.0) * 100), 100)
     }
 
     var body: some View {
