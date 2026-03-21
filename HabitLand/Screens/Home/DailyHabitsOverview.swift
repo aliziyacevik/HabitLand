@@ -259,6 +259,16 @@ struct DailyHabitsOverview: View {
                             .font(HLFont.caption2(.semibold))
                             .foregroundStyle(Color.hlFlame)
                     }
+
+                    if habit.mastery != .none {
+                        HStack(spacing: 2) {
+                            Image(systemName: habit.mastery.icon)
+                                .font(.system(size: 9))
+                            Text(habit.mastery.label)
+                                .font(HLFont.caption2(.semibold))
+                        }
+                        .foregroundStyle(habit.mastery.color)
+                    }
                 }
             }
 

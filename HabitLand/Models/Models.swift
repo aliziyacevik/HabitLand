@@ -100,6 +100,10 @@ final class Habit {
         return streak
     }
 
+    var mastery: HabitMastery {
+        HabitMastery.forStreak(bestStreak)
+    }
+
     var todayCompleted: Bool {
         let today = Calendar.current.startOfDay(for: Date())
         return safeCompletions.contains { completion in
@@ -534,6 +538,56 @@ enum SleepQuality: String, Codable, CaseIterable {
         case .good: return 0.8
         case .excellent: return 1.0
         }
+    }
+}
+
+enum HabitMastery: String {
+    case none = ""
+    case bronze = "Bronze"
+    case silver = "Silver"
+    case gold = "Gold"
+
+    var color: Color {
+        switch self {
+        case .none: return .clear
+        case .bronze: return Color(red: 0.80, green: 0.50, blue: 0.20)
+        case .silver: return Color(red: 0.65, green: 0.65, blue: 0.70)
+        case .gold: return Color(red: 1.00, green: 0.84, blue: 0.00)
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .none: return ""
+        case .bronze: return "shield.fill"
+        case .silver: return "shield.fill"
+        case .gold: return "crown.fill"
+        }
+    }
+
+    var label: String {
+        switch self {
+        case .none: return ""
+        case .bronze: return "Apprentice"
+        case .silver: return "Master"
+        case .gold: return "Grand Master"
+        }
+    }
+
+    var minStreak: Int {
+        switch self {
+        case .none: return 0
+        case .bronze: return 30
+        case .silver: return 60
+        case .gold: return 90
+        }
+    }
+
+    static func forStreak(_ streak: Int) -> HabitMastery {
+        if streak >= 90 { return .gold }
+        if streak >= 60 { return .silver }
+        if streak >= 30 { return .bronze }
+        return .none
     }
 }
 
