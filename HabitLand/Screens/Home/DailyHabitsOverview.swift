@@ -17,6 +17,8 @@ struct DailyHabitsOverview: View {
     @State private var achievementCelebration: AchievementCelebrationData?
     @State private var levelUpData: LevelUpData?
     @State private var showUndoToast = false
+    @State private var showTimer = false
+    @ObservedObject private var timerManager = HabitTimerManager.shared
     @State private var undoHabitName = ""
     @State private var undoCompletion: HabitCompletion?
 
@@ -106,6 +108,9 @@ struct DailyHabitsOverview: View {
                     },
                     isVisible: $showUndoToast
                 )
+            }
+            .fullScreenCover(isPresented: $showTimer) {
+                HabitTimerView()
             }
         }
     }
@@ -277,6 +282,28 @@ struct DailyHabitsOverview: View {
             if xpGainHabitID == habit.id.uuidString {
                 XPGainView(amount: lastXPGainAmount)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+
+            // Timer button for time-based habits
+            if habit.unit == "minutes" && habit.goalCount > 0 && !habit.todayCompleted {
+                Button {
+                    timerManager.start(habit: (
+                        id: habit.id,
+                        name: habit.name,
+                        icon: habit.icon,
+                        color: habit.color,
+                        minutes: habit.goalCount
+                    ))
+                    showTimer = true
+                    HLHaptics.selection()
+                } label: {
+                    Image(systemName: "timer")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(habit.color)
+                        .frame(width: 32, height: 32)
+                        .background(habit.color.opacity(0.12))
+                        .clipShape(Circle())
+                }
             }
 
             Button {
