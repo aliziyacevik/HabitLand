@@ -1,24 +1,37 @@
 import SwiftUI
+import SwiftData
 import CloudKit
 
 struct InviteFriendsView: View {
+    @Query private var profiles: [UserProfile]
+    private var profile: UserProfile? { profiles.first }
+
+    @Environment(\.modelContext) private var modelContext
     @State private var searchText = ""
     @State private var searchResults: [CKRecord] = []
     @State private var sentRequests: Set<String> = []
     @State private var isSearching = false
+    @State private var referralStats: (count: Int, weeksEarned: Int) = (0, 0)
+    @State private var showCopiedToast = false
     @StateObject private var cloudKit = CloudKitManager.shared
     @Environment(\.dismiss) private var dismiss
+
+    private let appStoreURL = "https://apps.apple.com/app/habitland/id000000000"
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: HLSpacing.lg) {
+                    referralCodeSection
+                    referralStatsSection
                     searchSection
                     if !searchResults.isEmpty {
                         resultsSection
                     }
                     if searchResults.isEmpty && !isSearching && searchText.isEmpty {
-                        shareLinkSection
+                        if let profile = profile, profile.referredByCode == nil {
+                            redeemCodeSection
+                        }
                         benefitsSection
                     }
                 }
@@ -26,7 +39,7 @@ struct InviteFriendsView: View {
                 .padding(.vertical, HLSpacing.md)
             }
             .background(Color.hlBackground)
-            .navigationTitle("Add Friends")
+            .navigationTitle("Invite Friends")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -35,21 +48,168 @@ struct InviteFriendsView: View {
                         .foregroundStyle(Color.hlPrimary)
                 }
             }
+            .overlay(alignment: .top) {
+                if showCopiedToast {
+                    Text("Kopyalandi!")
+                        .font(HLFont.caption(.semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, HLSpacing.md)
+                        .padding(.vertical, HLSpacing.xs)
+                        .background(Color.hlSuccess)
+                        .clipShape(Capsule())
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .padding(.top, HLSpacing.sm)
+                }
+            }
+            .task {
+                await ensureReferralCode()
+                await loadReferralStats()
+            }
         }
+    }
+
+    // MARK: - Referral Code Section
+
+    private var referralCodeSection: some View {
+        VStack(spacing: HLSpacing.md) {
+            Image(systemName: HLIcon.gift)
+                .font(.system(size: 40))
+                .foregroundColor(.hlPrimary)
+                .frame(width: 80, height: 80)
+                .background(Color.hlPrimaryLight)
+                .clipShape(Circle())
+
+            Text("Arkadaslarini Davet Et")
+                .font(HLFont.title3())
+                .foregroundColor(.hlTextPrimary)
+
+            Text("Kodunu paylas, ikimiz de 1 hafta Pro kazanalim!")
+                .font(HLFont.subheadline())
+                .foregroundColor(.hlTextSecondary)
+                .multilineTextAlignment(.center)
+
+            // Referral code display — tap to copy
+            if let profile = profile, !profile.displayReferralCode.isEmpty {
+                Button {
+                    UIPasteboard.general.string = profile.displayReferralCode
+                    HLHaptics.success()
+                    withAnimation(HLAnimation.quick) {
+                        showCopiedToast = true
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        withAnimation(HLAnimation.quick) {
+                            showCopiedToast = false
+                        }
+                    }
+                } label: {
+                    HStack(spacing: HLSpacing.xs) {
+                        Text(profile.displayReferralCode)
+                            .font(HLFont.title1(.bold))
+                            .foregroundColor(.hlPrimary)
+                        Image(systemName: "doc.on.doc")
+                            .font(.system(size: 16))
+                            .foregroundColor(.hlTextTertiary)
+                    }
+                    .padding(.vertical, HLSpacing.sm)
+                    .padding(.horizontal, HLSpacing.lg)
+                    .background(Color.hlPrimaryLight)
+                    .cornerRadius(HLRadius.md)
+                }
+            }
+
+            // ShareLink with localized message
+            ShareLink(
+                item: URL(string: appStoreURL)!,
+                subject: Text(isTurkish ? "HabitLand'e Katil!" : "Join HabitLand!"),
+                message: Text(shareMessage)
+            ) {
+                HStack {
+                    Image(systemName: HLIcon.share)
+                    Text(isTurkish ? "Davet Linkini Paylas" : "Share Invite Link")
+                }
+                .font(HLFont.headline())
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, HLSpacing.sm)
+                .background(Color.hlPrimary)
+                .cornerRadius(HLRadius.md)
+            }
+        }
+        .hlCard()
+    }
+
+    // MARK: - Referral Stats Section
+
+    private var referralStatsSection: some View {
+        HStack(spacing: HLSpacing.md) {
+            statItem(
+                icon: "person.2.fill",
+                value: "\(referralStats.count)",
+                label: isTurkish ? "Davet Edilen" : "Friends Invited"
+            )
+
+            Divider()
+                .frame(height: 40)
+
+            statItem(
+                icon: "crown.fill",
+                value: "\(referralStats.weeksEarned)",
+                label: isTurkish ? "Hafta Pro" : "Weeks Pro"
+            )
+        }
+        .hlCard()
+    }
+
+    private func statItem(icon: String, value: String, label: String) -> some View {
+        VStack(spacing: HLSpacing.xxs) {
+            HStack(spacing: HLSpacing.xxs) {
+                Image(systemName: icon)
+                    .font(.system(size: 14))
+                    .foregroundColor(.hlPrimary)
+                Text(value)
+                    .font(HLFont.title2(.bold))
+                    .foregroundColor(.hlTextPrimary)
+            }
+            Text(label)
+                .font(HLFont.caption())
+                .foregroundColor(.hlTextSecondary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    // MARK: - Redeem Code Section
+
+    private var redeemCodeSection: some View {
+        VStack(alignment: .leading, spacing: HLSpacing.sm) {
+            HStack(spacing: HLSpacing.xs) {
+                Image(systemName: "gift.fill")
+                    .foregroundStyle(Color.hlGold)
+                Text(isTurkish ? "Davet Kodun Var Mi?" : "Got an Invite Code?")
+                    .font(HLFont.headline())
+                    .foregroundColor(.hlTextPrimary)
+            }
+
+            if let profile = profile {
+                ReferralCodeEntryView(profile: profile) {
+                    HLHaptics.success()
+                }
+            }
+        }
+        .hlCard()
     }
 
     // MARK: - Search Section
 
     private var searchSection: some View {
         VStack(alignment: .leading, spacing: HLSpacing.sm) {
-            Text("Find by Username")
+            Text(isTurkish ? "Kullanici Ara" : "Find by Username")
                 .font(HLFont.headline())
                 .foregroundColor(.hlTextPrimary)
 
             HStack(spacing: HLSpacing.xs) {
                 Image(systemName: HLIcon.search)
                     .foregroundColor(.hlTextTertiary)
-                TextField("Enter username...", text: $searchText)
+                TextField(isTurkish ? "Kullanici adi girin..." : "Enter username...", text: $searchText)
                     .font(HLFont.body())
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
@@ -176,58 +336,18 @@ struct InviteFriendsView: View {
         .hlCard()
     }
 
-    // MARK: - Share Link
-
-    private var shareLinkSection: some View {
-        VStack(spacing: HLSpacing.md) {
-            Image(systemName: HLIcon.personAdd)
-                .font(.system(size: 40))
-                .foregroundColor(.hlPrimary)
-                .frame(width: 80, height: 80)
-                .background(Color.hlPrimaryLight)
-                .clipShape(Circle())
-
-            Text("Invite Your Friends")
-                .font(HLFont.title3())
-                .foregroundColor(.hlTextPrimary)
-
-            Text("Build habits together and hold each other accountable")
-                .font(HLFont.subheadline())
-                .foregroundColor(.hlTextSecondary)
-                .multilineTextAlignment(.center)
-
-            ShareLink(
-                item: URL(string: "https://apps.apple.com/app/habitland/id000000000")!,
-                subject: Text("Join me on HabitLand!"),
-                message: Text("Let's build habits together! Download HabitLand and add me as a friend.")
-            ) {
-                HStack {
-                    Image(systemName: HLIcon.share)
-                    Text("Share Invite Link")
-                }
-                .font(HLFont.headline())
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, HLSpacing.sm)
-                .background(Color.hlPrimary)
-                .cornerRadius(HLRadius.md)
-            }
-        }
-        .hlCard()
-    }
-
     // MARK: - Benefits
 
     private var benefitsSection: some View {
         VStack(alignment: .leading, spacing: HLSpacing.md) {
-            Text("Why Add Friends?")
+            Text(isTurkish ? "Neden Arkadaslarini Davet Et?" : "Why Invite Friends?")
                 .font(HLFont.headline())
                 .foregroundColor(.hlTextPrimary)
 
-            benefitRow(icon: "chart.line.uptrend.xyaxis", color: .hlPrimary, title: "65% More Consistent", subtitle: "Accountability partners boost habit success rates")
-            benefitRow(icon: "trophy.fill", color: .hlGold, title: "Shared Challenges", subtitle: "Compete and motivate each other with challenges")
-            benefitRow(icon: "hand.wave.fill", color: .hlFlame, title: "Nudge Support", subtitle: "Give friends a friendly push when they're falling behind")
-            benefitRow(icon: "star.fill", color: .hlInfo, title: "Bonus XP", subtitle: "Earn extra XP for completing habits with friends")
+            benefitRow(icon: "crown.fill", color: .hlGold, title: isTurkish ? "Ucretsiz Pro Kazan" : "Earn Free Pro", subtitle: isTurkish ? "Her davet icin 1 hafta Pro kazan" : "Get 1 week of Pro for each invite")
+            benefitRow(icon: "chart.line.uptrend.xyaxis", color: .hlPrimary, title: isTurkish ? "%65 Daha Tutarli" : "65% More Consistent", subtitle: isTurkish ? "Birlikte takip etmek basariyi arttirir" : "Accountability partners boost habit success rates")
+            benefitRow(icon: "trophy.fill", color: .hlFlame, title: isTurkish ? "Ortak Challenge'lar" : "Shared Challenges", subtitle: isTurkish ? "Arkadaslarinla yarismaya basla" : "Compete and motivate each other with challenges")
+            benefitRow(icon: "hand.wave.fill", color: .hlInfo, title: isTurkish ? "Durtme Destegi" : "Nudge Support", subtitle: isTurkish ? "Geride kalanlar icin dost eli uzat" : "Give friends a friendly push when they're falling behind")
         }
         .hlCard()
     }
@@ -252,6 +372,37 @@ struct InviteFriendsView: View {
         }
     }
 
+    // MARK: - Helpers
+
+    private var isTurkish: Bool {
+        Locale.current.language.languageCode == .turkish
+    }
+
+    private var shareMessage: String {
+        let displayCode = profile?.displayReferralCode ?? "HBT-XXXXXX"
+        if isTurkish {
+            return "Aliskanliklarini birlikte takip edelim! HabitLand'i indir ve kodumu gir: \(displayCode) -- ikimiz de 1 hafta Pro kazanalim! \(appStoreURL)"
+        } else {
+            return "Let's track habits together! Download HabitLand and enter my code: \(displayCode) -- we both get 1 week of Pro! \(appStoreURL)"
+        }
+    }
+
+    // MARK: - Data Loading
+
+    private func ensureReferralCode() async {
+        guard let profile = profile, profile.referralCode == nil else { return }
+        profile.referralCode = UserProfile.generateReferralCode(from: profile.id)
+        try? modelContext.save()
+    }
+
+    private func loadReferralStats() async {
+        guard let code = profile?.referralCode else { return }
+        let count = await cloudKit.fetchReferralCount(forCode: code)
+        await MainActor.run {
+            referralStats = (count: count, weeksEarned: count)
+        }
+    }
+
     // MARK: - Search
 
     private func performSearch() {
@@ -265,4 +416,5 @@ struct InviteFriendsView: View {
 
 #Preview {
     InviteFriendsView()
+        .modelContainer(for: UserProfile.self, inMemory: true)
 }

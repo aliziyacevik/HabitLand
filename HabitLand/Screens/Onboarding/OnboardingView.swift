@@ -27,7 +27,10 @@ private struct OnboardingPage: Identifiable {
 struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var currentPage = 0
+    @Query private var profiles: [UserProfile]
+    private var profile: UserProfile? { profiles.first }
     @State private var showStarterHabits = false
+    @State private var showReferralEntry = false
     @State private var habitsCreatedCount = 0
     var onComplete: () -> Void = {}
 
@@ -132,8 +135,13 @@ struct OnboardingView: View {
                 if habitsCreatedCount > 0 {
                     awardFirstXP()
                 }
-                onComplete()
+                showReferralEntry = true
             }
+        }
+        .sheet(isPresented: $showReferralEntry) {
+            onComplete()
+        } content: {
+            referralEntrySheet
         }
     }
 
@@ -151,6 +159,58 @@ struct OnboardingView: View {
     private func levelUpPageView(_ page: OnboardingPage) -> some View {
         LevelUpPreviewPage(page: page)
             .padding(.horizontal, HLSpacing.lg)
+    }
+
+    // MARK: - Referral Entry Sheet
+
+    private var referralEntrySheet: some View {
+        NavigationStack {
+            VStack(spacing: HLSpacing.lg) {
+                Spacer()
+
+                Image(systemName: "gift.fill")
+                    .font(.system(size: 48))
+                    .foregroundColor(.hlPrimary)
+                    .frame(width: 96, height: 96)
+                    .background(Color.hlPrimaryLight)
+                    .clipShape(Circle())
+
+                Text("Davet kodun var mi?")
+                    .font(HLFont.title2())
+                    .foregroundColor(.hlTextPrimary)
+
+                Text("Arkadasinin kodunu gir, ikiniz de 1 hafta Pro kazanin!")
+                    .font(HLFont.subheadline())
+                    .foregroundColor(.hlTextSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, HLSpacing.lg)
+
+                if let profile = profile {
+                    ReferralCodeEntryView(profile: profile) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                            showReferralEntry = false
+                        }
+                    }
+                    .padding(.horizontal, HLSpacing.md)
+                }
+
+                Spacer()
+
+                Button {
+                    showReferralEntry = false
+                } label: {
+                    Text("Atla")
+                        .font(HLFont.headline())
+                        .foregroundColor(.hlTextSecondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, HLSpacing.sm)
+                }
+                .padding(.horizontal, HLSpacing.lg)
+                .padding(.bottom, HLSpacing.lg)
+            }
+            .background(Color.hlBackground.ignoresSafeArea())
+        }
+        .presentationDetents([.large])
     }
 
     // MARK: - First XP Award

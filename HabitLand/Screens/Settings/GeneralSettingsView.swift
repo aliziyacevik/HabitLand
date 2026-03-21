@@ -1,11 +1,16 @@
 import SwiftUI
+import SwiftData
 
 struct GeneralSettingsView: View {
+    @Query private var profiles: [UserProfile]
+    private var profile: UserProfile? { profiles.first }
+
     @ObservedObject private var proManager = ProManager.shared
     @ObservedObject private var healthKitManager = HealthKitManager.shared
     @State private var showPaywall = false
     @State private var showPrivacy = false
     @State private var showTerms = false
+    @State private var showReferralEntry = false
 
     var body: some View {
         List {
@@ -84,6 +89,15 @@ struct GeneralSettingsView: View {
                         }
                     } label: {
                         settingsRow(icon: "creditcard.fill", color: .hlPrimary, title: "Manage Subscription")
+                    }
+                }
+
+                // Referral code entry — only shown if user hasn't redeemed a code yet
+                if let profile = profile, profile.referredByCode == nil {
+                    Button {
+                        showReferralEntry = true
+                    } label: {
+                        settingsRow(icon: "gift.fill", color: .hlGold, title: "Enter Referral Code")
                     }
                 }
             } header: {
@@ -226,6 +240,32 @@ struct GeneralSettingsView: View {
         }
         .sheet(isPresented: $showTerms) {
             TermsOfUseView()
+        }
+        .sheet(isPresented: $showReferralEntry) {
+            if let profile = profile {
+                NavigationStack {
+                    VStack(spacing: HLSpacing.lg) {
+                        Spacer()
+                        ReferralCodeEntryView(profile: profile) {
+                            showReferralEntry = false
+                        }
+                        .padding(.horizontal, HLSpacing.md)
+                        Spacer()
+                    }
+                    .background(Color.hlBackground.ignoresSafeArea())
+                    .navigationTitle("Referral Code")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Done") {
+                                showReferralEntry = false
+                            }
+                            .font(HLFont.headline())
+                            .foregroundStyle(Color.hlPrimary)
+                        }
+                    }
+                }
+            }
         }
     }
 
