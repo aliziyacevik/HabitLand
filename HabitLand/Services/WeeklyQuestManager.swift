@@ -149,7 +149,7 @@ final class WeeklyQuestManager: ObservableObject {
         // Pick 3 random non-duplicate types
         var selected: [WeeklyQuest] = []
         var usedTypes: Set<WeeklyQuest.QuestType> = []
-        var shuffled = templates.shuffled()
+        let shuffled = templates.shuffled()
 
         for template in shuffled {
             guard selected.count < 3 else { break }

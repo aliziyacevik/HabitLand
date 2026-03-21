@@ -9,7 +9,8 @@ final class AmbientSoundManager: ObservableObject {
     @Published var isPlaying = false
     @Published var volume: Float = 0.5
 
-    private var player: AVAudioPlayer?
+    private var audioEngine: AVAudioEngine?
+    private var noiseNode: AVAudioSourceNode?
 
     private init() {}
 
@@ -17,26 +18,59 @@ final class AmbientSoundManager: ObservableObject {
         stop()
         currentSound = sound
 
-        // Use system sounds via tone generation
-        guard let url = sound.systemURL else { return }
-
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
             try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            return
+        }
 
-            player = try AVAudioPlayer(contentsOf: url)
-            player?.numberOfLoops = -1 // Loop forever
-            player?.volume = volume
-            player?.play()
+        let engine = AVAudioEngine()
+        let format = AVAudioFormat(standardFormatWithSampleRate: 44100, channels: 1)!
+        let params = sound.noiseParams
+
+        let sourceNode = AVAudioSourceNode(format: format) { _, _, frameCount, bufferList -> OSStatus in
+            let buffer = UnsafeMutableAudioBufferListPointer(bufferList)
+            for frame in 0..<Int(frameCount) {
+                // Generate noise sample
+                var sample = Float.random(in: -1.0...1.0)
+
+                // Shape the noise based on type
+                sample *= params.amplitude
+
+                // Apply low-pass filter approximation for colored noise
+                if params.smoothing > 0 {
+                    let prev = frame > 0 ? buffer[0].mData!.assumingMemoryBound(to: Float.self)[frame - 1] : 0
+                    sample = prev * params.smoothing + sample * (1.0 - params.smoothing)
+                }
+
+                buffer[0].mData!.assumingMemoryBound(to: Float.self)[frame] = sample
+            }
+            return noErr
+        }
+
+        engine.attach(sourceNode)
+        let mixer = engine.mainMixerNode
+        engine.connect(sourceNode, to: mixer, format: format)
+        mixer.outputVolume = volume
+
+        do {
+            try engine.start()
+            audioEngine = engine
+            noiseNode = sourceNode
             isPlaying = true
         } catch {
-            // Silent failure — ambient sounds are optional
+            // Silent failure
         }
     }
 
     func stop() {
-        player?.stop()
-        player = nil
+        audioEngine?.stop()
+        if let node = noiseNode {
+            audioEngine?.detach(node)
+        }
+        audioEngine = nil
+        noiseNode = nil
         isPlaying = false
         currentSound = nil
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
@@ -44,7 +78,7 @@ final class AmbientSoundManager: ObservableObject {
 
     func setVolume(_ vol: Float) {
         volume = vol
-        player?.volume = vol
+        audioEngine?.mainMixerNode.outputVolume = vol
     }
 
     func toggle(_ sound: AmbientSound) {
@@ -57,6 +91,11 @@ final class AmbientSoundManager: ObservableObject {
 }
 
 // MARK: - Ambient Sound Type
+
+struct NoiseParams: Sendable {
+    let amplitude: Float
+    let smoothing: Float // 0 = white noise, 0.5+ = brownish
+}
 
 enum AmbientSound: String, CaseIterable, Identifiable {
     case rain = "Rain"
@@ -90,22 +129,14 @@ enum AmbientSound: String, CaseIterable, Identifiable {
         }
     }
 
-    var systemURL: URL? {
-        // Use built-in system audio files as ambient sound sources
-        // These are short tones that will loop — a real app would bundle audio assets
+    var noiseParams: NoiseParams {
         switch self {
-        case .rain:
-            return URL(fileURLWithPath: "/System/Library/Audio/UISounds/RingerChanged.caf")
-        case .forest:
-            return URL(fileURLWithPath: "/System/Library/Audio/UISounds/acknowledgment_received.caf")
-        case .ocean:
-            return URL(fileURLWithPath: "/System/Library/Audio/UISounds/Swish.caf")
-        case .fire:
-            return URL(fileURLWithPath: "/System/Library/Audio/UISounds/key_press_click.caf")
-        case .wind:
-            return URL(fileURLWithPath: "/System/Library/Audio/UISounds/shake.caf")
-        case .whiteNoise:
-            return URL(fileURLWithPath: "/System/Library/Audio/UISounds/Tock.caf")
+        case .rain: return NoiseParams(amplitude: 0.15, smoothing: 0.3)
+        case .forest: return NoiseParams(amplitude: 0.08, smoothing: 0.6)
+        case .ocean: return NoiseParams(amplitude: 0.20, smoothing: 0.7)
+        case .fire: return NoiseParams(amplitude: 0.12, smoothing: 0.4)
+        case .wind: return NoiseParams(amplitude: 0.10, smoothing: 0.8)
+        case .whiteNoise: return NoiseParams(amplitude: 0.18, smoothing: 0.0)
         }
     }
 }
