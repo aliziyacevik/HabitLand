@@ -133,19 +133,17 @@ struct HabitLandApp: App {
             context.insert(profile)
         }
 
-        // Create default Achievements if none exist
-        let achievementDescriptor = FetchDescriptor<Achievement>()
-        let achievementCount = (try? context.fetchCount(achievementDescriptor)) ?? 0
-        if achievementCount == 0 {
-            for a in SampleData.achievements {
-                let achievement = Achievement(
-                    name: a.name,
-                    descriptionText: a.description,
-                    icon: a.icon,
-                    category: a.category
-                )
-                context.insert(achievement)
-            }
+        // Seed achievements — adds any missing ones (supports adding new achievements to existing users)
+        let existingAchievements = (try? context.fetch(FetchDescriptor<Achievement>())) ?? []
+        let existingNames = Set(existingAchievements.map(\.name))
+        for a in SampleData.achievements where !existingNames.contains(a.name) {
+            let achievement = Achievement(
+                name: a.name,
+                descriptionText: a.description,
+                icon: a.icon,
+                category: a.category
+            )
+            context.insert(achievement)
         }
 
         try? context.save()

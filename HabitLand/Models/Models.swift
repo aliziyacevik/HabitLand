@@ -571,16 +571,39 @@ extension Color {
 
 struct SampleData {
     static let achievements: [(name: String, description: String, icon: String, category: AchievementCategory)] = [
+        // Completion
         ("Habit Creator", "Create your first habit", "sparkle", .special),
         ("First Step", "Complete your first habit", "shoe.fill", .completion),
-        ("On Fire", "Reach a 7-day streak", "flame.fill", .streak),
-        ("Unstoppable", "Reach a 30-day streak", "bolt.fill", .streak),
         ("Century", "Complete 100 habits", "star.fill", .completion),
-        ("Social Butterfly", "Add 5 friends", "person.2.fill", .social),
-        ("Dream Catcher", "Log sleep for 7 days", "moon.fill", .sleep),
+        ("Dedicated", "Complete 250 habits", "medal.fill", .completion),
+        ("Marathoner", "Complete 500 habits", "figure.run", .completion),
+        ("Legendary", "Complete 1,000 habits", "trophy.fill", .completion),
+
+        // Streak
+        ("On Fire", "Reach a 7-day streak", "flame.fill", .streak),
+        ("Committed", "Reach a 14-day streak", "lock.fill", .streak),
+        ("Unstoppable", "Reach a 30-day streak", "bolt.fill", .streak),
+        ("Iron Will", "Reach a 60-day streak", "shield.fill", .streak),
+        ("Titanium", "Reach a 90-day streak", "diamond.fill", .streak),
+        ("Diamond Streak", "Reach a 180-day streak", "sparkle.magnifyingglass", .streak),
+        ("Eternal", "Reach a 365-day streak", "infinity", .streak),
+
+        // Special
         ("Perfect Week", "Complete all habits for a week", "crown.fill", .special),
         ("Early Bird", "Complete a habit before 7am", "sunrise.fill", .special),
+        ("Speed Runner", "Complete all daily habits within 1 hour", "hare.fill", .special),
+        ("Well Rounded", "Have habits in 5 different categories", "circle.grid.3x3.fill", .special),
+        ("Weekend Warrior", "Complete all weekend habits 4 weeks in a row", "figure.martial.arts", .special),
+
+        // Sleep
+        ("Dream Catcher", "Log sleep for 7 days", "moon.fill", .sleep),
         ("Night Owl", "Log sleep after midnight 5 times", "owl", .sleep),
+        ("Sleep Master", "Log sleep for 30 days", "moon.stars.fill", .sleep),
+        ("Consistent Sleeper", "Log 7+ hours for 7 consecutive days", "bed.double.fill", .sleep),
+
+        // Social
+        ("Social Butterfly", "Add 5 friends", "person.2.fill", .social),
         ("Team Player", "Complete a shared challenge", "flag.fill", .social),
+        ("Challenger", "Create 3 challenges", "flag.2.crossed.fill", .social),
     ]
 }
