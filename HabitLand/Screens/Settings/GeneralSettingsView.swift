@@ -2,6 +2,12 @@ import SwiftUI
 import SwiftData
 
 struct GeneralSettingsView: View {
+    // MARK: - Legal URLs
+    // Update this base URL with your GitHub Pages domain when deployed
+    private static let legalBaseURL = "https://azc.github.io/HabitLand"
+    private static let privacyURL = "\(legalBaseURL)/privacy"
+    private static let termsURL = "\(legalBaseURL)/terms"
+
     @Query private var profiles: [UserProfile]
     private var profile: UserProfile? { profiles.first }
 
@@ -174,8 +180,38 @@ struct GeneralSettingsView: View {
                 Button { showPrivacy = true } label: {
                     settingsRow(icon: "hand.raised.fill", color: .hlInfo, title: "Privacy Policy")
                 }
+                if let url = URL(string: Self.privacyURL) {
+                    Link(destination: url) {
+                        HStack(spacing: HLSpacing.sm) {
+                            Color.clear
+                                .frame(width: 28, height: 28)
+                            Text("View Online")
+                                .font(HLFont.caption())
+                                .foregroundColor(.hlPrimary)
+                            Spacer()
+                            Image(systemName: "safari")
+                                .font(.system(size: 12))
+                                .foregroundColor(.hlTextTertiary)
+                        }
+                    }
+                }
                 Button { showTerms = true } label: {
                     settingsRow(icon: "doc.text.fill", color: .hlTextSecondary, title: "Terms of Use")
+                }
+                if let url = URL(string: Self.termsURL) {
+                    Link(destination: url) {
+                        HStack(spacing: HLSpacing.sm) {
+                            Color.clear
+                                .frame(width: 28, height: 28)
+                            Text("View Online")
+                                .font(HLFont.caption())
+                                .foregroundColor(.hlPrimary)
+                            Spacer()
+                            Image(systemName: "safari")
+                                .font(.system(size: 12))
+                                .foregroundColor(.hlTextTertiary)
+                        }
+                    }
                 }
             } header: {
                 Text("Legal")
