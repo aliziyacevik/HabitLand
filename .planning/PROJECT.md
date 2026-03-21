@@ -35,15 +35,21 @@ Kullanıcıların alışkanlıklarını eğlenceli ve sosyal bir deneyimle kalı
 - ✓ Referral sistemi (kod üretme, paylaşma, redemption, CloudKit tracking) — Phase 2
 - ✓ Referrer Pro ödülü (on-launch check, max 4 stack / 28 gün cap) — Phase 2
 
+- ✓ App Store metadata (EN+TR descriptions, keywords, subtitles, promotional text) — Phase 3
+- ✓ ASO optimization (keyword research, character limits, no repetition) — Phase 3
+- ✓ App Store screenshots (24 composed: 6 screens x 2 langs x 2 sizes) — Phase 3
+- ✓ Custom Product Pages (Fitness, Productivity, Sleep) documented — Phase 3
+- ✓ Legal URLs (privacy + terms) linked in-app and web-ready — Phase 3
+- ✓ App icon verified (light, dark, tinted variants) — Phase 3
+- ✓ AvatarView component (initials in gradient circles, replaces emoji) — Phase 3
+
 ### Active
-- [ ] App Store hazırlığı (metadata, screenshots, açıklama, icon finalizasyonu)
-- [ ] ASO (App Store Optimization) — anahtar kelime, açıklama, screenshot optimizasyonu
 - [ ] Performans ve bug temizliği (crash, yavaşlık, edge case'ler)
 - [ ] UI/UX polish — genel kalite yükseltme
-- [ ] Referral sistemi (arkadaş davet et, ödül kazan)
 - [ ] Sosyal medya pazarlama stratejisi — pain point odaklı mesajlar
 - [ ] iCloud sync aktifleştirme (Apple Developer hesabı onayı sonrası)
 - [ ] HealthKit ve Push notification izinlerinin aktifleştirilmesi
+- [ ] GitHub Pages deployment for legal URLs (pre-submission)
 
 ### Out of Scope
 
@@ -95,4 +101,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-21 after Phase 2 completion*
+*Last updated: 2026-03-21 after Phase 3 completion*
