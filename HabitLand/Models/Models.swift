@@ -541,6 +541,68 @@ enum AchievementCategory: String, Codable, CaseIterable {
     case special = "Special"
 }
 
+enum AchievementRarity: String, CaseIterable {
+    case common = "Common"
+    case uncommon = "Uncommon"
+    case rare = "Rare"
+    case epic = "Epic"
+    case legendary = "Legendary"
+
+    var color: Color {
+        switch self {
+        case .common: return Color(red: 0.80, green: 0.50, blue: 0.20)     // Bronze
+        case .uncommon: return Color(red: 0.65, green: 0.65, blue: 0.70)   // Silver
+        case .rare: return Color(red: 1.00, green: 0.84, blue: 0.00)       // Gold
+        case .epic: return Color(red: 0.58, green: 0.44, blue: 0.86)       // Purple
+        case .legendary: return Color(red: 0.00, green: 0.90, blue: 0.90)  // Diamond cyan
+        }
+    }
+
+    var xpReward: Int {
+        switch self {
+        case .common: return 25
+        case .uncommon: return 50
+        case .rare: return 100
+        case .epic: return 200
+        case .legendary: return 500
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .common: return "circle.fill"
+        case .uncommon: return "diamond.fill"
+        case .rare: return "star.fill"
+        case .epic: return "sparkle"
+        case .legendary: return "crown.fill"
+        }
+    }
+
+    static func forAchievement(_ name: String) -> AchievementRarity {
+        switch name {
+        // Common — easy, first-time actions
+        case "Habit Creator", "First Step", "Early Bird":
+            return .common
+        // Uncommon — moderate effort
+        case "On Fire", "Century", "Dream Catcher", "Night Owl", "Committed":
+            return .uncommon
+        // Rare — significant effort
+        case "Unstoppable", "Perfect Week", "Team Player", "Social Butterfly",
+             "Dedicated", "Speed Runner", "Well Rounded", "Sleep Master",
+             "Challenger", "Weekend Warrior", "Consistent Sleeper":
+            return .rare
+        // Epic — very hard
+        case "Iron Will", "Titanium", "Marathoner":
+            return .epic
+        // Legendary — exceptional
+        case "Diamond Streak", "Eternal", "Legendary":
+            return .legendary
+        default:
+            return .common
+        }
+    }
+}
+
 enum NotificationType: String, Codable, CaseIterable {
     case habitReminder = "Habit Reminder"
     case streakAlert = "Streak Alert"

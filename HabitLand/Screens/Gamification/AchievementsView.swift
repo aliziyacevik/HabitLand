@@ -148,28 +148,25 @@ struct AchievementsView: View {
 
     @ViewBuilder
     private func achievementBadge(_ achievement: Achievement, isLocked: Bool) -> some View {
+        let rarity = AchievementRarity.forAchievement(achievement.name)
+        let badgeColor = isLocked ? Color.hlDivider : rarity.color
+
         VStack(spacing: HLSpacing.xs) {
             ZStack {
                 Circle()
-                    .fill(isLocked ? Color.hlDivider : Color.hlGold.opacity(0.15))
+                    .fill(isLocked ? Color.hlDivider : rarity.color.opacity(0.15))
                     .frame(width: 64, height: 64)
 
                 Image(systemName: achievement.icon)
                     .font(.system(size: 26))
-                    .foregroundStyle(isLocked ? Color.hlTextTertiary : Color.hlGold)
+                    .foregroundStyle(isLocked ? Color.hlTextTertiary : rarity.color)
             }
             .overlay {
-                if isLocked {
-                    Circle()
-                        .stroke(Color.hlDivider, lineWidth: 2)
-                        .frame(width: 64, height: 64)
-                } else {
-                    Circle()
-                        .stroke(Color.hlGold.opacity(0.4), lineWidth: 2)
-                        .frame(width: 64, height: 64)
-                }
+                Circle()
+                    .stroke(badgeColor.opacity(isLocked ? 1.0 : 0.6), lineWidth: isLocked ? 2 : 2.5)
+                    .frame(width: 64, height: 64)
             }
-            .hlGlow(.hlGold, radius: 6, isActive: !isLocked)
+            .hlGlow(rarity.color, radius: isLocked ? 0 : (rarity == .legendary ? 12 : rarity == .epic ? 8 : 4), isActive: !isLocked)
 
             Text(achievement.name)
                 .font(HLFont.caption(.semibold))
@@ -178,22 +175,26 @@ struct AchievementsView: View {
                 .multilineTextAlignment(.center)
 
             if isLocked {
-                // Progress bar
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
                         Capsule()
                             .fill(Color.hlDivider)
                             .frame(height: 4)
                         Capsule()
-                            .fill(Color.hlSleep)
+                            .fill(rarity.color)
                             .frame(width: geo.size.width * achievement.progress, height: 4)
                     }
                 }
                 .frame(height: 4)
-            } else if let date = achievement.unlockedAt {
-                Text(date, format: .dateTime.month(.abbreviated).day())
-                    .font(HLFont.caption2())
-                    .foregroundStyle(Color.hlTextTertiary)
+            } else {
+                // Rarity label
+                HStack(spacing: 2) {
+                    Image(systemName: rarity.icon)
+                        .font(.system(size: 8))
+                    Text(rarity.rawValue)
+                        .font(HLFont.caption2(.medium))
+                }
+                .foregroundStyle(rarity.color)
             }
         }
         .padding(HLSpacing.sm)
