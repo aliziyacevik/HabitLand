@@ -57,7 +57,7 @@ struct UserProfileView: View {
 
     private var profileHeader: some View {
         VStack(spacing: HLSpacing.md) {
-            AvatarView(name: profile?.name ?? "User", size: 96)
+            AvatarView(name: profile?.name ?? "User", size: 96, avatarType: profile?.avatarType ?? .initial)
 
             VStack(spacing: HLSpacing.xxs) {
                 Text(profile?.name ?? "New User")

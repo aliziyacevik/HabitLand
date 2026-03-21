@@ -28,7 +28,7 @@ struct FriendCard: View {
     var body: some View {
         HStack(spacing: HLSpacing.sm) {
             // Avatar
-            AvatarView(name: friend.name, size: 48)
+            AvatarView(name: friend.name, size: 48, avatarType: friend.avatarType)
 
             // Info
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {

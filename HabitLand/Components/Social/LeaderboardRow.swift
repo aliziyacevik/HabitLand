@@ -8,6 +8,7 @@ struct LeaderboardEntry: Identifiable {
     let rank: Int
     let name: String
     let avatarEmoji: String
+    let avatarType: AvatarType
     let xp: Int
     let level: Int
     let streak: Int
@@ -20,6 +21,7 @@ struct LeaderboardEntry: Identifiable {
          rank: Int = 0,
          name: String,
          avatarEmoji: String,
+         avatarType: AvatarType = .initial,
          xp: Int = 0,
          level: Int = 1,
          streak: Int = 0,
@@ -29,6 +31,7 @@ struct LeaderboardEntry: Identifiable {
         self.rank = rank
         self.name = name
         self.avatarEmoji = avatarEmoji
+        self.avatarType = avatarType
         self.xp = score ?? xp
         self.level = level
         self.streak = streak
@@ -58,7 +61,7 @@ struct LeaderboardRow: View {
         HStack(spacing: HLSpacing.sm) {
             rankBadge
 
-            AvatarView(name: entry.isCurrentUser ? "You" : entry.name, size: isTopThree ? 44 : 36)
+            AvatarView(name: entry.isCurrentUser ? "You" : entry.name, size: isTopThree ? 44 : 36, avatarType: entry.avatarType)
 
             Text(entry.isCurrentUser ? "You" : entry.name)
                 .font(isTopThree ? HLFont.headline() : HLFont.body())

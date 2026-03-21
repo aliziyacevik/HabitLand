@@ -173,6 +173,7 @@ struct HabitLandApp: App {
         let profile = UserProfile(name: "Alex", username: "alexj", avatarEmoji: "🌿", bio: "Building better habits daily")
         profile.level = 8
         profile.xp = 520
+        profile.avatarType = .animal(.owl)
         context.insert(profile)
 
         // Create habits with realistic streaks
@@ -253,8 +254,19 @@ struct HabitLandApp: App {
             ("Lily", "🦋", 3, 3),
         ]
 
-        for f in friends {
+        let avatarTypes: [AvatarType] = [
+            .animal(.fox),
+            .animal(.bear),
+            .animal(.panda),
+            .animal(.cat),
+            .frame(.stars),
+        ]
+
+        for (i, f) in friends.enumerated() {
             let friend = Friend(name: f.name, username: "@\(f.name.lowercased())", avatarEmoji: f.emoji, level: f.level, currentStreak: f.streak)
+            if i < avatarTypes.count {
+                friend.avatarType = avatarTypes[i]
+            }
             context.insert(friend)
         }
 

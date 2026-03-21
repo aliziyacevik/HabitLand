@@ -54,7 +54,7 @@ struct FriendProfileView: View {
 
     private var profileHeader: some View {
         VStack(spacing: HLSpacing.sm) {
-            AvatarView(name: friend.name, size: 100)
+            AvatarView(name: friend.name, size: 100, avatarType: friend.avatarType)
 
             Text(friend.name)
                 .font(HLFont.title2())

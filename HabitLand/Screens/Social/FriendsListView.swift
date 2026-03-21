@@ -114,7 +114,7 @@ struct FriendsListView: View {
     private func friendRow(_ friend: Friend) -> some View {
         HStack(spacing: HLSpacing.sm) {
             // Avatar
-            AvatarView(name: friend.name, size: 48)
+            AvatarView(name: friend.name, size: 48, avatarType: friend.avatarType)
 
             // Info
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {

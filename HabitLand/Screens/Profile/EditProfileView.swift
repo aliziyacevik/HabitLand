@@ -10,12 +10,11 @@ struct EditProfileView: View {
     @State private var username = ""
     @State private var bio = ""
     @State private var selectedEmoji = "🌱"
+    @State private var selectedAvatarType: AvatarType = .initial
     @State private var sleepGoal: Double = 8
     @State private var dailyHabitGoal: Int = 5
-    @State private var showEmojiPicker = false
+    @State private var showAvatarPicker = false
     @State private var didLoad = false
-
-    private let emojiOptions = ["🌱", "🌿", "🌳", "🔥", "⭐️", "🚀", "💪", "🧘", "🌙", "🎯", "🦁", "🐺", "🦊", "🐻", "🦉", "🌸", "🌺", "🍀", "⚡️", "🎨"]
 
     private var profile: UserProfile? { profiles.first }
 
@@ -39,6 +38,7 @@ struct EditProfileView: View {
             username = p.username
             bio = p.bio
             selectedEmoji = p.avatarEmoji
+            selectedAvatarType = p.avatarType
             sleepGoal = p.sleepGoalHours
             dailyHabitGoal = p.dailyHabitGoal
             didLoad = true
@@ -48,16 +48,10 @@ struct EditProfileView: View {
     private var avatarSection: some View {
         VStack(spacing: HLSpacing.sm) {
             Button {
-                withAnimation(HLAnimation.spring) {
-                    showEmojiPicker.toggle()
-                }
+                showAvatarPicker = true
             } label: {
                 ZStack(alignment: .bottomTrailing) {
-                    Text(selectedEmoji)
-                        .font(.system(size: 56))
-                        .frame(width: 96, height: 96)
-                        .background(Color.hlPrimaryLight)
-                        .clipShape(Circle())
+                    AvatarView(name: name.isEmpty ? "U" : name, size: 96, avatarType: selectedAvatarType)
 
                     Image(systemName: "pencil.circle.fill")
                         .font(.system(size: 24))
@@ -65,29 +59,12 @@ struct EditProfileView: View {
                         .background(Color.white.clipShape(Circle()))
                 }
             }
-
-            if showEmojiPicker {
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: HLSpacing.sm) {
-                    ForEach(emojiOptions, id: \.self) { emoji in
-                        Button {
-                            withAnimation(HLAnimation.quick) {
-                                selectedEmoji = emoji
-                                showEmojiPicker = false
-                            }
-                        } label: {
-                            Text(emoji)
-                                .font(.system(size: 32))
-                                .frame(width: 48, height: 48)
-                                .background(selectedEmoji == emoji ? Color.hlPrimaryLight : Color.clear)
-                                .cornerRadius(HLRadius.sm)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: HLRadius.sm)
-                                        .stroke(selectedEmoji == emoji ? Color.hlPrimary : Color.clear, lineWidth: 2)
-                                )
-                        }
-                    }
-                }
-                .hlCard()
+            .sheet(isPresented: $showAvatarPicker) {
+                AvatarPickerView(
+                    selectedAvatarType: $selectedAvatarType,
+                    userName: name.isEmpty ? "User" : name,
+                    userLevel: profile?.level ?? 1
+                )
             }
         }
     }
@@ -221,6 +198,7 @@ struct EditProfileView: View {
             p.username = username
             p.bio = bio
             p.avatarEmoji = selectedEmoji
+            p.avatarType = selectedAvatarType
             p.sleepGoalHours = sleepGoal
             p.dailyHabitGoal = dailyHabitGoal
         } else {

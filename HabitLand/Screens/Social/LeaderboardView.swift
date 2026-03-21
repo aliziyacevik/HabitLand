@@ -35,6 +35,7 @@ struct LeaderboardView: View {
                 recordName: p.id.uuidString,
                 name: p.name.isEmpty ? "You" : p.name,
                 avatarEmoji: p.avatarEmoji,
+                avatarType: p.avatarType,
                 xp: p.xp,
                 level: p.level,
                 streak: 0,
@@ -47,6 +48,7 @@ struct LeaderboardView: View {
                 recordName: friend.id.uuidString,
                 name: friend.name,
                 avatarEmoji: friend.avatarEmoji,
+                avatarType: friend.avatarType,
                 xp: friend.xp > 0 ? friend.xp : friend.level * 50 + friend.currentStreak * 5,
                 level: friend.level,
                 streak: friend.currentStreak,
@@ -152,7 +154,7 @@ struct LeaderboardView: View {
                     .foregroundColor(.hlGold)
             }
 
-            AvatarView(name: entry.name, size: 56)
+            AvatarView(name: entry.name, size: 56, avatarType: entry.avatarType)
                 .overlay(
                     Circle().stroke(color, lineWidth: 3)
                 )
@@ -201,7 +203,7 @@ struct LeaderboardView: View {
                 .foregroundColor(rankColor(rank))
                 .frame(width: 28, alignment: .center)
 
-            AvatarView(name: entry.isCurrentUser ? "You" : entry.name, size: 40)
+            AvatarView(name: entry.isCurrentUser ? "You" : entry.name, size: 40, avatarType: entry.avatarType)
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                 Text(entry.isCurrentUser ? "You" : entry.name)
