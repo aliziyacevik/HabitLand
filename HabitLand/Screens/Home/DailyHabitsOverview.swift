@@ -13,6 +13,7 @@ struct DailyHabitsOverview: View {
     @State private var showCelebration = false
     @State private var celebrationMessage = ""
     @State private var xpGainHabitID: String?
+    @State private var lastXPGainAmount: Int = 10
     @State private var achievementCelebration: AchievementCelebrationData?
     @State private var levelUpData: LevelUpData?
     @State private var showUndoToast = false
@@ -99,7 +100,7 @@ struct DailyHabitsOverview: View {
                     onUndo: {
                         if let completion = undoCompletion {
                             modelContext.delete(completion)
-                            removeXP(10)
+                            removeXP(lastXPGainAmount)
                             undoCompletion = nil
                         }
                     },
@@ -264,7 +265,7 @@ struct DailyHabitsOverview: View {
             Spacer()
 
             if xpGainHabitID == habit.id.uuidString {
-                XPGainView(amount: 10)
+                XPGainView(amount: lastXPGainAmount)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
 
@@ -296,8 +297,10 @@ struct DailyHabitsOverview: View {
                     withAnimation(HLAnimation.quick) {
                         showUndoToast = true
                     }
-                    // XP gain
-                    gainXP(10)
+                    // XP gain with streak multiplier
+                    let xpAmount = streakXP(for: habit)
+                    lastXPGainAmount = xpAmount
+                    gainXP(xpAmount)
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                         xpGainHabitID = habit.id.uuidString
                     }
@@ -318,7 +321,7 @@ struct DailyHabitsOverview: View {
                     // Donate to Siri/Spotlight
                     CompleteHabitIntent.donate(habit: habit.toEntity())
                 } else {
-                    removeXP(10)
+                    removeXP(streakXP(for: habit))
                     HLHaptics.light()
                 }
             } label: {
@@ -343,6 +346,15 @@ struct DailyHabitsOverview: View {
             )
         }
         ReviewManager.requestIfAppropriate()
+    }
+
+    private func streakXP(for habit: Habit) -> Int {
+        let streak = habit.currentStreak
+        let base = 10
+        if streak >= 100 { return base * 3 }      // 30 XP
+        if streak >= 30 { return base * 2 }        // 20 XP
+        if streak >= 7 { return Int(Double(base) * 1.5) } // 15 XP
+        return base                                 // 10 XP
     }
 
     private func gainXP(_ amount: Int) {
