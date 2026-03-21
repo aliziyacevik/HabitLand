@@ -60,10 +60,11 @@ Plans:
   2. Title, subtitle (30 chars), keywords (100 chars), and description are ASO-optimized in English and Turkish
   3. Privacy policy and terms of use URLs are accessible and App icon renders correctly at all required sizes
   4. Custom Product Pages are configured targeting distinct audiences (fitness, productivity, sleep)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md -- ASO metadata (EN+TR), legal URL verification, icon check, CPP configuration
+- [ ] 03-02-PLAN.md -- Screenshot pipeline Turkish localization + headline updates + visual verification
 
 ### Phase 4: Quality Hardening & Launch
 **Goal**: App is production-clean, crash-free, and verified from a fresh free-tier perspective before App Store submission
@@ -88,5 +89,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 |-------|----------------|--------|-----------|
 | 1. Monetization & Platform Activation | 0/3 | Planning complete | - |
 | 2. Referral System | 0/3 | Gap closure planned | - |
-| 3. App Store Readiness | 0/0 | Not started | - |
+| 3. App Store Readiness | 0/2 | Planning complete | - |
 | 4. Quality Hardening & Launch | 0/0 | Not started | - |
