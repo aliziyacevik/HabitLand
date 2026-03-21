@@ -19,45 +19,42 @@ struct SharedChallengesView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.hlBackground.ignoresSafeArea()
+        ZStack {
+            Color.hlBackground.ignoresSafeArea()
 
-                if challenges.isEmpty {
-                    emptyState
-                } else {
-                    ScrollView {
-                        VStack(spacing: HLSpacing.lg) {
-                            createChallengeButton
-                            if !activeChallenges.isEmpty {
-                                activeChallengesSection
-                            }
-                            if !completedChallenges.isEmpty {
-                                completedChallengesSection
-                            }
+            if challenges.isEmpty {
+                emptyState
+            } else {
+                ScrollView {
+                    VStack(spacing: HLSpacing.lg) {
+                        createChallengeButton
+                        if !activeChallenges.isEmpty {
+                            activeChallengesSection
                         }
-                        .padding(.horizontal, HLSpacing.md)
-                        .padding(.top, HLSpacing.sm)
-                        .padding(.bottom, HLSpacing.xxxl)
+                        if !completedChallenges.isEmpty {
+                            completedChallengesSection
+                        }
                     }
+                    .padding(.horizontal, HLSpacing.md)
+                    .padding(.top, HLSpacing.sm)
+                    .padding(.bottom, HLSpacing.xxxl)
                 }
             }
-            .navigationTitle("Challenges")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showCreateChallenge = true
-                    } label: {
-                        Image(systemName: HLIcon.add)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(Color.hlPrimary)
-                    }
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showCreateChallenge = true
+                } label: {
+                    Image(systemName: HLIcon.add)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(Color.hlPrimary)
                 }
             }
-            .sheet(isPresented: $showCreateChallenge) {
-                CreateChallengeView()
-                    .hlSheetContent()
-            }
+        }
+        .sheet(isPresented: $showCreateChallenge) {
+            CreateChallengeView()
+                .hlSheetContent()
         }
     }
 

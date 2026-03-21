@@ -17,42 +17,39 @@ struct FriendsListView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.hlBackground.ignoresSafeArea()
+        ZStack {
+            Color.hlBackground.ignoresSafeArea()
 
-                if friends.isEmpty {
-                    emptyState
-                } else {
-                    ScrollView {
-                        VStack(spacing: HLSpacing.md) {
-                            searchBar
+            if friends.isEmpty {
+                emptyState
+            } else {
+                ScrollView {
+                    VStack(spacing: HLSpacing.md) {
+                        searchBar
 
-                            addFriendsButton
+                        addFriendsButton
 
-                            LazyVStack(spacing: HLSpacing.sm) {
-                                ForEach(Array(filteredFriends.enumerated()), id: \.element.id) { index, friend in
-                                    NavigationLink {
-                                        FriendProfileView(friend: friend)
-                                    } label: {
-                                        friendRow(friend)
-                                    }
-                                    .buttonStyle(HLCardPressStyle())
-                                    .hlStaggeredAppear(index: index)
+                        LazyVStack(spacing: HLSpacing.sm) {
+                            ForEach(Array(filteredFriends.enumerated()), id: \.element.id) { index, friend in
+                                NavigationLink {
+                                    FriendProfileView(friend: friend)
+                                } label: {
+                                    friendRow(friend)
                                 }
+                                .buttonStyle(HLCardPressStyle())
+                                .hlStaggeredAppear(index: index)
                             }
                         }
-                        .padding(.horizontal, HLSpacing.md)
-                        .padding(.top, HLSpacing.sm)
-                        .padding(.bottom, HLSpacing.xxxl)
                     }
+                    .padding(.horizontal, HLSpacing.md)
+                    .padding(.top, HLSpacing.sm)
+                    .padding(.bottom, HLSpacing.xxxl)
                 }
             }
-            .navigationTitle("Friends")
-            .sheet(isPresented: $showAddFriends) {
-                InviteFriendsView()
-                    .hlSheetContent()
-            }
+        }
+        .sheet(isPresented: $showAddFriends) {
+            InviteFriendsView()
+                .hlSheetContent()
         }
     }
 
