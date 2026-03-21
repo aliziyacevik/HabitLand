@@ -27,11 +27,13 @@ Kullanıcıların alışkanlıklarını eğlenceli ve sosyal bir deneyimle kalı
 - ✓ Design system (tipografi, renk, spacing, animasyon) — existing
 - ✓ Pro/Free ayrımı altyapısı (ProManager) — existing
 - ✓ Gizlilik ve veri dışa aktarma — existing
+- ✓ StoreKit 2 IAP entegrasyonu ($19.99/yr + $39.99 lifetime) — Phase 1
+- ✓ Contextual paywall triggers (habit limit, sleep, social, achievements) — Phase 1
+- ✓ Subscription management in Settings — Phase 1
+- ✓ Security hardening (screenshotMode #if DEBUG, fatalError removed) — Phase 1
+- ✓ Platform activation (iCloud, HealthKit, Push entitlements + UI) — Phase 1
 
 ### Active
-
-- [ ] StoreKit 2 ile gerçek IAP entegrasyonu (subscription ve/veya one-time purchase)
-- [ ] Pro özellik kapsamının belirlenmesi ve paywall tasarımı
 - [ ] App Store hazırlığı (metadata, screenshots, açıklama, icon finalizasyonu)
 - [ ] ASO (App Store Optimization) — anahtar kelime, açıklama, screenshot optimizasyonu
 - [ ] Performans ve bug temizliği (crash, yavaşlık, edge case'ler)
@@ -91,4 +93,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-21 after initialization*
+*Last updated: 2026-03-21 after Phase 1 completion*
