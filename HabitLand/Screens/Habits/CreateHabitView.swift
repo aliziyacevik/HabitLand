@@ -243,6 +243,12 @@ struct CreateHabitView: View {
 
     // MARK: - Goal
 
+    private let unitPresets = [
+        ("times", "checkmark"), ("glasses", "drop.fill"), ("minutes", "clock.fill"),
+        ("pages", "book.fill"), ("steps", "figure.walk"), ("reps", "dumbbell.fill"),
+        ("hours", "clock.fill"), ("ml", "drop.fill"), ("kcal", "flame.fill"),
+    ]
+
     private var goalSection: some View {
         VStack(alignment: .leading, spacing: HLSpacing.xs) {
             Text("Daily Goal")
@@ -255,15 +261,62 @@ struct CreateHabitView: View {
                         Text("\(goalCount)")
                             .font(HLFont.title3(.bold))
                             .foregroundStyle(Color.hlTextPrimary)
-                        Text("per day")
+                        Text(unit)
                             .font(HLFont.subheadline())
                             .foregroundStyle(Color.hlTextSecondary)
+                        Text("per day")
+                            .font(HLFont.subheadline())
+                            .foregroundStyle(Color.hlTextTertiary)
                     }
                 }
             }
             .hlCard()
 
-            TextField("Unit (e.g. glasses, minutes, pages)", text: $unit)
+            // Unit preset chips
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: HLSpacing.xs) {
+                    ForEach(unitPresets, id: \.0) { preset in
+                        Button {
+                            unit = preset.0
+                            HLHaptics.selection()
+                        } label: {
+                            HStack(spacing: HLSpacing.xxs) {
+                                Image(systemName: preset.1)
+                                    .font(.system(size: 11))
+                                Text(preset.0)
+                                    .font(HLFont.caption(.medium))
+                            }
+                            .foregroundStyle(unit == preset.0 ? .white : Color.hlTextSecondary)
+                            .padding(.horizontal, HLSpacing.sm)
+                            .padding(.vertical, HLSpacing.xs)
+                            .background(unit == preset.0 ? Color.hlPrimary : Color.hlSurface)
+                            .cornerRadius(HLRadius.full)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: HLRadius.full)
+                                    .stroke(unit == preset.0 ? Color.clear : Color.hlCardBorder, lineWidth: 1)
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Timer hint for time-based units
+            if unit == "minutes" || unit == "hours" {
+                HStack(spacing: HLSpacing.xs) {
+                    Image(systemName: "timer")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.hlFlame)
+                    Text("This habit will use the Focus Timer for tracking")
+                        .font(HLFont.caption())
+                        .foregroundStyle(Color.hlFlame)
+                }
+                .padding(.horizontal, HLSpacing.sm)
+                .padding(.vertical, HLSpacing.xs)
+                .background(Color.hlFlame.opacity(0.08))
+                .cornerRadius(HLRadius.md)
+            }
+
+            TextField("Custom unit", text: $unit)
                 .font(HLFont.body())
                 .padding(HLSpacing.sm)
                 .background(Color.hlSurface)
