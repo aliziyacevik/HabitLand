@@ -1,30 +1,42 @@
-Alışkanlıklarını hep yarıda mı bırakıyorsun? Yalnız değilsin. Çoğu insan sadece irade gücüyle başaramaz. HabitLand oyunu değiştiriyor.
+Alışkanlıklarını hep yarıda mı bırakıyorsun? Yalnız değilsin — ve tembel değilsin. Sadece doğru sistemi bulamadın. Ta ki şimdi.
 
-HabitLand günlük rutinlerini bir maceraya dönüştürür. Alışkanlıklarını takip et, streak'ler oluştur, rozetler kazan, seviye atla ve arkadaşlarınla liderlik tablosunda yarış. Motivasyonun düştüğünde arkadaşların seni devam ettirir.
+HabitLand günlük rutinlerini bir maceraya dönüştürür. Alışkanlıklarını takip et, streak'ler oluştur, XP kazan, seviye atla ve arkadaşlarınla yarış. Motivasyonun düştüğünde streak'lerin ve arkadaşların seni devam ettirir.
+
+7 GÜN PRO'YU ÜCRETSİZ DENE
+Tüm özelliklere tam erişimle başla. Taahhüt yok, kredi kartı yok. 7 gün sonra sevdiklerini koru ya da ücretsiz devam et.
 
 TEMEL ÖZELLİKLER
 
 ÜCRETSİZ
-- 3 günlük alışkanlık takibi
-- Her tamamlamada streak ve XP kazan
-- Uyku takip paneli ve kalite analizi
-- Başarılarını kutlayan rozet sistemi
-- Güzel temalar ve kişiselleştirme seçenekleri
+• 3 günlük alışkanlık takibi
+• Her tamamlamada streak ve XP kazan
+• XP ödüllü haftalık görevler
+• Pomodoro odaklanma zamanlayıcısı
+• Başarı rozetleri
+• 2 güzel tema
 
-PRO
-- Sınırsız alışkanlık, hiçbir kısıtlama yok
-- Gelişmiş analitik ve ilerleme istatistikleri
-- Arkadaşlarla sosyal meydan okumalar
-- HealthKit entegrasyonu: adım, egzersiz ve daha fazlası
-- Öncelikli destek ve tüm gelecek özellikler
+PRO — Yıllık ₺699,99
+• Sınırsız alışkanlık
+• Uyku takibi ve alışkanlık korelasyon analizi
+• Sosyal özellikler — arkadaşlar, liderlik tablosu, meydan okumalar
+• Detaylı analitik ve ilerleme trendleri
+• Seviye atladıkça açılan 6 tema
+• HealthKit entegrasyonu (adım, egzersiz, uyku)
+• Tam Pomodoro zamanlayıcı ve ortam sesleri
 
-İŞTE ÇALIŞAN OYUNLAŞTIRMA
-Tamamlanan her alışkanlık XP kazandırır. Başlangıç'tan Efsane'ye seviye atla. "Ateşte" (7 günlük streak) veya "Yüzyıl" (100 tamamlama) gibi rozetlerin kilidini aç. İlerlemeniz görünür, somut ve ödüllendirici.
+GERÇEKTEN İŞE YARAYAN OYUNLAŞTIRMA
+Tamamlanan her alışkanlık XP kazandırır. Filiz'den Efsane'ye seviye atla. Seviye 5, 10, 15 ve 20'de yeni temaların kilidini aç. Bonus XP için haftalık görevleri tamamla.
+
+KALICI STREAK'LER
+Kritik anlarda koçluk bildirimleri al — 3 gün, 7 gün, 21 gün (alışkanlık oluştu!), 30 gün ve ötesi. Tutarlılığını kutlayan bilimsel hatırlatmalar.
+
+DAHA İYİ UYU, DAHA ÇOK BAŞAR
+Uykunu takip et ve dinlenmenin alışkanlıklarını nasıl etkilediğini keşfet. HabitLand sana korelasyonu gösterir: "7+ saat uyuduğun günlerde %40 daha fazla alışkanlık tamamlıyorsun." Başka hiçbir alışkanlık uygulaması bu içgörüyü sunmuyor.
 
 ARKADAŞLARINLA YARIŞ
-Arkadaşlarını ekle, meydan okumalara katıl ve liderlik tablosunda yüksel. En uzun streak'i kim tutuyor, en çok alışkanlık tamamlayan kim? Sosyal sorumluluk fark yaratır.
+Arkadaşlarını ekle, meydan okumalara katıl ve liderlik tablosunda yüksel. Motivasyon düştüğünde birbirinizi dürtükleyin. Sosyal sorumluluk fark yaratır.
 
-DAHA İYİ UYU, DAHA İYİ YAŞA
-Yatış saatini, kalkış saatini ve uyku kaliteni kaydet. Zaman içinde kalıpları takip et ve uykunun günlük performansını nasıl etkilediğini keşfet.
+AKILLI HATIRLATMALAR
+Kurulum sırasında hatırlatma saatini ayarla. Sabah motivasyonu, akşam alışkanlık kontrolü ve streak risk uyarıları seni rahatsız etmeden yolunda tutar.
 
-Bu sefer yarımda bırakmayacaksın. HabitLand'i indir ve kalıcı alışkanlıklar oluştur.
+Bu sefer farklı. HabitLand'i indir ve kalıcı alışkanlıklar oluştur.
