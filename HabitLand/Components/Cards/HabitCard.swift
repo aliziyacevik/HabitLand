@@ -8,18 +8,36 @@ struct HabitCard: View {
     let streak: Int
     let progress: Double
     let isCompleted: Bool
+    let goalCount: Int
+    let currentCount: Int
+    let unit: String
+    let isTimeBased: Bool
     var onToggle: (() -> Void)?
+    var onIncrement: (() -> Void)?
+    var onStartTimer: (() -> Void)?
 
     // MARK: - Model Initializer
 
-    init(habit: Habit, onToggle: (() -> Void)? = nil) {
+    init(habit: Habit, onToggle: (() -> Void)? = nil, onIncrement: (() -> Void)? = nil, onStartTimer: (() -> Void)? = nil) {
         self.name = habit.name
         self.icon = habit.icon
         self.color = habit.color
         self.streak = habit.currentStreak
         self.progress = habit.todayProgress
         self.isCompleted = habit.todayCompleted
+        self.goalCount = habit.goalCount
+        self.unit = habit.unit
+        self.isTimeBased = habit.unit == "minutes" || habit.unit == "hours"
         self.onToggle = onToggle
+        self.onIncrement = onIncrement
+        self.onStartTimer = onStartTimer
+
+        // Calculate today's count
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        self.currentCount = habit.safeCompletions
+            .filter { calendar.startOfDay(for: $0.date) == today }
+            .reduce(0) { $0 + $1.count }
     }
 
     // MARK: - Preview Initializer
@@ -31,6 +49,10 @@ struct HabitCard: View {
         streak: Int = 0,
         progress: Double = 0,
         isCompleted: Bool = false,
+        goalCount: Int = 1,
+        currentCount: Int = 0,
+        unit: String = "times",
+        isTimeBased: Bool = false,
         onToggle: (() -> Void)? = nil
     ) {
         self.name = name
@@ -39,8 +61,16 @@ struct HabitCard: View {
         self.streak = streak
         self.progress = progress
         self.isCompleted = isCompleted
+        self.goalCount = goalCount
+        self.currentCount = currentCount
+        self.unit = unit
+        self.isTimeBased = isTimeBased
         self.onToggle = onToggle
+        self.onIncrement = nil
+        self.onStartTimer = nil
     }
+
+    var isProgressive: Bool { goalCount > 1 }
 
     @State private var justCompleted = false
     @ScaledMetric(relativeTo: .body) private var iconSize: CGFloat = 36
@@ -51,22 +81,35 @@ struct HabitCard: View {
             // Icon in colored circle
             iconView
 
-            // Name and streak
+            // Name, streak, and progress
             VStack(alignment: .leading, spacing: HLSpacing.xxs) {
                 Text(name)
                     .font(HLFont.headline())
                     .foregroundColor(.hlTextPrimary)
                     .lineLimit(1)
 
-                if streak > 0 {
-                    streakLabel
+                HStack(spacing: HLSpacing.sm) {
+                    if streak > 0 {
+                        streakLabel
+                    }
+                    if isProgressive && !isCompleted {
+                        Text("\(currentCount)/\(goalCount) \(unit)")
+                            .font(HLFont.caption())
+                            .foregroundColor(.hlPrimary)
+                    }
                 }
             }
 
             Spacer()
 
-            // Completion ring + checkmark button
-            checkmarkButton
+            // Action button: timer / counter / checkmark
+            if isTimeBased && !isCompleted {
+                timerButton
+            } else if isProgressive && !isCompleted {
+                counterButton
+            } else {
+                checkmarkButton
+            }
         }
         .hlCard()
         .contentShape(Rectangle())
@@ -100,6 +143,62 @@ struct HabitCard: View {
                 .foregroundColor(.hlTextSecondary)
         }
     }
+
+    // MARK: - Timer Button (for time-based habits)
+
+    private var timerButton: some View {
+        Button {
+            onStartTimer?()
+            HLHaptics.selection()
+        } label: {
+            ZStack {
+                Circle()
+                    .stroke(color.opacity(0.15), lineWidth: 3)
+                    .frame(width: 36, height: 36)
+
+                Circle()
+                    .trim(from: 0, to: progress)
+                    .stroke(color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                    .frame(width: 36, height: 36)
+                    .rotationEffect(.degrees(-90))
+
+                Image(systemName: "play.fill")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(color)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Start timer for \(name), \(currentCount) of \(goalCount) \(unit)")
+    }
+
+    // MARK: - Counter Button (for progressive habits)
+
+    private var counterButton: some View {
+        Button {
+            onIncrement?()
+            HLHaptics.light()
+        } label: {
+            ZStack {
+                Circle()
+                    .stroke(color.opacity(0.15), lineWidth: 3)
+                    .frame(width: 36, height: 36)
+
+                Circle()
+                    .trim(from: 0, to: progress)
+                    .stroke(color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                    .frame(width: 36, height: 36)
+                    .rotationEffect(.degrees(-90))
+
+                Text("+1")
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundColor(color)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Add one \(unit) to \(name), \(currentCount) of \(goalCount)")
+    }
+
+    // MARK: - Checkmark Button (for binary habits)
 
     private var checkmarkButton: some View {
         Button {
