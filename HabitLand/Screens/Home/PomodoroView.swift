@@ -58,40 +58,40 @@ struct PomodoroView: View {
     }
 
     var body: some View {
-        ZStack {
-            phase.color.opacity(0.05).ignoresSafeArea()
-            Color.hlBackground.opacity(0.95).ignoresSafeArea()
-
-            VStack(spacing: HLSpacing.xl) {
-                // Top bar
-                HStack {
-                    Button {
-                        stopTimer()
-                        isPresented = false
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(Color.hlTextSecondary)
-                            .frame(width: 40, height: 40)
-                            .background(Color.hlSurface)
-                            .clipShape(Circle())
-                    }
-                    Spacer()
-                    // Session dots
-                    HStack(spacing: HLSpacing.xs) {
-                        ForEach(0..<4, id: \.self) { i in
-                            Circle()
-                                .fill(i < completedSessions ? phase.color : Color.hlDivider)
-                                .frame(width: 10, height: 10)
-                        }
-                    }
-                    Spacer()
-                    // Placeholder for symmetry
-                    Color.clear.frame(width: 40, height: 40)
+        VStack(spacing: 0) {
+            // Fixed top bar — always visible
+            HStack {
+                Button {
+                    stopTimer()
+                    isPresented = false
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(Color.hlTextSecondary)
+                        .frame(width: 40, height: 40)
+                        .background(Color.hlSurface)
+                        .clipShape(Circle())
                 }
-                .padding(.horizontal, HLSpacing.lg)
-
                 Spacer()
+                // Session dots
+                HStack(spacing: HLSpacing.xs) {
+                    ForEach(0..<4, id: \.self) { i in
+                        Circle()
+                            .fill(i < completedSessions ? phase.color : Color.hlDivider)
+                            .frame(width: 10, height: 10)
+                    }
+                }
+                Spacer()
+                Color.clear.frame(width: 40, height: 40)
+            }
+            .padding(.horizontal, HLSpacing.lg)
+            .padding(.top, HLSpacing.sm)
+
+            // Scrollable content
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: HLSpacing.xl) {
+                Spacer()
+                    .frame(height: HLSpacing.md)
 
                 // Phase indicator
                 VStack(spacing: HLSpacing.sm) {
@@ -193,9 +193,11 @@ struct PomodoroView: View {
 
                 Spacer()
                     .frame(height: HLSpacing.lg)
+                }
+                .padding(.bottom, HLSpacing.xl)
             }
         }
-        .persistentSystemOverlays(.hidden)
+        .background(Color.hlBackground.ignoresSafeArea())
         .onAppear {
             UIApplication.shared.isIdleTimerDisabled = true
         }
