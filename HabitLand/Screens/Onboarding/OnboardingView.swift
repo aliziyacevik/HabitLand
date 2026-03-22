@@ -271,7 +271,7 @@ struct OnboardingView: View {
 
     @ViewBuilder
     private func levelUpPageView(_ page: OnboardingPage) -> some View {
-        LevelUpPreviewPage(page: page)
+        LevelUpPreviewPage(page: page, isActive: currentPage == 4)
             .padding(.horizontal, HLSpacing.lg)
     }
 
@@ -952,12 +952,12 @@ private struct StreakPreviewContent: View {
     }
 
     private func startXPAnimation() {
-        // Phase 0: Streak counter 1→33 (accelerating)
+        // Phase 0: Streak counter 1→33 (slower, readable pace ~4s)
         streakCount = 0
         var count = 0
-        streakTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
+        streakTimer = Timer.scheduledTimer(withTimeInterval: 0.12, repeats: true) { timer in
             count += 1
-            withAnimation(.easeOut(duration: 0.08)) {
+            withAnimation(.snappy(duration: 0.15)) {
                 streakCount = count
             }
             if count >= 33 {
@@ -965,13 +965,13 @@ private struct StreakPreviewContent: View {
             }
         }
 
-        // Phase 1: XP bar fills to 100% (starts after counter finishes)
-        withAnimation(.easeInOut(duration: 1.5).delay(2.0)) {
+        // Phase 1: XP bar fills to 100% (starts after counter finishes ~4s)
+        withAnimation(.easeInOut(duration: 1.5).delay(4.5)) {
             xpProgress = 1.0
         }
 
         // Phase 2: Level Up burst
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.8) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 6.5) {
             withAnimation(HLAnimation.bouncy) {
                 showLevelUp = true
                 levelText = "LV9"
@@ -984,7 +984,7 @@ private struct StreakPreviewContent: View {
         }
 
         // Phase 3: Hide level up text
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8.0) {
             withAnimation(HLAnimation.standard) {
                 showLevelUp = false
                 flameBurst = false
@@ -1153,6 +1153,7 @@ private struct AnimatedOnboardingPage: View {
 
 private struct LevelUpPreviewPage: View {
     let page: OnboardingPage
+    let isActive: Bool
     @State private var animateXP = false
     @State private var xpProgress: Double = 0
     @State private var showLevel = false
@@ -1249,19 +1250,30 @@ private struct LevelUpPreviewPage: View {
 
             Spacer()
         }
-        .onAppear {
-            withAnimation(HLAnimation.standard.delay(0.3)) {
-                showLevel = true
+        .onAppear { runAnimations() }
+        .onChange(of: isActive) { _, active in
+            if active {
+                animateXP = false
+                xpProgress = 0
+                showLevel = false
+                showBadges = false
+                runAnimations()
             }
-            withAnimation(.easeOut(duration: 1.2).delay(0.8)) {
-                xpProgress = 0.65
-            }
-            withAnimation(HLAnimation.celebration.delay(1.0)) {
-                animateXP = true
-            }
-            withAnimation(HLAnimation.standard.delay(1.6)) {
-                showBadges = true
-            }
+        }
+    }
+
+    private func runAnimations() {
+        withAnimation(HLAnimation.standard.delay(0.3)) {
+            showLevel = true
+        }
+        withAnimation(.easeOut(duration: 1.2).delay(0.8)) {
+            xpProgress = 0.65
+        }
+        withAnimation(HLAnimation.celebration.delay(1.0)) {
+            animateXP = true
+        }
+        withAnimation(HLAnimation.standard.delay(1.6)) {
+            showBadges = true
         }
     }
 
