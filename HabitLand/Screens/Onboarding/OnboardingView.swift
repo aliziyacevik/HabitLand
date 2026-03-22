@@ -1259,15 +1259,23 @@ private struct LevelUpPreviewPage: View {
 
             Spacer()
         }
-        .onAppear { runAnimations() }
-        .onChange(of: isActive) { _, active in
-            if active {
-                animateXP = false
-                xpProgress = 0
-                showLevel = false
-                showBadges = false
-                runAnimations()
+        .onChange(of: isActive) { oldVal, newVal in
+            if newVal && !oldVal {
+                resetAndRun()
             }
+        }
+        .onAppear {
+            if isActive { runAnimations() }
+        }
+    }
+
+    private func resetAndRun() {
+        animateXP = false
+        xpProgress = 0
+        showLevel = false
+        showBadges = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            runAnimations()
         }
     }
 
