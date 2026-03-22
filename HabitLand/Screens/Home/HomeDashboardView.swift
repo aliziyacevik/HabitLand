@@ -1159,6 +1159,8 @@ struct HomeDashboardView: View {
             }
         }
         .hlCard()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Daily tip: \(wisdom.title). \(wisdom.body)")
     }
 
     // MARK: - Daily Bonus Banner
@@ -1197,8 +1199,10 @@ struct HomeDashboardView: View {
                 Image(systemName: "xmark")
                     .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(Color.hlTextTertiary)
-                    .frame(width: 24, height: 24)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
             }
+            .accessibilityLabel("Dismiss bonus banner")
         }
         .padding(HLSpacing.sm)
         .background(Color.hlGold.opacity(0.08))
@@ -1207,6 +1211,8 @@ struct HomeDashboardView: View {
             RoundedRectangle(cornerRadius: HLRadius.lg)
                 .stroke(Color.hlGold.opacity(0.2), lineWidth: 1)
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(bonusManager.streakMessage)")
     }
 
     // MARK: - Invite Friends Card

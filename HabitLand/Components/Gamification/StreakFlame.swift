@@ -77,11 +77,13 @@ struct StreakFlame: View {
         .onChange(of: count) { oldValue, newValue in
             if newValue > oldValue && newValue > 0 {
                 HLHaptics.success()
+                guard !reduceMotion else { return }
                 flameBurst = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                     flameBurst = false
                 }
             }
+            guard !reduceMotion else { return }
             if newValue > 0 {
                 withAnimation(
                     .easeInOut(duration: 1.2)
