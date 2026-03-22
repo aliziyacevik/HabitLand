@@ -12,8 +12,10 @@ private struct OnboardingPage: Identifiable {
     let accentColor: Color
     let isLevelUpPage: Bool
     let isLeaderboardPreview: Bool
+    let isStreakPreview: Bool
+    let isSleepPreview: Bool
 
-    init(systemImage: String, emoji: String? = nil, title: String, subtitle: String, accentColor: Color, isLevelUpPage: Bool = false, isLeaderboardPreview: Bool = false) {
+    init(systemImage: String, emoji: String? = nil, title: String, subtitle: String, accentColor: Color, isLevelUpPage: Bool = false, isLeaderboardPreview: Bool = false, isStreakPreview: Bool = false, isSleepPreview: Bool = false) {
         self.systemImage = systemImage
         self.emoji = emoji
         self.title = title
@@ -21,6 +23,8 @@ private struct OnboardingPage: Identifiable {
         self.accentColor = accentColor
         self.isLevelUpPage = isLevelUpPage
         self.isLeaderboardPreview = isLeaderboardPreview
+        self.isStreakPreview = isStreakPreview
+        self.isSleepPreview = isSleepPreview
     }
 }
 
@@ -57,14 +61,16 @@ struct OnboardingView: View {
             systemImage: "",
             emoji: "🔥",
             title: "This time is different",
-            subtitle: "Streaks keep you accountable. XP makes it fun. Friends make it social. Science makes it stick.",
-            accentColor: .hlFlame
+            subtitle: "Streaks keep you accountable. XP makes it fun. Friends make it social.",
+            accentColor: .hlFlame,
+            isStreakPreview: true
         ),
         OnboardingPage(
             systemImage: "moon.stars.fill",
             title: "Sleep better,\ndo more",
-            subtitle: "Track your sleep and discover how rest affects your habits. Better sleep = more completions.",
-            accentColor: .hlSleep
+            subtitle: "Track your sleep and discover how rest affects your habits.",
+            accentColor: .hlSleep,
+            isSleepPreview: true
         ),
         OnboardingPage(
             systemImage: "person.2.fill",
@@ -177,6 +183,12 @@ struct OnboardingView: View {
                     } else if page.isLevelUpPage {
                         levelUpPageView(page)
                             .tag(index)
+                    } else if page.isStreakPreview {
+                        streakPreviewPage(page)
+                            .tag(index)
+                    } else if page.isSleepPreview {
+                        sleepPreviewPage(page)
+                            .tag(index)
                     } else if page.isLeaderboardPreview {
                         leaderboardPreviewPage(page)
                             .tag(index)
@@ -262,12 +274,158 @@ struct OnboardingView: View {
             .padding(.horizontal, HLSpacing.lg)
     }
 
+    // MARK: - Streak Preview Page (Page 2)
+
+    @ViewBuilder
+    private func streakPreviewPage(_ page: OnboardingPage) -> some View {
+        OnboardingPreviewPage(page: page) {
+            VStack(spacing: HLSpacing.sm) {
+                // Mini streak card
+                HStack(spacing: HLSpacing.md) {
+                    Image(systemName: "flame.fill")
+                        .font(.system(size: 32, weight: .semibold))
+                        .foregroundStyle(
+                            LinearGradient(colors: [.hlFlame, .hlGold], startPoint: .bottom, endPoint: .top)
+                        )
+                        .symbolEffect(.bounce, options: .repeating.speed(0.3))
+
+                    VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
+                        Text("33")
+                            .font(HLFont.largeTitle()) +
+                        Text(" days")
+                            .font(HLFont.body())
+                            .foregroundColor(.hlTextSecondary)
+                        Text("Your streak grows every day")
+                            .font(HLFont.caption())
+                            .foregroundStyle(Color.hlTextTertiary)
+                    }
+
+                    Spacer()
+                }
+                .padding(HLSpacing.md)
+                .background(Color.hlSurface)
+                .cornerRadius(HLRadius.lg)
+
+                // Mini XP bar
+                HStack(spacing: HLSpacing.sm) {
+                    Text("LV8")
+                        .font(HLFont.caption2(.bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, HLSpacing.xs)
+                        .padding(.vertical, 3)
+                        .background(Color.hlPrimary)
+                        .cornerRadius(HLRadius.full)
+
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: HLRadius.full)
+                                .fill(Color.hlDivider)
+                                .frame(height: 6)
+                            RoundedRectangle(cornerRadius: HLRadius.full)
+                                .fill(LinearGradient(colors: [.hlPrimary, .hlGold], startPoint: .leading, endPoint: .trailing))
+                                .frame(width: geo.size.width * 0.65, height: 6)
+                        }
+                    }
+                    .frame(height: 6)
+
+                    Text("520/800")
+                        .font(HLFont.caption2())
+                        .foregroundStyle(Color.hlTextTertiary)
+                }
+                .padding(.horizontal, HLSpacing.md)
+                .padding(.vertical, HLSpacing.sm)
+                .background(Color.hlSurface)
+                .cornerRadius(HLRadius.lg)
+
+                // Mini weekly quests
+                HStack(spacing: HLSpacing.sm) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Color.hlPrimary)
+                    Text("Streak Guardian")
+                        .font(HLFont.callout(.medium))
+                        .foregroundStyle(Color.hlTextPrimary)
+                    Spacer()
+                    Text("+100 XP")
+                        .font(HLFont.caption(.bold))
+                        .foregroundStyle(Color.hlGold)
+                }
+                .padding(.horizontal, HLSpacing.md)
+                .padding(.vertical, HLSpacing.sm)
+                .background(Color.hlSurface)
+                .cornerRadius(HLRadius.lg)
+            }
+            .padding(.horizontal, HLSpacing.md)
+        }
+    }
+
+    // MARK: - Sleep Preview Page (Page 3)
+
+    @ViewBuilder
+    private func sleepPreviewPage(_ page: OnboardingPage) -> some View {
+        OnboardingPreviewPage(page: page) {
+            VStack(spacing: HLSpacing.sm) {
+                // Mini sleep card
+                VStack(spacing: HLSpacing.sm) {
+                    HStack {
+                        Text("Last Night")
+                            .font(HLFont.headline())
+                            .foregroundStyle(Color.hlTextPrimary)
+                        Spacer()
+                        Text("😊")
+                            .font(HLFont.title3())
+                    }
+
+                    Text("7h 42m")
+                        .font(HLFont.title1())
+                        .foregroundStyle(Color.hlSleep)
+
+                    HStack(spacing: HLSpacing.lg) {
+                        HStack(spacing: HLSpacing.xxs) {
+                            Image(systemName: "bed.double.fill")
+                                .font(.system(size: 12))
+                                .foregroundStyle(Color.hlTextTertiary)
+                            Text("23:04")
+                                .font(HLFont.caption())
+                                .foregroundStyle(Color.hlTextSecondary)
+                        }
+                        HStack(spacing: HLSpacing.xxs) {
+                            Image(systemName: "sun.horizon.fill")
+                                .font(.system(size: 12))
+                                .foregroundStyle(Color.hlTextTertiary)
+                            Text("06:46")
+                                .font(HLFont.caption())
+                                .foregroundStyle(Color.hlTextSecondary)
+                        }
+                    }
+                }
+                .padding(HLSpacing.md)
+                .background(Color.hlSurface)
+                .cornerRadius(HLRadius.lg)
+
+                // Mini correlation insight
+                HStack(spacing: HLSpacing.sm) {
+                    Image(systemName: "link")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Color.hlSleep)
+                    Text("You complete 40% more habits on days you sleep 7+ hours")
+                        .font(HLFont.caption())
+                        .foregroundStyle(Color.hlTextSecondary)
+                }
+                .padding(HLSpacing.md)
+                .background(Color.hlSleep.opacity(0.08))
+                .cornerRadius(HLRadius.lg)
+            }
+            .padding(.horizontal, HLSpacing.md)
+        }
+    }
+
     // MARK: - Leaderboard Preview Page
 
     @ViewBuilder
     private func leaderboardPreviewPage(_ page: OnboardingPage) -> some View {
         VStack(spacing: HLSpacing.md) {
             Spacer()
+                .frame(height: HLSpacing.lg)
 
             Text(page.title)
                 .font(HLFont.title1())
@@ -279,6 +437,9 @@ struct OnboardingView: View {
                 .foregroundColor(.hlTextSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, HLSpacing.md)
+
+            Spacer()
+                .frame(height: HLSpacing.sm)
 
             // Mini leaderboard preview
             VStack(spacing: 0) {
@@ -641,6 +802,60 @@ struct OnboardingView: View {
 }
 
 // MARK: - Animated Onboarding Page
+
+// MARK: - Onboarding Preview Page (shared layout: title top, preview bottom with slide-up)
+
+private struct OnboardingPreviewPage<Preview: View>: View {
+    let page: OnboardingPage
+    @ViewBuilder let preview: () -> Preview
+    @State private var showTitle = false
+    @State private var showPreview = false
+
+    var body: some View {
+        VStack(spacing: HLSpacing.md) {
+            Spacer()
+                .frame(height: HLSpacing.lg)
+
+            // Title + subtitle at top
+            VStack(spacing: HLSpacing.sm) {
+                Text(page.title)
+                    .font(HLFont.title1())
+                    .foregroundColor(.hlTextPrimary)
+                    .multilineTextAlignment(.center)
+                    .opacity(showTitle ? 1 : 0)
+                    .offset(y: showTitle ? 0 : 20)
+
+                Text(page.subtitle)
+                    .font(HLFont.body())
+                    .foregroundColor(.hlTextSecondary)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
+                    .padding(.horizontal, HLSpacing.md)
+                    .opacity(showTitle ? 1 : 0)
+                    .offset(y: showTitle ? 0 : 15)
+            }
+
+            Spacer()
+                .frame(height: HLSpacing.sm)
+
+            // Preview card with slide-up animation
+            preview()
+                .opacity(showPreview ? 1 : 0)
+                .offset(y: showPreview ? 0 : 40)
+
+            Spacer()
+        }
+        .padding(.horizontal, HLSpacing.md)
+        .onAppear {
+            withAnimation(HLAnimation.standard.delay(0.15)) {
+                showTitle = true
+            }
+            withAnimation(HLAnimation.bouncy.delay(0.4)) {
+                showPreview = true
+            }
+        }
+    }
+}
 
 private struct AnimatedOnboardingPage: View {
     let page: OnboardingPage
