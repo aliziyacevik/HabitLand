@@ -1054,12 +1054,17 @@ struct HomeDashboardView: View {
     }
 
     private var insightText: String {
+        let remaining = totalCount - completedCount
         if completedCount == totalCount && totalCount > 0 {
             return "All habits done today!"
+        } else if remaining == 1 {
+            return "Just 1 habit left — finish strong!"
+        } else if completionPercent >= 0.75 {
+            return "Almost there! \(remaining) habits to go."
         } else if completionPercent >= 0.5 {
             return "You're over halfway there today!"
         } else if totalCount > 0 {
-            return "\(totalCount - completedCount) habits left to go."
+            return "\(remaining) habits left to go."
         } else {
             return "Add habits to start tracking."
         }

@@ -193,7 +193,7 @@ struct UserProfileView: View {
                 Text("Streak Shields")
                     .font(HLFont.headline())
                     .foregroundStyle(Color.hlTextPrimary)
-                Text("\(profile?.streakFreezeCount ?? 0) shields — protects your streak if you miss a day")
+                Text("\(profile?.streakFreezeCount ?? 0) shields — You have \(profile?.xp ?? 0) XP")
                     .font(HLFont.caption())
                     .foregroundStyle(Color.hlTextSecondary)
             }
