@@ -178,7 +178,11 @@ struct UserProfileView: View {
 
     private var quickLinksSection: some View {
         VStack(spacing: HLSpacing.xs) {
-            quickLink(icon: "chart.bar.fill", title: "Personal Statistics", destination: AnyView(PersonalStatisticsView()))
+            if ProManager.shared.canAccessAnalytics {
+                quickLink(icon: "chart.bar.fill", title: "Personal Statistics", destination: AnyView(PersonalStatisticsView()))
+            } else {
+                quickLink(icon: "chart.bar.fill", title: "Personal Statistics", destination: AnyView(PremiumGateView(feature: "Unlock Detailed Analytics", icon: "chart.line.uptrend.xyaxis")))
+            }
             quickLink(icon: "trophy.fill", title: "Achievements", destination: AnyView(AchievementsShowcaseView()))
             quickLink(icon: "gearshape", title: "Settings", destination: AnyView(GeneralSettingsView()))
             ShareLink(item: "Check out my profile on HabitLand! I'm Level \(profile?.level ?? 1) with a \(profile?.xp ?? 0) XP streak. Download: https://apps.apple.com/app/habitland/id0000000000") {

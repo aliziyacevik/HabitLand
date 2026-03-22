@@ -310,11 +310,25 @@ final class ProManager: ObservableObject {
 
     // MARK: - Free Tier Limits
 
-    static let freeHabitLimit = 5
+    static let freeHabitLimit = 3
     static let freeAchievementLimit = 5
+    static let freeQuestLimit = 1
+    static let freePomodoroDuration: Int = 5 * 60 // 5 minutes
 
     func canCreateHabit(currentCount: Int) -> Bool {
         isPro || isInAppTrialActive || currentCount < Self.freeHabitLimit
+    }
+
+    var canAccessAnalytics: Bool {
+        isPro || isInAppTrialActive
+    }
+
+    var canAccessFullPomodoro: Bool {
+        isPro || isInAppTrialActive
+    }
+
+    func questLimit() -> Int {
+        isPro || isInAppTrialActive ? Int.max : Self.freeQuestLimit
     }
 }
 
@@ -325,6 +339,8 @@ enum PaywallContext {
     case sleepTracking
     case socialFeatures
     case achievements
+    case analytics
+    case pomodoro
 
     var title: String {
         switch self {
@@ -332,6 +348,8 @@ enum PaywallContext {
         case .sleepTracking: return "Unlock Sleep Tracking"
         case .socialFeatures: return "Unlock Social Features"
         case .achievements: return "Unlock All Achievements"
+        case .analytics: return "Unlock Detailed Analytics"
+        case .pomodoro: return "Unlock Full Pomodoro"
         }
     }
 
@@ -341,6 +359,8 @@ enum PaywallContext {
         case .sleepTracking: return "moon.fill"
         case .socialFeatures: return "person.2.fill"
         case .achievements: return "trophy.fill"
+        case .analytics: return "chart.line.uptrend.xyaxis"
+        case .pomodoro: return "timer"
         }
     }
 
@@ -350,6 +370,8 @@ enum PaywallContext {
         case .sleepTracking: return "Track and improve your sleep patterns with detailed analytics"
         case .socialFeatures: return "Connect with friends, join challenges, and climb the leaderboard"
         case .achievements: return "Unlock all 20+ achievements and showcase your progress"
+        case .analytics: return "See trends, insights, and how your habits improve over time"
+        case .pomodoro: return "Unlock unlimited focus sessions with ambient sounds"
         }
     }
 }

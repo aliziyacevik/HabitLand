@@ -571,7 +571,29 @@ struct HomeDashboardView: View {
                     .foregroundStyle(Color.hlGold)
             }
 
-            ForEach(questManager.quests) { quest in
+            let questLimit = proManager.questLimit()
+            ForEach(Array(questManager.quests.enumerated()), id: \.element.id) { index, quest in
+                let isLocked = index >= questLimit
+                if isLocked {
+                    HStack(spacing: HLSpacing.sm) {
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 14))
+                            .foregroundStyle(Color.hlTextTertiary)
+                            .frame(width: 36, height: 36)
+                        Text(quest.title)
+                            .font(HLFont.callout())
+                            .foregroundStyle(Color.hlTextTertiary)
+                        Spacer()
+                        Text("PRO")
+                            .font(HLFont.caption2(.bold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, HLSpacing.xs)
+                            .padding(.vertical, HLSpacing.xxxs)
+                            .background(Color.hlPrimary)
+                            .cornerRadius(HLRadius.full)
+                    }
+                    .opacity(0.6)
+                } else {
                 HStack(spacing: HLSpacing.sm) {
                     ZStack {
                         Circle()
@@ -609,6 +631,7 @@ struct HomeDashboardView: View {
                     Text("+\(quest.xpReward)")
                         .font(HLFont.caption2(.bold))
                         .foregroundStyle(quest.isCompleted ? Color.hlPrimary : Color.hlGold)
+                }
                 }
             }
         }

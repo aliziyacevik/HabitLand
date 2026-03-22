@@ -6,13 +6,14 @@ struct PomodoroView: View {
     @Binding var isPresented: Bool
 
     @State private var phase: PomodoroPhase = .work
-    @State private var remainingSeconds: Int = 25 * 60
+    @State private var remainingSeconds: Int = ProManager.shared.canAccessFullPomodoro ? 25 * 60 : ProManager.freePomodoroDuration
     @State private var isRunning = false
     @State private var completedSessions = 0
     @State private var timer: Timer?
     @State private var backgroundDate: Date?
+    @State private var showUpgradeHint = false
 
-    private let workDuration = 25 * 60
+    private var workDuration: Int { ProManager.shared.canAccessFullPomodoro ? 25 * 60 : ProManager.freePomodoroDuration }
     private let breakDuration = 5 * 60
     private let longBreakDuration = 15 * 60
 
