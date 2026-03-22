@@ -3,7 +3,7 @@ import SwiftData
 
 struct PomodoroView: View {
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.dismiss) private var dismiss
+    @Binding var isPresented: Bool
 
     @State private var phase: PomodoroPhase = .work
     @State private var remainingSeconds: Int = 25 * 60
@@ -67,7 +67,7 @@ struct PomodoroView: View {
                 HStack {
                     Button {
                         stopTimer()
-                        dismiss()
+                        isPresented = false
                     } label: {
                         Image(systemName: "xmark")
                             .font(.system(size: 16, weight: .semibold))
@@ -326,6 +326,6 @@ struct PomodoroView: View {
 }
 
 #Preview {
-    PomodoroView()
+    PomodoroView(isPresented: .constant(true))
         .modelContainer(for: UserProfile.self, inMemory: true)
 }

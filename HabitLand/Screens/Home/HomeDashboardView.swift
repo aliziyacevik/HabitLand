@@ -267,7 +267,7 @@ struct HomeDashboardView: View {
                     .hlSheetContent()
             }
             .fullScreenCover(isPresented: $showPomodoro) {
-                PomodoroView()
+                PomodoroView(isPresented: $showPomodoro)
             }
             .fullScreenCover(isPresented: $showChain) {
                 HabitChainView(

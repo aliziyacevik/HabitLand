@@ -4,7 +4,7 @@ import SwiftData
 struct HabitTimerView: View {
     @ObservedObject private var timerManager = HabitTimerManager.shared
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.dismiss) private var dismiss
+    @Binding var isPresented: Bool
 
     var body: some View {
         ZStack {
@@ -61,7 +61,7 @@ struct HabitTimerView: View {
                     // Cancel
                     Button {
                         timerManager.stop()
-                        dismiss()
+                        isPresented = false
                     } label: {
                         Image(systemName: "xmark")
                             .font(.system(size: 20, weight: .semibold))
@@ -92,7 +92,7 @@ struct HabitTimerView: View {
                     Button {
                         completeHabit()
                         timerManager.stop()
-                        dismiss()
+                        isPresented = false
                     } label: {
                         Image(systemName: "forward.fill")
                             .font(.system(size: 20, weight: .semibold))
@@ -117,7 +117,7 @@ struct HabitTimerView: View {
         .onReceive(NotificationCenter.default.publisher(for: .habitTimerCompleted)) { _ in
             completeHabit()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                dismiss()
+                isPresented = false
             }
         }
     }
@@ -137,6 +137,6 @@ struct HabitTimerView: View {
 }
 
 #Preview {
-    HabitTimerView()
+    HabitTimerView(isPresented: .constant(true))
         .modelContainer(for: Habit.self, inMemory: true)
 }

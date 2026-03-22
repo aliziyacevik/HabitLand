@@ -152,7 +152,7 @@ struct HabitChainView: View {
             }
         }
         .fullScreenCover(isPresented: $showTimer) {
-            HabitTimerView()
+            HabitTimerView(isPresented: $showTimer)
         }
         .onReceive(NotificationCenter.default.publisher(for: .habitTimerCompleted)) { notification in
             if let completedID = notification.object as? UUID,

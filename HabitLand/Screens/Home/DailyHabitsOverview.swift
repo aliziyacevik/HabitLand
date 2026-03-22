@@ -111,7 +111,7 @@ struct DailyHabitsOverview: View {
                 )
             }
             .fullScreenCover(isPresented: $showTimer) {
-                HabitTimerView()
+                HabitTimerView(isPresented: $showTimer)
             }
         }
     }
