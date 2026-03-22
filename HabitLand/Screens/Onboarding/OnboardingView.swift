@@ -423,27 +423,8 @@ struct OnboardingView: View {
 
     @ViewBuilder
     private func leaderboardPreviewPage(_ page: OnboardingPage) -> some View {
-        VStack(spacing: HLSpacing.md) {
-            Spacer()
-                .frame(height: HLSpacing.lg)
-
-            Text(page.title)
-                .font(HLFont.title1())
-                .foregroundColor(.hlTextPrimary)
-                .multilineTextAlignment(.center)
-
-            Text(page.subtitle)
-                .font(HLFont.subheadline())
-                .foregroundColor(.hlTextSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, HLSpacing.md)
-
-            Spacer()
-                .frame(height: HLSpacing.sm)
-
-            // Mini leaderboard preview
+        OnboardingPreviewPage(page: page) {
             VStack(spacing: 0) {
-                // Podium
                 HStack(alignment: .bottom, spacing: HLSpacing.sm) {
                     onboardingPodiumPlace(name: "Mike", emoji: "🐻", xp: 640, rank: 2, color: .hlSilver, height: 48)
                     onboardingPodiumPlace(name: "Sarah", emoji: "🦊", xp: 810, rank: 1, color: .hlGold, height: 64, hasCrown: true)
@@ -453,7 +434,6 @@ struct OnboardingView: View {
 
                 Divider()
 
-                // Rankings
                 VStack(spacing: 0) {
                     onboardingRankRow(rank: 4, name: "Emma", emoji: "🐼", xp: 380, streak: 14)
                     onboardingRankRow(rank: 5, name: "James", emoji: "🐸", xp: 210, streak: 5)
@@ -464,11 +444,8 @@ struct OnboardingView: View {
             .background(Color.hlSurface)
             .cornerRadius(HLRadius.lg)
             .hlShadow(HLShadow.sm)
-            .padding(.horizontal, HLSpacing.xl)
-
-            Spacer()
+            .padding(.horizontal, HLSpacing.sm)
         }
-        .padding(.horizontal, HLSpacing.md)
     }
 
     private func onboardingPodiumPlace(name: String, emoji: String, xp: Int, rank: Int, color: Color, height: CGFloat, hasCrown: Bool = false) -> some View {
@@ -814,9 +791,16 @@ private struct OnboardingPreviewPage<Preview: View>: View {
     var body: some View {
         VStack(spacing: HLSpacing.md) {
             Spacer()
-                .frame(height: HLSpacing.lg)
+                .frame(height: HLSpacing.md)
 
-            // Title + subtitle at top
+            // Preview card at top with slide-down animation
+            preview()
+                .opacity(showPreview ? 1 : 0)
+                .offset(y: showPreview ? 0 : -30)
+
+            Spacer()
+
+            // Title + subtitle at bottom
             VStack(spacing: HLSpacing.sm) {
                 Text(page.title)
                     .font(HLFont.title1())
@@ -836,22 +820,15 @@ private struct OnboardingPreviewPage<Preview: View>: View {
             }
 
             Spacer()
-                .frame(height: HLSpacing.sm)
-
-            // Preview card with slide-up animation
-            preview()
-                .opacity(showPreview ? 1 : 0)
-                .offset(y: showPreview ? 0 : 40)
-
-            Spacer()
+                .frame(height: HLSpacing.xl)
         }
         .padding(.horizontal, HLSpacing.md)
         .onAppear {
-            withAnimation(HLAnimation.standard.delay(0.15)) {
-                showTitle = true
-            }
-            withAnimation(HLAnimation.bouncy.delay(0.4)) {
+            withAnimation(HLAnimation.bouncy.delay(0.15)) {
                 showPreview = true
+            }
+            withAnimation(HLAnimation.standard.delay(0.4)) {
+                showTitle = true
             }
         }
     }
