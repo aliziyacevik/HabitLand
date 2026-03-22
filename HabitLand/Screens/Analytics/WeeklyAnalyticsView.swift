@@ -14,15 +14,15 @@ struct WeeklyAnalyticsView: View {
         let today = calendar.startOfDay(for: Date())
         let weekday = calendar.component(.weekday, from: today) // 1=Sun
         let daysBack = (weekday - 2 + 7) % 7 // Monday-based
-        return calendar.date(byAdding: .day, value: -daysBack, to: today)!
+        return calendar.date(byAdding: .day, value: -daysBack, to: today) ?? today
     }
 
     private var previousWeekStart: Date {
-        calendar.date(byAdding: .day, value: -7, to: weekStart)!
+        calendar.date(byAdding: .day, value: -7, to: weekStart) ?? weekStart
     }
 
     private var weekDateRange: String {
-        let end = calendar.date(byAdding: .day, value: 6, to: weekStart)!
+        let end = calendar.date(byAdding: .day, value: 6, to: weekStart) ?? weekStart
         let fmt = DateFormatter()
         fmt.dateFormat = "MMM d"
         let yearFmt = DateFormatter()
@@ -34,7 +34,7 @@ struct WeeklyAnalyticsView: View {
     private var weekDays: [(label: String, rate: Double, completed: Int, total: Int)] {
         let labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
         return (0..<7).map { offset in
-            let day = calendar.date(byAdding: .day, value: offset, to: weekStart)!
+            let day = calendar.date(byAdding: .day, value: offset, to: weekStart) ?? weekStart
             let dayStart = calendar.startOfDay(for: day)
             let today = calendar.startOfDay(for: Date())
             guard dayStart <= today else {
@@ -77,11 +77,11 @@ struct WeeklyAnalyticsView: View {
     }
 
     private var previousWeekRate: Double {
-        let prevEnd = calendar.date(byAdding: .day, value: 6, to: previousWeekStart)!
+        let prevEnd = calendar.date(byAdding: .day, value: 6, to: previousWeekStart) ?? previousWeekStart
         var totalCompleted = 0
         var totalHabits = 0
         for offset in 0..<7 {
-            let day = calendar.date(byAdding: .day, value: offset, to: previousWeekStart)!
+            let day = calendar.date(byAdding: .day, value: offset, to: previousWeekStart) ?? previousWeekStart
             let dayStart = calendar.startOfDay(for: day)
             guard dayStart <= calendar.startOfDay(for: prevEnd) else { continue }
             let activeHabits = habits.filter { habit in
@@ -120,7 +120,7 @@ struct WeeklyAnalyticsView: View {
             var scheduled = 0
             var completed = 0
             for offset in 0..<7 {
-                let day = calendar.date(byAdding: .day, value: offset, to: weekStart)!
+                let day = calendar.date(byAdding: .day, value: offset, to: weekStart) ?? weekStart
                 let dayStart = calendar.startOfDay(for: day)
                 guard dayStart <= today, habit.createdAt <= day else { continue }
                 let weekdayIndex = calendar.component(.weekday, from: day) - 1

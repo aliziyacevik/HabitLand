@@ -39,5 +39,29 @@ struct HabitLandShortcuts: AppShortcutsProvider {
             shortTitle: LocalizedStringResource("My Streak", table: "AppIntents"),
             systemImageName: "flame.fill"
         )
+
+        AppShortcut(
+            intent: LogSleepIntent(),
+            phrases: [
+                "Log sleep in \(.applicationName)",
+                "Record my sleep in \(.applicationName)",
+                "How did I sleep in \(.applicationName)",
+                "Track sleep in \(.applicationName)",
+            ],
+            shortTitle: LocalizedStringResource("Log Sleep", table: "AppIntents"),
+            systemImageName: "moon.fill"
+        )
+
+        AppShortcut(
+            intent: StartPomodoroIntent(),
+            phrases: [
+                "Start pomodoro in \(.applicationName)",
+                "Start focus session in \(.applicationName)",
+                "Focus time in \(.applicationName)",
+                "Start timer in \(.applicationName)",
+            ],
+            shortTitle: LocalizedStringResource("Start Pomodoro", table: "AppIntents"),
+            systemImageName: "timer"
+        )
     }
 }

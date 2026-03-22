@@ -1,121 +1,48 @@
-# HabitLand App Map
+# HabitLand App Map (Updated 2026-03-22)
 
 ## Architecture
 - SwiftUI + SwiftData (local persistence)
-- No networking/API layer — fully offline app
-- StoreKit 2 for IAP (Pro tier)
-- Local notifications via UNUserNotificationCenter
-- State: @Query, @AppStorage, singletons (ProManager, ThemeManager, NotificationManager)
+- CloudKit for social features (currently disabled - pending developer account)
+- HealthKit integration (pending developer account)
+- StoreKit 2 for IAP (pending developer account)
 
-## Tab Structure (ContentView.swift)
-| Tab | Screen | Gated |
-|-----|--------|-------|
-| Home | HomeDashboardView | No |
-| Habits | HabitListView | No |
-| Sleep | SleepDashboardView | Pro (premiumGated) |
-| Social | FriendsListView | Pro + Coming Soon |
-| Profile | UserProfileView | No |
+## Tab Navigation (5 tabs via custom TabBarView)
 
-## Screens Inventory
+### Tab 1: Home
+- `HomeDashboardView` — Daily progress ring, streak card, weekly quests, habit list
+  - `→ DailyHabitsOverview` (sheet) — Full habit completion list
+  - `→ NotificationCenterView` (sheet) — Notification history
+  - `→ CreateHabitView` (sheet via FAB) — Habit creation form
+  - `→ PomodoroView` (sheet) — Focus timer with ambient sounds
+  - `→ HabitTimerView` (sheet) — Habit timer
+  - Embedded: StreakSummaryView, WeeklyProgressView, InsightsOverviewView, HabitChainView
 
-### Onboarding (5 screens)
-- OnboardingView (4-page TabView carousel)
-- StarterHabitsView (habit selection)
-- GoalSetupView
-- HabitPreferenceView
-- NotificationSetupView
-- OnboardingCompleteView
+### Tab 2: Habits
+- `HabitListView` — Active/Archived filter, search, sort
+  - `→ HabitDetailView` (push) — Stats, calendar heatmap, history
+    - `→ EditHabitView` (sheet), HabitHistoryView, HabitStatisticsView, HabitScheduleView, HabitNotesView, HabitReminderView
+  - `→ CreateHabitView` (sheet) — With template browser, discovery
+  - `→ HabitArchiveView` (embedded via filter)
 
-### Auth (3 screens — UI only, no backend)
-- LoginView
-- RegisterView
-- ForgotPasswordView
+### Tab 3: Sleep (Pro-gated)
+- `SleepDashboardView` — Last night card, weekly chart, stats, insights
+  - `→ LogSleepView` (sheet), SleepInsightsView, SleepHistoryView, SleepAnalyticsView
 
-### Home (5 screens)
-- HomeDashboardView (main dashboard)
-- DailyHabitsOverview (sheet)
-- WeeklyProgressView (sheet)
-- InsightsOverviewView (sheet)
-- StreakSummaryView
+### Tab 4: Social (Pro-gated + iCloud-gated)
+- `SocialHubView` — Segmented: Friends/Leaderboard/Challenges/Feed
+  - Friends: FriendsListView → FriendProfileView, InviteFriendsView
+  - Leaderboard: LeaderboardView — Podium + rankings
+  - Challenges: SharedChallengesView → CreateChallengeView
+  - Feed: SocialFeedView — Activity feed with likes/nudges
+  - NudgesSheetView, PendingRequestsView
 
-### Habits (10 screens)
-- HabitListView (main list with search/sort/filter)
-- HabitDetailView (detail with calendar heatmap)
-- CreateHabitView (sheet)
-- EditHabitView (sheet)
-- HabitHistoryView
-- HabitStatisticsView
-- HabitArchiveView
-- HabitScheduleView
-- HabitNotesView
-- HabitReminderView
+### Tab 5: Profile
+- `UserProfileView` — Avatar, stats, achievements preview
+  - EditProfileView, PersonalStatisticsView, AchievementsView
+  - GeneralSettingsView → Appearance, Notifications, Privacy, DataExport, HabitSettings
+  - PaywallView, LegalView
 
-### Sleep (5 screens)
-- SleepDashboardView
-- LogSleepView (sheet)
-- SleepHistoryView
-- SleepAnalyticsView
-- SleepInsightsView
+### Onboarding
+- OnboardingView → StarterHabitsView → ThemeOnboardingView → ReferralCodeEntryView
 
-### Gamification (5 screens)
-- AchievementsView
-- StreakOverviewView
-- LevelProgressView
-- RewardsView
-- MilestonesView
-
-### Social (6 screens — all behind Pro + Coming Soon)
-- FriendsListView
-- LeaderboardView
-- FriendProfileView
-- InviteFriendsView
-- SharedChallengesView
-- SocialFeedView
-
-### Profile (4 screens)
-- UserProfileView
-- EditProfileView
-- PersonalStatisticsView
-- AchievementsShowcaseView
-
-### Premium (3 screens)
-- PremiumGateView (gate overlay)
-- PaywallView (IAP sheet)
-- LegalView
-
-### Notifications (3 screens)
-- NotificationCenterView
-- NotificationDetailView
-- ReminderSettingsView
-
-### Settings (6 screens)
-- GeneralSettingsView
-- AppearanceSettingsView
-- HabitSettingsView
-- NotificationSettingsView
-- PrivacySettingsView
-- DataExportView
-
-### Analytics (5 screens)
-- WeeklyAnalyticsView
-- MonthlyAnalyticsView
-- HabitSuccessTrendsView
-- HabitDifficultyInsightsView
-- LongTermProgressView
-
-### Discovery (3 screens)
-- HabitDiscoveryView
-- HabitCategoriesView
-- RecommendedHabitsView
-
-## Models (SwiftData)
-- Habit, HabitCompletion, SleepLog, UserProfile, Achievement, Friend, Challenge, AppNotification
-
-## Services
-- ProManager (StoreKit IAP)
-- ThemeManager (appearance/accent)
-- AchievementManager (unlock checks)
-- NotificationManager (local notifications)
-- ReviewManager (SKStoreReviewController)
-
-## Total Screens: ~63
+## Totals: 71 screen files, 31 components, 13 services, 8 models

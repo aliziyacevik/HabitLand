@@ -17,11 +17,11 @@ struct MonthlyAnalyticsView: View {
 
     // Current month range
     private var monthStart: Date {
-        calendar.date(from: calendar.dateComponents([.year, .month], from: today))!
+        calendar.date(from: calendar.dateComponents([.year, .month], from: today)) ?? today
     }
 
     private var daysInMonth: Int {
-        calendar.range(of: .day, in: .month, for: monthStart)!.count
+        calendar.range(of: .day, in: .month, for: monthStart)?.count ?? 0
     }
 
     private var monthTitle: String {
@@ -37,7 +37,7 @@ struct MonthlyAnalyticsView: View {
 
     // Previous month range
     private var previousMonthStart: Date {
-        calendar.date(byAdding: .month, value: -1, to: monthStart)!
+        calendar.date(byAdding: .month, value: -1, to: monthStart) ?? monthStart
     }
 
     private var previousMonthName: String {
@@ -51,7 +51,7 @@ struct MonthlyAnalyticsView: View {
         (1...daysInMonth).map { dayNum in
             var comps = calendar.dateComponents([.year, .month], from: monthStart)
             comps.day = dayNum
-            let date = calendar.date(from: comps)!
+            let date = calendar.date(from: comps) ?? monthStart
             let dayStart = calendar.startOfDay(for: date)
 
             guard dayStart <= today else {
@@ -89,7 +89,7 @@ struct MonthlyAnalyticsView: View {
         var totalRate = 0.0
         var count = 0
         for offset in 0..<days {
-            let day = calendar.date(byAdding: .day, value: offset, to: start)!
+            let day = calendar.date(byAdding: .day, value: offset, to: start) ?? start
             let dayStart = calendar.startOfDay(for: day)
             guard dayStart <= today else { continue }
 
@@ -112,7 +112,7 @@ struct MonthlyAnalyticsView: View {
     }
 
     private var lastMonthRate: Double {
-        let prevDays = calendar.range(of: .day, in: .month, for: previousMonthStart)!.count
+        let prevDays = calendar.range(of: .day, in: .month, for: previousMonthStart)?.count ?? 0
         return rateForPeriod(start: previousMonthStart, days: prevDays)
     }
 
@@ -127,10 +127,10 @@ struct MonthlyAnalyticsView: View {
         var offset = 0
         while offset < daysInMonth {
             let daysInWeek = min(7, daysInMonth - offset)
-            let weekStart = calendar.date(byAdding: .day, value: offset, to: monthStart)!
+            let weekStart = calendar.date(byAdding: .day, value: offset, to: monthStart) ?? monthStart
             let rate = rateForPeriod(start: weekStart, days: daysInWeek)
             // Only include weeks that have at least some tracked data
-            let weekEnd = calendar.date(byAdding: .day, value: daysInWeek - 1, to: weekStart)!
+            let weekEnd = calendar.date(byAdding: .day, value: daysInWeek - 1, to: weekStart) ?? weekStart
             if calendar.startOfDay(for: weekStart) <= today {
                 trends.append(("Wk \(weekNum)", rate))
             }
@@ -154,7 +154,7 @@ struct MonthlyAnalyticsView: View {
                 var scheduled = 0
                 var completed = 0
                 for dayOffset in 0..<daysInMonth {
-                    let day = calendar.date(byAdding: .day, value: dayOffset, to: monthStart)!
+                    let day = calendar.date(byAdding: .day, value: dayOffset, to: monthStart) ?? monthStart
                     let dayStart = calendar.startOfDay(for: day)
                     guard dayStart <= today, habit.createdAt <= day else { continue }
                     let weekdayIndex = calendar.component(.weekday, from: day) - 1

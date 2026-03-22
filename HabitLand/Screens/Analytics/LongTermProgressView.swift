@@ -54,13 +54,13 @@ struct LongTermProgressView: View {
         let fmt = DateFormatter()
         fmt.dateFormat = "MMM"
         return (0..<12).reversed().map { monthsAgo in
-            let monthDate = calendar.date(byAdding: .month, value: -monthsAgo, to: today)!
-            let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: monthDate))!
-            let daysInMonth = calendar.range(of: .day, in: .month, for: monthStart)!.count
+            let monthDate = calendar.date(byAdding: .month, value: -monthsAgo, to: today) ?? today
+            let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: monthDate)) ?? today
+            let daysInMonth = calendar.range(of: .day, in: .month, for: monthStart)?.count ?? 0
             var totalRate = 0.0
             var count = 0
             for dayOffset in 0..<daysInMonth {
-                let day = calendar.date(byAdding: .day, value: dayOffset, to: monthStart)!
+                let day = calendar.date(byAdding: .day, value: dayOffset, to: monthStart) ?? monthStart
                 let dayStart = calendar.startOfDay(for: day)
                 guard dayStart <= today else { continue }
                 let active = allHabits.filter { habit in

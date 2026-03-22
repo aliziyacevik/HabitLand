@@ -50,7 +50,7 @@ struct WeeklyProgressView: View {
 
     /// Returns the Monday at the start of the previous week.
     private var previousWeekMonday: Date {
-        calendar.date(byAdding: .day, value: -7, to: currentWeekMonday)!
+        calendar.date(byAdding: .day, value: -7, to: currentWeekMonday) ?? currentWeekMonday
     }
 
     private func mondayOfWeek(containing date: Date) -> Date {
@@ -58,7 +58,7 @@ struct WeeklyProgressView: View {
         // weekday: 1=Sun, 2=Mon, ... 7=Sat
         let weekday = calendar.component(.weekday, from: start)
         let daysFromMonday = (weekday + 5) % 7 // Mon=0, Tue=1, ... Sun=6
-        return calendar.date(byAdding: .day, value: -daysFromMonday, to: start)!
+        return calendar.date(byAdding: .day, value: -daysFromMonday, to: start) ?? start
     }
 
     private static let dayLabels: [(short: String, full: String)] = [
@@ -75,7 +75,7 @@ struct WeeklyProgressView: View {
     private func buildWeekData(startingMonday monday: Date) -> [WeekDay] {
         let today = calendar.startOfDay(for: Date())
         return (0..<7).map { offset in
-            let dayDate = calendar.date(byAdding: .day, value: offset, to: monday)!
+            let dayDate = calendar.date(byAdding: .day, value: offset, to: monday) ?? monday
             let dayStart = calendar.startOfDay(for: dayDate)
             let labels = Self.dayLabels[offset]
             let weekday = calendarWeekday(forMondayOffset: offset)

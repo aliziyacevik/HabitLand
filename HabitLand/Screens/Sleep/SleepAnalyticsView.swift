@@ -5,7 +5,7 @@ struct SleepAnalyticsView: View {
     @Query(sort: \SleepLog.wakeTime, order: .reverse) private var allLogs: [SleepLog]
 
     private var last30Days: [SleepLog] {
-        let cutoff = Calendar.current.date(byAdding: .day, value: -30, to: Date())!
+        let cutoff = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
         return allLogs.filter { $0.wakeTime >= cutoff }
     }
 
@@ -335,7 +335,7 @@ struct SleepAnalyticsView: View {
                 points.append(0)
                 continue
             }
-            let nextDay = calendar.date(byAdding: .day, value: 1, to: day)!
+            let nextDay = calendar.date(byAdding: .day, value: 1, to: day) ?? day
             if let log = allLogs.first(where: {
                 let wake = calendar.startOfDay(for: $0.wakeTime)
                 return wake >= day && wake < nextDay

@@ -345,7 +345,7 @@ struct HabitStatisticsView: View {
 
         return (0..<12).reversed().map { weekOffset in
             guard let weekStart = calendar.date(byAdding: .weekOfYear, value: -weekOffset, to: today) else { return 0 }
-            let weekEnd = calendar.date(byAdding: .day, value: 7, to: weekStart)!
+            let weekEnd = calendar.date(byAdding: .day, value: 7, to: weekStart) ?? weekStart
             let count = habit.safeCompletions.filter { c in
                 let d = calendar.startOfDay(for: c.date)
                 return d >= weekStart && d < weekEnd && c.isCompleted

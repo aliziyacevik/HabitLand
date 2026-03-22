@@ -29,8 +29,8 @@ struct InsightsOverviewView: View {
 
     private var previousWeekConsistency: Double {
         guard !habits.isEmpty else { return 0 }
-        let twoWeeksAgo = calendar.date(byAdding: .day, value: -14, to: today)!
-        let oneWeekAgo = calendar.date(byAdding: .day, value: -7, to: today)!
+        let twoWeeksAgo = calendar.date(byAdding: .day, value: -14, to: today) ?? today
+        let oneWeekAgo = calendar.date(byAdding: .day, value: -7, to: today) ?? today
 
         let rates = habits.map { habit -> Double in
             let completions = habit.safeCompletions.filter { c in
@@ -117,7 +117,7 @@ struct InsightsOverviewView: View {
         }) else { return nil }
 
         let lastSevenDays = (0..<7).reversed().map { daysAgo -> Bool in
-            let day = calendar.date(byAdding: .day, value: -daysAgo, to: today)!
+            let day = calendar.date(byAdding: .day, value: -daysAgo, to: today) ?? today
             return best.safeCompletions.contains { c in
                 calendar.startOfDay(for: c.date) == day && c.isCompleted
             }
@@ -135,8 +135,8 @@ struct InsightsOverviewView: View {
 
     private var computedAttentionHabits: [AttentionHabit] {
         guard !habits.isEmpty else { return [] }
-        let twoWeeksAgo = calendar.date(byAdding: .day, value: -14, to: today)!
-        let oneWeekAgo = calendar.date(byAdding: .day, value: -7, to: today)!
+        let twoWeeksAgo = calendar.date(byAdding: .day, value: -14, to: today) ?? today
+        let oneWeekAgo = calendar.date(byAdding: .day, value: -7, to: today) ?? today
 
         return habits.compactMap { habit -> AttentionHabit? in
             let currentRate = habit.weekCompletionRate
@@ -188,8 +188,8 @@ struct InsightsOverviewView: View {
 
         // Category-level trends
         let categories = Dictionary(grouping: habits, by: \.category)
-        let twoWeeksAgo = calendar.date(byAdding: .day, value: -14, to: today)!
-        let oneWeekAgo = calendar.date(byAdding: .day, value: -7, to: today)!
+        let twoWeeksAgo = calendar.date(byAdding: .day, value: -14, to: today) ?? today
+        let oneWeekAgo = calendar.date(byAdding: .day, value: -7, to: today) ?? today
 
         for (category, categoryHabits) in categories.sorted(by: { $0.key.rawValue < $1.key.rawValue }) {
             let currentRate = avgRate(categoryHabits)

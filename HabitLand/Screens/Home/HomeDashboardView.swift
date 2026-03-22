@@ -286,6 +286,9 @@ struct HomeDashboardView: View {
             .fullScreenCover(isPresented: $showPomodoro) {
                 PomodoroView(isPresented: $showPomodoro)
             }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("openPomodoro"))) { _ in
+                showPomodoro = true
+            }
             .fullScreenCover(isPresented: $showChain) {
                 HabitChainView(
                     habits: habits.filter { !$0.todayCompleted },

@@ -46,7 +46,7 @@ struct PersonalStatisticsView: View {
         let fmt = DateFormatter()
         fmt.dateFormat = "MMM"
         return (0..<6).reversed().map { offset in
-            let monthDate = calendar.date(byAdding: .month, value: -offset, to: today)!
+            let monthDate = calendar.date(byAdding: .month, value: -offset, to: today) ?? today
             let comps = calendar.dateComponents([.year, .month], from: monthDate)
             let count = allHabits.reduce(0) { total, habit in
                 total + habit.safeCompletions.filter { c in
@@ -84,13 +84,13 @@ struct PersonalStatisticsView: View {
         fmt.dateFormat = "MMMM yyyy"
         var best: (String, Double)? = nil
         for offset in 0..<12 {
-            let monthDate = calendar.date(byAdding: .month, value: -offset, to: today)!
-            let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: monthDate))!
-            let daysInMonth = calendar.range(of: .day, in: .month, for: monthStart)!.count
+            let monthDate = calendar.date(byAdding: .month, value: -offset, to: today) ?? today
+            let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: monthDate)) ?? today
+            let daysInMonth = calendar.range(of: .day, in: .month, for: monthStart)?.count ?? 0
             var totalRate = 0.0
             var count = 0
             for dayOffset in 0..<daysInMonth {
-                let day = calendar.date(byAdding: .day, value: dayOffset, to: monthStart)!
+                let day = calendar.date(byAdding: .day, value: dayOffset, to: monthStart) ?? monthStart
                 let dayStart = calendar.startOfDay(for: day)
                 guard dayStart <= today else { continue }
                 let active = activeHabits.filter { $0.createdAt <= day && $0.targetDays.contains(calendar.component(.weekday, from: day) - 1) }
@@ -138,7 +138,7 @@ struct PersonalStatisticsView: View {
         guard let start = bestStart else { return nil }
         let fmt = DateFormatter()
         fmt.dateFormat = "MMM d"
-        let end = calendar.date(byAdding: .day, value: 6, to: start)!
+        let end = calendar.date(byAdding: .day, value: 6, to: start) ?? start
         return (bestAvg, "\(fmt.string(from: start))-\(fmt.string(from: end))")
     }
 

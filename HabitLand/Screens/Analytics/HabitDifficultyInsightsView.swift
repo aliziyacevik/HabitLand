@@ -41,7 +41,7 @@ struct HabitDifficultyInsightsView: View {
     private var today: Date { calendar.startOfDay(for: Date()) }
 
     private var thirtyDaysAgo: Date {
-        calendar.date(byAdding: .day, value: -30, to: today)!
+        calendar.date(byAdding: .day, value: -30, to: today) ?? today
     }
 
     // Compute 30-day completion rate and missed count for each habit
@@ -50,7 +50,7 @@ struct HabitDifficultyInsightsView: View {
             var scheduled = 0
             var completed = 0
             for offset in 0..<30 {
-                let day = calendar.date(byAdding: .day, value: -offset, to: today)!
+                let day = calendar.date(byAdding: .day, value: -offset, to: today) ?? today
                 let dayStart = calendar.startOfDay(for: day)
                 guard habit.createdAt <= day else { continue }
                 let wd = calendar.component(.weekday, from: day) - 1

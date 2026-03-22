@@ -198,7 +198,7 @@ struct HabitLandApp: App {
             // Create completions for streak
             let totalDays = hd.streakDays + 5 // some extra history
             for dayOffset in 0..<totalDays {
-                let date = calendar.date(byAdding: .day, value: -dayOffset, to: today)!
+                let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) ?? today
                 if dayOffset == 0 && !hd.completedToday { continue }
                 // Skip a few random days beyond the streak for realism
                 if dayOffset > hd.streakDays && dayOffset % 3 == 0 { continue }
@@ -216,11 +216,11 @@ struct HabitLandApp: App {
         ]
 
         for (i, sd) in sleepData.enumerated() {
-            let date = calendar.date(byAdding: .day, value: -i, to: today)!
+            let date = calendar.date(byAdding: .day, value: -i, to: today) ?? today
             var bedComponents = calendar.dateComponents([.year, .month, .day], from: date)
             bedComponents.hour = 23
             bedComponents.minute = Int.random(in: 0...30)
-            let bedTime = calendar.date(from: bedComponents)!
+            let bedTime = calendar.date(from: bedComponents) ?? date
             let wakeTime = bedTime.addingTimeInterval(sd.hours * 3600)
             let log = SleepLog(bedTime: bedTime, wakeTime: wakeTime, quality: sd.quality, mood: sd.quality == .excellent ? 5 : sd.quality == .good ? 4 : 3)
             context.insert(log)
