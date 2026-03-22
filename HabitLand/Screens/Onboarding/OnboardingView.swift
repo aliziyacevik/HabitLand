@@ -195,6 +195,7 @@ struct OnboardingView: View {
                     } else {
                         pageView(page)
                             .tag(index)
+                            .id("\(index)-\(currentPage)")
                     }
                 }
             }
@@ -278,83 +279,8 @@ struct OnboardingView: View {
 
     @ViewBuilder
     private func streakPreviewPage(_ page: OnboardingPage) -> some View {
-        OnboardingPreviewPage(page: page) {
-            VStack(spacing: HLSpacing.sm) {
-                // Mini streak card
-                HStack(spacing: HLSpacing.md) {
-                    Image(systemName: "flame.fill")
-                        .font(.system(size: 32, weight: .semibold))
-                        .foregroundStyle(
-                            LinearGradient(colors: [.hlFlame, .hlGold], startPoint: .bottom, endPoint: .top)
-                        )
-                        .symbolEffect(.bounce, options: .repeating.speed(0.3))
-
-                    VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
-                        Text("33")
-                            .font(HLFont.largeTitle()) +
-                        Text(" days")
-                            .font(HLFont.body())
-                            .foregroundColor(.hlTextSecondary)
-                        Text("Your streak grows every day")
-                            .font(HLFont.caption())
-                            .foregroundStyle(Color.hlTextTertiary)
-                    }
-
-                    Spacer()
-                }
-                .padding(HLSpacing.md)
-                .background(Color.hlSurface)
-                .cornerRadius(HLRadius.lg)
-
-                // Mini XP bar
-                HStack(spacing: HLSpacing.sm) {
-                    Text("LV8")
-                        .font(HLFont.caption2(.bold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, HLSpacing.xs)
-                        .padding(.vertical, 3)
-                        .background(Color.hlPrimary)
-                        .cornerRadius(HLRadius.full)
-
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: HLRadius.full)
-                                .fill(Color.hlDivider)
-                                .frame(height: 6)
-                            RoundedRectangle(cornerRadius: HLRadius.full)
-                                .fill(LinearGradient(colors: [.hlPrimary, .hlGold], startPoint: .leading, endPoint: .trailing))
-                                .frame(width: geo.size.width * 0.65, height: 6)
-                        }
-                    }
-                    .frame(height: 6)
-
-                    Text("520/800")
-                        .font(HLFont.caption2())
-                        .foregroundStyle(Color.hlTextTertiary)
-                }
-                .padding(.horizontal, HLSpacing.md)
-                .padding(.vertical, HLSpacing.sm)
-                .background(Color.hlSurface)
-                .cornerRadius(HLRadius.lg)
-
-                // Mini weekly quests
-                HStack(spacing: HLSpacing.sm) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(Color.hlPrimary)
-                    Text("Streak Guardian")
-                        .font(HLFont.callout(.medium))
-                        .foregroundStyle(Color.hlTextPrimary)
-                    Spacer()
-                    Text("+100 XP")
-                        .font(HLFont.caption(.bold))
-                        .foregroundStyle(Color.hlGold)
-                }
-                .padding(.horizontal, HLSpacing.md)
-                .padding(.vertical, HLSpacing.sm)
-                .background(Color.hlSurface)
-                .cornerRadius(HLRadius.lg)
-            }
-            .padding(.horizontal, HLSpacing.md)
+        OnboardingPreviewPage(page: page, pageIndex: 1, currentPage: currentPage) {
+            StreakPreviewContent(isActive: currentPage == 1)
         }
     }
 
@@ -362,7 +288,7 @@ struct OnboardingView: View {
 
     @ViewBuilder
     private func sleepPreviewPage(_ page: OnboardingPage) -> some View {
-        OnboardingPreviewPage(page: page) {
+        OnboardingPreviewPage(page: page, pageIndex: 2, currentPage: currentPage) {
             VStack(spacing: HLSpacing.sm) {
                 // Mini sleep card
                 VStack(spacing: HLSpacing.sm) {
@@ -423,7 +349,7 @@ struct OnboardingView: View {
 
     @ViewBuilder
     private func leaderboardPreviewPage(_ page: OnboardingPage) -> some View {
-        OnboardingPreviewPage(page: page) {
+        OnboardingPreviewPage(page: page, pageIndex: 3, currentPage: currentPage) {
             VStack(spacing: 0) {
                 HStack(alignment: .bottom, spacing: HLSpacing.sm) {
                     onboardingPodiumPlace(name: "Mike", emoji: "🐻", xp: 640, rank: 2, color: .hlSilver, height: 48)
@@ -784,10 +710,14 @@ struct OnboardingView: View {
 
 private struct OnboardingPreviewPage<Preview: View>: View {
     let page: OnboardingPage
+    let pageIndex: Int
+    let currentPage: Int
     @ViewBuilder let preview: () -> Preview
     @State private var showTitle = false
     @State private var showPreview = false
     @State private var showPills = false
+
+    private var isActive: Bool { pageIndex == currentPage }
 
     var body: some View {
         VStack(spacing: HLSpacing.lg) {
@@ -828,16 +758,27 @@ private struct OnboardingPreviewPage<Preview: View>: View {
                 .frame(height: HLSpacing.md)
         }
         .padding(.horizontal, HLSpacing.md)
-        .onAppear {
-            withAnimation(HLAnimation.bouncy.delay(0.15)) {
-                showPreview = true
+        .onAppear { runAnimations() }
+        .onChange(of: currentPage) { _, newPage in
+            if newPage == pageIndex {
+                // Reset and replay
+                showPreview = false
+                showTitle = false
+                showPills = false
+                runAnimations()
             }
-            withAnimation(HLAnimation.standard.delay(0.4)) {
-                showTitle = true
-            }
-            withAnimation(HLAnimation.standard.delay(0.7)) {
-                showPills = true
-            }
+        }
+    }
+
+    private func runAnimations() {
+        withAnimation(HLAnimation.bouncy.delay(0.15)) {
+            showPreview = true
+        }
+        withAnimation(HLAnimation.standard.delay(0.4)) {
+            showTitle = true
+        }
+        withAnimation(HLAnimation.standard.delay(0.7)) {
+            showPills = true
         }
     }
 
@@ -878,6 +819,155 @@ private struct OnboardingPreviewPage<Preview: View>: View {
                 .padding(.vertical, HLSpacing.xs)
                 .background(pill.color.opacity(0.1))
                 .cornerRadius(HLRadius.full)
+            }
+        }
+    }
+}
+
+// MARK: - Streak Preview Content (with XP fill + Level Up animation)
+
+private struct StreakPreviewContent: View {
+    let isActive: Bool
+    @State private var xpProgress: Double = 0
+    @State private var showLevelUp = false
+    @State private var levelText = "LV8"
+    @State private var xpText = "520/800"
+    @State private var flameBurst = false
+
+    var body: some View {
+        VStack(spacing: HLSpacing.sm) {
+            // Mini streak card
+            HStack(spacing: HLSpacing.md) {
+                Image(systemName: "flame.fill")
+                    .font(.system(size: 32, weight: .semibold))
+                    .foregroundStyle(
+                        LinearGradient(colors: [.hlFlame, .hlGold], startPoint: .bottom, endPoint: .top)
+                    )
+                    .scaleEffect(flameBurst ? 1.3 : 1.0)
+                    .symbolEffect(.bounce, options: .repeating.speed(0.3))
+
+                VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
+                    Text("33")
+                        .font(HLFont.largeTitle()) +
+                    Text(" days")
+                        .font(HLFont.body())
+                        .foregroundColor(.hlTextSecondary)
+                    Text("Your streak grows every day")
+                        .font(HLFont.caption())
+                        .foregroundStyle(Color.hlTextTertiary)
+                }
+
+                Spacer()
+            }
+            .padding(HLSpacing.md)
+            .background(Color.hlSurface)
+            .cornerRadius(HLRadius.lg)
+
+            // Animated XP bar with Level Up
+            ZStack {
+                HStack(spacing: HLSpacing.sm) {
+                    Text(levelText)
+                        .font(HLFont.caption2(.bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, HLSpacing.xs)
+                        .padding(.vertical, 3)
+                        .background(
+                            LinearGradient(colors: [.hlPrimary, .hlPrimaryDark], startPoint: .leading, endPoint: .trailing)
+                        )
+                        .cornerRadius(HLRadius.full)
+                        .scaleEffect(showLevelUp ? 1.2 : 1.0)
+
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: HLRadius.full)
+                                .fill(Color.hlDivider)
+                                .frame(height: 8)
+                            RoundedRectangle(cornerRadius: HLRadius.full)
+                                .fill(LinearGradient(colors: [.hlPrimary, .hlGold], startPoint: .leading, endPoint: .trailing))
+                                .frame(width: geo.size.width * xpProgress, height: 8)
+                        }
+                    }
+                    .frame(height: 8)
+
+                    Text(xpText)
+                        .font(HLFont.caption2(.medium))
+                        .foregroundStyle(Color.hlTextTertiary)
+                }
+
+                // Level Up overlay
+                if showLevelUp {
+                    Text("+100 XP  LEVEL UP!")
+                        .font(HLFont.caption(.bold))
+                        .foregroundStyle(Color.hlGold)
+                        .transition(.scale.combined(with: .opacity))
+                        .offset(y: -24)
+                }
+            }
+            .padding(.horizontal, HLSpacing.md)
+            .padding(.vertical, HLSpacing.sm)
+            .background(Color.hlSurface)
+            .cornerRadius(HLRadius.lg)
+
+            // Mini weekly quest
+            HStack(spacing: HLSpacing.sm) {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(Color.hlPrimary)
+                Text("Streak Guardian")
+                    .font(HLFont.callout(.medium))
+                    .foregroundStyle(Color.hlTextPrimary)
+                Spacer()
+                Text("+100 XP")
+                    .font(HLFont.caption(.bold))
+                    .foregroundStyle(Color.hlGold)
+            }
+            .padding(.horizontal, HLSpacing.md)
+            .padding(.vertical, HLSpacing.sm)
+            .background(Color.hlSurface)
+            .cornerRadius(HLRadius.lg)
+        }
+        .padding(.horizontal, HLSpacing.md)
+        .onAppear { startXPAnimation() }
+        .onChange(of: isActive) { _, active in
+            if active {
+                resetAndReplay()
+            }
+        }
+    }
+
+    private func resetAndReplay() {
+        xpProgress = 0
+        showLevelUp = false
+        levelText = "LV8"
+        xpText = "520/800"
+        flameBurst = false
+        startXPAnimation()
+    }
+
+    private func startXPAnimation() {
+        // Phase 1: XP bar fills to 100%
+        withAnimation(.easeInOut(duration: 1.5).delay(0.8)) {
+            xpProgress = 1.0
+        }
+
+        // Phase 2: Level Up burst
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            withAnimation(HLAnimation.bouncy) {
+                showLevelUp = true
+                levelText = "LV9"
+                xpText = "120/900"
+                flameBurst = true
+            }
+            // Reset XP bar for new level
+            withAnimation(.easeInOut(duration: 0.3).delay(0.1)) {
+                xpProgress = 0.13
+            }
+        }
+
+        // Phase 3: Hide level up text
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+            withAnimation(HLAnimation.standard) {
+                showLevelUp = false
+                flameBurst = false
             }
         }
     }
