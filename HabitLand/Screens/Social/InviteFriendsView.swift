@@ -50,7 +50,7 @@ struct InviteFriendsView: View {
             }
             .overlay(alignment: .top) {
                 if showCopiedToast {
-                    Text("Kopyalandi!")
+                    Text(isTurkish ? "Kopyalandı!" : "Copied!")
                         .font(HLFont.caption(.semibold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, HLSpacing.md)
@@ -83,7 +83,7 @@ struct InviteFriendsView: View {
                 .font(HLFont.title3())
                 .foregroundColor(.hlTextPrimary)
 
-            Text("Kodunu paylas, ikimiz de 1 hafta Pro kazanalim!")
+            Text(isTurkish ? "Kodunu paylaş, ikimiz de 1 hafta Pro kazanalım!" : "Share your code, we both get 1 week of Pro!")
                 .font(HLFont.subheadline())
                 .foregroundColor(.hlTextSecondary)
                 .multilineTextAlignment(.center)
