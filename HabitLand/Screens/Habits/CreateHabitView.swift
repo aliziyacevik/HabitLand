@@ -272,30 +272,41 @@ struct CreateHabitView: View {
             }
             .hlCard()
 
-            // Unit preset chips
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: HLSpacing.xs) {
-                    ForEach(unitPresets, id: \.0) { preset in
-                        Button {
-                            unit = preset.0
-                            HLHaptics.selection()
-                        } label: {
-                            HStack(spacing: HLSpacing.xxs) {
-                                Image(systemName: preset.1)
-                                    .font(.system(size: 11))
-                                Text(preset.0)
-                                    .font(HLFont.caption(.medium))
+            // Unit preset chips with auto-scroll to selection
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: HLSpacing.xs) {
+                        ForEach(unitPresets, id: \.0) { preset in
+                            Button {
+                                unit = preset.0
+                                HLHaptics.selection()
+                                withAnimation(HLAnimation.quick) {
+                                    proxy.scrollTo(preset.0, anchor: .center)
+                                }
+                            } label: {
+                                HStack(spacing: HLSpacing.xxs) {
+                                    Image(systemName: preset.1)
+                                        .font(.system(size: 11))
+                                    Text(preset.0)
+                                        .font(HLFont.caption(.medium))
+                                }
+                                .foregroundStyle(unit == preset.0 ? .white : Color.hlTextSecondary)
+                                .padding(.horizontal, HLSpacing.sm)
+                                .padding(.vertical, HLSpacing.xs)
+                                .background(unit == preset.0 ? Color.hlPrimary : Color.hlSurface)
+                                .cornerRadius(HLRadius.full)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: HLRadius.full)
+                                        .stroke(unit == preset.0 ? Color.clear : Color.hlCardBorder, lineWidth: 1)
+                                )
                             }
-                            .foregroundStyle(unit == preset.0 ? .white : Color.hlTextSecondary)
-                            .padding(.horizontal, HLSpacing.sm)
-                            .padding(.vertical, HLSpacing.xs)
-                            .background(unit == preset.0 ? Color.hlPrimary : Color.hlSurface)
-                            .cornerRadius(HLRadius.full)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: HLRadius.full)
-                                    .stroke(unit == preset.0 ? Color.clear : Color.hlCardBorder, lineWidth: 1)
-                            )
+                            .id(preset.0)
                         }
+                    }
+                }
+                .onChange(of: unit) { _, newUnit in
+                    withAnimation(HLAnimation.quick) {
+                        proxy.scrollTo(newUnit, anchor: .center)
                     }
                 }
             }
