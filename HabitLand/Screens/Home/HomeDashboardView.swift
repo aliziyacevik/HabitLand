@@ -575,24 +575,29 @@ struct HomeDashboardView: View {
             ForEach(Array(questManager.quests.enumerated()), id: \.element.id) { index, quest in
                 let isLocked = index >= questLimit
                 if isLocked {
-                    HStack(spacing: HLSpacing.sm) {
-                        Image(systemName: "lock.fill")
-                            .font(.system(size: 14))
-                            .foregroundStyle(Color.hlTextTertiary)
-                            .frame(width: 36, height: 36)
-                        Text(quest.title)
-                            .font(HLFont.callout())
-                            .foregroundStyle(Color.hlTextTertiary)
-                        Spacer()
-                        Text("PRO")
-                            .font(HLFont.caption2(.bold))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, HLSpacing.xs)
-                            .padding(.vertical, HLSpacing.xxxs)
-                            .background(Color.hlPrimary)
-                            .cornerRadius(HLRadius.full)
+                    Button {
+                        showPaywall = true
+                    } label: {
+                        HStack(spacing: HLSpacing.sm) {
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.hlTextTertiary)
+                                .frame(width: 36, height: 36)
+                            Text(quest.title)
+                                .font(HLFont.callout())
+                                .foregroundStyle(Color.hlTextTertiary)
+                            Spacer()
+                            Text("PRO")
+                                .font(HLFont.caption2(.bold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, HLSpacing.xs)
+                                .padding(.vertical, HLSpacing.xxxs)
+                                .background(Color.hlPrimary)
+                                .cornerRadius(HLRadius.full)
+                        }
+                        .opacity(0.6)
                     }
-                    .opacity(0.6)
+                    .buttonStyle(.plain)
                 } else {
                 HStack(spacing: HLSpacing.sm) {
                     ZStack {
@@ -1095,6 +1100,8 @@ struct HomeDashboardView: View {
                     Image(systemName: "xmark")
                         .font(.system(size: 12, weight: .bold))
                         .foregroundStyle(Color.hlTextTertiary)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .accessibilityLabel("Dismiss invite card")
             }

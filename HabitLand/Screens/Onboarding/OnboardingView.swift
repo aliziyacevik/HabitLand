@@ -1008,6 +1008,7 @@ private struct AnimatedOnboardingPage: View {
     @State private var showDecorations = false
     @State private var pulseGlow = false
     @State private var floatOffset: CGFloat = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: HLSpacing.lg) {
@@ -1094,6 +1095,7 @@ private struct AnimatedOnboardingPage: View {
         withAnimation(HLAnimation.standard.delay(0.9)) {
             showDecorations = true
         }
+        guard !reduceMotion else { return }
         withAnimation(.easeInOut(duration: 2.5).repeatForever(autoreverses: true).delay(0.3)) {
             floatOffset = -8
         }

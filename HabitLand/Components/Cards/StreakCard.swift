@@ -7,6 +7,8 @@ struct StreakCard: View {
     var useGradient: Bool = true
 
     @State private var flameScale: CGFloat = 1.0
+    @ScaledMetric(relativeTo: .body) private var flameSize: CGFloat = 40
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     // MARK: - Model Initializer
 
@@ -32,7 +34,7 @@ struct StreakCard: View {
         VStack(spacing: HLSpacing.md) {
             // Animated flame
             Image(systemName: HLIcon.flame)
-                .font(.system(size: 40, weight: .semibold))
+                .font(.system(size: flameSize, weight: .semibold))
                 .foregroundStyle(
                     LinearGradient(
                         colors: [.hlFlame, .hlGold],
@@ -43,6 +45,7 @@ struct StreakCard: View {
                 .scaleEffect(flameScale)
                 .accessibilityHidden(true)
                 .onAppear {
+                    guard !reduceMotion else { return }
                     withAnimation(
                         .easeInOut(duration: 1.2)
                         .repeatForever(autoreverses: true)

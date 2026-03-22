@@ -8,6 +8,7 @@ struct StreakFlame: View {
 
     @State private var isPulsing = false
     @State private var flameBurst = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     enum FlameSize {
         case sm, md, lg
@@ -65,7 +66,7 @@ struct StreakFlame: View {
         }
         .animation(HLAnimation.celebration, value: flameBurst)
         .onAppear {
-            guard isActive else { return }
+            guard isActive, !reduceMotion else { return }
             withAnimation(
                 .easeInOut(duration: 1.2)
                 .repeatForever(autoreverses: true)
