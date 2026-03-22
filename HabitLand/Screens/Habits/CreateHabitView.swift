@@ -437,12 +437,18 @@ struct CreateHabitView: View {
                         showTemplateBrowser = false
                     },
                     onPackSelect: { templates in
-                        // Apply first template to current form
-                        if let first = templates.first {
+                        let existingCount = (try? modelContext.fetchCount(FetchDescriptor<Habit>(predicate: #Predicate { !$0.isArchived }))) ?? 0
+                        let limit = ProManager.shared.isPro ? Int.max : ProManager.freeHabitLimit
+                        let available = max(0, limit - existingCount)
+
+                        let toAdd = Array(templates.prefix(available))
+                        guard !toAdd.isEmpty else { return }
+
+                        // Apply first to current form, create rest directly
+                        if let first = toAdd.first {
                             applyTemplate(first)
                         }
-                        // Create remaining templates as separate habits
-                        for template in templates.dropFirst() {
+                        for template in toAdd.dropFirst() {
                             let habit = template.toHabit()
                             modelContext.insert(habit)
                         }

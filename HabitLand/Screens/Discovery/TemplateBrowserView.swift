@@ -8,6 +8,7 @@ struct TemplateBrowserView: View {
 
     @State private var searchText = ""
     @State private var selectedCategory: HabitCategory?
+    @State private var expandedPack: String?
     @State private var addedPack: String?
 
     private var filteredTemplates: [HabitTemplate] {
@@ -123,30 +124,105 @@ struct TemplateBrowserView: View {
                 HStack(spacing: HLSpacing.xs) {
                     ForEach(HabitTemplateLibrary.packs) { pack in
                         Button {
+                            withAnimation(HLAnimation.standard) {
+                                expandedPack = expandedPack == pack.id ? nil : pack.id
+                            }
+                            HLHaptics.selection()
+                        } label: {
+                            miniPackCard(pack)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+
+            // Expanded pack preview
+            if let packID = expandedPack,
+               let pack = HabitTemplateLibrary.packs.first(where: { $0.id == packID }) {
+                VStack(spacing: HLSpacing.sm) {
+                    // Pack header
+                    HStack {
+                        Image(systemName: pack.icon)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(pack.color)
+                        Text(pack.name)
+                            .font(HLFont.callout(.semibold))
+                            .foregroundStyle(Color.hlTextPrimary)
+                        Spacer()
+                        Text("\(pack.templates.count) habits")
+                            .font(HLFont.caption())
+                            .foregroundStyle(Color.hlTextTertiary)
+                    }
+
+                    // Habit list preview
+                    ForEach(pack.templates) { template in
+                        HStack(spacing: HLSpacing.sm) {
+                            Image(systemName: template.icon)
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(template.color)
+                                .frame(width: 32, height: 32)
+                                .background(template.color.opacity(0.12))
+                                .cornerRadius(HLRadius.sm)
+
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(template.name)
+                                    .font(HLFont.callout(.medium))
+                                    .foregroundStyle(Color.hlTextPrimary)
+                                if template.goalCount > 1 {
+                                    Text("\(template.goalCount) \(template.unit)")
+                                        .font(HLFont.caption2())
+                                        .foregroundStyle(Color.hlTextTertiary)
+                                }
+                            }
+                            Spacer()
+                        }
+                    }
+
+                    // Use This Pack button
+                    if addedPack == pack.id {
+                        HStack(spacing: HLSpacing.xxs) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(Color.hlPrimary)
+                            Text("Pack Added!")
+                                .font(HLFont.callout(.semibold))
+                                .foregroundStyle(Color.hlPrimary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, HLSpacing.sm)
+                    } else {
+                        Button {
                             if let onPackSelect {
                                 onPackSelect(pack.templates)
-                            } else {
-                                // Fallback: select first template
-                                if let first = pack.templates.first {
-                                    onSelect(first)
-                                }
                             }
                             withAnimation(HLAnimation.celebration) {
                                 addedPack = pack.id
                             }
                             HLHaptics.success()
                         } label: {
-                            miniPackCard(pack)
+                            Text("Use This Pack")
+                                .font(HLFont.callout(.semibold))
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, HLSpacing.sm)
+                                .background(pack.color)
+                                .cornerRadius(HLRadius.md)
                         }
-                        .buttonStyle(.plain)
-                        .disabled(addedPack == pack.id)
                     }
                 }
+                .padding(HLSpacing.md)
+                .background(Color.hlSurface)
+                .cornerRadius(HLRadius.lg)
+                .overlay(
+                    RoundedRectangle(cornerRadius: HLRadius.lg)
+                        .stroke(pack.color.opacity(0.3), lineWidth: 1)
+                )
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
     }
 
     private func miniPackCard(_ pack: HabitTemplatePack) -> some View {
+        let isExpanded = expandedPack == pack.id
         let isAdded = addedPack == pack.id
 
         return VStack(alignment: .leading, spacing: HLSpacing.xxs) {
@@ -168,11 +244,11 @@ struct TemplateBrowserView: View {
         }
         .frame(width: 100)
         .padding(HLSpacing.sm)
-        .background(isAdded ? Color.hlPrimary.opacity(0.08) : Color.hlSurface)
+        .background(isExpanded ? pack.color.opacity(0.08) : isAdded ? Color.hlPrimary.opacity(0.06) : Color.hlSurface)
         .cornerRadius(HLRadius.md)
         .overlay(
             RoundedRectangle(cornerRadius: HLRadius.md)
-                .stroke(isAdded ? Color.hlPrimary : Color.hlCardBorder, lineWidth: isAdded ? 2 : 1)
+                .stroke(isExpanded ? pack.color : isAdded ? Color.hlPrimary : Color.hlCardBorder, lineWidth: isExpanded ? 2 : 1)
         )
     }
 
