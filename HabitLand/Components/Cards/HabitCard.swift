@@ -43,6 +43,8 @@ struct HabitCard: View {
     }
 
     @State private var justCompleted = false
+    @ScaledMetric(relativeTo: .body) private var iconSize: CGFloat = 36
+    @ScaledMetric(relativeTo: .body) private var checkmarkSize: CGFloat = 36
 
     var body: some View {
         HStack(spacing: HLSpacing.sm) {
@@ -68,6 +70,8 @@ struct HabitCard: View {
         }
         .hlCard()
         .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(name), \(streak > 0 ? "\(streak)-day streak, " : "")\(isCompleted ? "completed" : "not completed")")
     }
 
     // MARK: - Subviews
@@ -76,7 +80,7 @@ struct HabitCard: View {
         ZStack {
             Circle()
                 .fill(color.opacity(0.15))
-                .frame(width: 44, height: 44)
+                .frame(width: iconSize + 8, height: iconSize + 8)
 
             Image(systemName: icon)
                 .font(.system(size: 20, weight: .semibold))
@@ -89,6 +93,7 @@ struct HabitCard: View {
             Image(systemName: HLIcon.flame)
                 .font(.system(size: 12))
                 .foregroundColor(.hlFlame)
+                .accessibilityHidden(true)
 
             Text("\(streak) day\(streak == 1 ? "" : "s")")
                 .font(HLFont.caption(.medium))
@@ -150,6 +155,7 @@ struct HabitCard: View {
             .scaleEffect(justCompleted ? 1.15 : 1.0)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(isCompleted ? "Mark \(name) as incomplete" : "Mark \(name) as complete")
         .animation(HLAnimation.celebration, value: justCompleted)
         .animation(HLAnimation.microSpring, value: isCompleted)
         .animation(HLAnimation.progressFill, value: progress)

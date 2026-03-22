@@ -234,6 +234,7 @@ struct InviteFriendsView: View {
                             .foregroundColor(.hlTextTertiary)
                             .font(.system(size: 12, weight: .bold))
                     }
+                    .accessibilityLabel("Clear search")
                 }
             }
             .padding(HLSpacing.sm)

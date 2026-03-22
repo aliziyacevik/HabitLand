@@ -14,7 +14,7 @@ struct PaywallView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 0) {
+                VStack(spacing: HLSpacing.lg) {
                     headerSection
                     featuresSection
                     if proManager.isTrialEligible {
@@ -43,10 +43,13 @@ struct PaywallView: View {
                     .accessibilityLabel("Close")
                 }
             }
-            .alert("Error", isPresented: $showError) {
-                Button("OK") {}
+            .alert("Purchase Failed", isPresented: $showError) {
+                Button("Try Again") {
+                    Task { await handlePurchase() }
+                }
+                Button("Cancel", role: .cancel) {}
             } message: {
-                Text(errorMessage)
+                Text(errorMessage.isEmpty ? "Check your internet connection and try again." : errorMessage)
             }
         }
     }

@@ -44,7 +44,7 @@ struct HabitTimerView: View {
                     // Time display
                     VStack(spacing: HLSpacing.xxs) {
                         Text(timerManager.formattedTime)
-                            .font(.system(size: 56, weight: .light, design: .rounded))
+                            .font(HLFont.display(.light))
                             .foregroundStyle(Color.hlTextPrimary)
                             .monospacedDigit()
 
@@ -70,6 +70,7 @@ struct HabitTimerView: View {
                             .background(Color.hlSurface)
                             .clipShape(Circle())
                     }
+                    .accessibilityLabel("Cancel timer")
 
                     // Play/Pause
                     Button {
@@ -87,6 +88,7 @@ struct HabitTimerView: View {
                             .background(timerManager.habitColor)
                             .clipShape(Circle())
                     }
+                    .accessibilityLabel(timerManager.isRunning ? "Pause" : "Resume")
 
                     // Skip (complete early)
                     Button {
@@ -101,6 +103,7 @@ struct HabitTimerView: View {
                             .background(timerManager.habitColor.opacity(0.12))
                             .clipShape(Circle())
                     }
+                    .accessibilityLabel("Complete early")
                 }
 
                 // Ambient sounds

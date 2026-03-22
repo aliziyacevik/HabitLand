@@ -65,7 +65,7 @@ final class WeeklyQuestManager: ObservableObject {
         let sleepLogs = (try? context.fetch(FetchDescriptor<SleepLog>())) ?? []
         let calendar = Calendar.current
 
-        let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: Date()))!
+        guard let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: Date())) else { return }
 
         for i in quests.indices where !quests[i].isCompleted {
             switch quests[i].type {

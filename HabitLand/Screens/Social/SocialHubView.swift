@@ -31,25 +31,24 @@ struct SocialHubView: View {
                 if !cloudKit.iCloudAvailable && !isScreenshotMode {
                     iCloudUnavailableView
                 } else {
-                    VStack(spacing: 0) {
+                    VStack(spacing: HLSpacing.xs) {
                         sectionPicker
                             .padding(.horizontal, HLSpacing.md)
                             .padding(.top, HLSpacing.xs)
 
-                        TabView(selection: $selectedSection) {
-                            FriendsListView()
-                                .tag(SocialSection.friends)
-
-                            LeaderboardView()
-                                .tag(SocialSection.leaderboard)
-
-                            SharedChallengesView()
-                                .tag(SocialSection.challenges)
-
-                            SocialFeedView()
-                                .tag(SocialSection.feed)
+                        Group {
+                            switch selectedSection {
+                            case .friends:
+                                FriendsListView()
+                            case .leaderboard:
+                                LeaderboardView()
+                            case .challenges:
+                                SharedChallengesView()
+                            case .feed:
+                                SocialFeedView()
+                            }
                         }
-                        .tabViewStyle(.page(indexDisplayMode: .never))
+                        .animation(HLAnimation.quick, value: selectedSection)
                     }
                 }
             }
@@ -67,7 +66,7 @@ struct SocialHubView: View {
                                         .foregroundStyle(Color.hlPrimary)
 
                                     Text("\(nudges.count)")
-                                        .font(.system(size: 9, weight: .bold))
+                                        .font(HLFont.caption2(.bold))
                                         .foregroundStyle(.white)
                                         .frame(width: 16, height: 16)
                                         .background(Color.hlError)
@@ -75,6 +74,7 @@ struct SocialHubView: View {
                                         .offset(x: 6, y: -6)
                                 }
                             }
+                            .accessibilityLabel("Nudges, \(nudges.count) new")
                         }
                     }
                 }
@@ -92,6 +92,7 @@ struct SocialHubView: View {
                             }
                             .foregroundStyle(Color.hlPrimary)
                         }
+                        .accessibilityLabel("Pending friend requests, \(cloudKit.pendingRequests.count)")
                     }
                 }
             }

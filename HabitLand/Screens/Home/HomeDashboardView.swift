@@ -872,7 +872,7 @@ struct HomeDashboardView: View {
     private var motivationCard: some View {
         HStack(spacing: HLSpacing.sm) {
             Text(motivationEmoji)
-                .font(.system(size: 28))
+                .font(HLFont.title1())
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                 Text(motivationTitle)

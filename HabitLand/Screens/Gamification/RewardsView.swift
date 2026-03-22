@@ -133,7 +133,7 @@ struct RewardsView: View {
                     .frame(width: 56, height: 56)
 
                 Text(reward.emoji)
-                    .font(.system(size: 28))
+                    .font(HLFont.title1())
             }
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {

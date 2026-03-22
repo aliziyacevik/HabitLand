@@ -111,16 +111,16 @@ struct CreateHabitView: View {
                 .font(HLFont.headline())
                 .foregroundStyle(Color.hlTextPrimary)
 
-            let columns = Array(repeating: GridItem(.flexible(), spacing: HLSpacing.xs), count: 8)
+            let columns = Array(repeating: GridItem(.flexible(), spacing: HLSpacing.xs), count: 6)
             LazyVGrid(columns: columns, spacing: HLSpacing.xs) {
                 ForEach(iconOptions, id: \.self) { icon in
                     Button {
                         selectedIcon = icon
                     } label: {
                         Image(systemName: icon)
-                            .font(.system(size: 20))
+                            .font(.system(size: 22))
                             .foregroundStyle(selectedIcon == icon ? .white : Color.hlTextSecondary)
-                            .frame(width: 40, height: 40)
+                            .frame(width: 44, height: 44)
                             .background(selectedIcon == icon ? selectedColor : Color.hlSurface)
                             .cornerRadius(HLRadius.sm)
                             .overlay(

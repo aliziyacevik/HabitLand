@@ -55,7 +55,7 @@ struct SocialFeedView: View {
                 detailIcon = ""
                 typeIcon = "plus.circle.fill"
                 typeColor = .hlPrimary
-                isInactive = friend.lastActive == nil || !Calendar.current.isDateInToday(friend.lastActive!)
+                isInactive = friend.lastActive.map { !Calendar.current.isDateInToday($0) } ?? true
             }
 
             return FeedEntry(
@@ -173,12 +173,14 @@ struct SocialFeedView: View {
                     HStack(spacing: HLSpacing.xxs) {
                         Image(systemName: likedItems.contains(item.id) ? "heart.fill" : "heart")
                             .foregroundColor(likedItems.contains(item.id) ? .hlError : .hlTextTertiary)
+                            .scaleEffect(likedItems.contains(item.id) ? 1.15 : 1.0)
                         Text(likedItems.contains(item.id) ? "\(item.likes + 1)" : "\(item.likes)")
                             .font(HLFont.caption())
-                            .foregroundColor(.hlTextSecondary)
+                            .foregroundColor(likedItems.contains(item.id) ? .hlError : .hlTextSecondary)
                     }
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(likedItems.contains(item.id) ? "Unlike, \(item.likes + 1) likes" : "Like, \(item.likes) likes")
 
                 // Nudge button for inactive friends
                 if item.isInactive, let recordName = item.cloudKitRecordName {

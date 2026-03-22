@@ -146,7 +146,7 @@ struct LogSleepView: View {
                     } label: {
                         VStack(spacing: HLSpacing.xxs) {
                             Text(quality.icon)
-                                .font(.system(size: selectedQuality == quality ? 36 : 28))
+                                .font(selectedQuality == quality ? HLFont.largeTitle() : HLFont.title1())
 
                             Text(quality.rawValue)
                                 .font(HLFont.caption2(.medium))
@@ -193,7 +193,7 @@ struct LogSleepView: View {
                         }
                     } label: {
                         Text(moodEmoji)
-                            .font(.system(size: mood == value ? 36 : 28))
+                            .font(mood == value ? HLFont.largeTitle() : HLFont.title1())
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, HLSpacing.xs)
                             .background(

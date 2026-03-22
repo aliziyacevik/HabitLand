@@ -27,7 +27,9 @@ struct ShowStreakIntent: AppIntent {
 
         // Find the habit with the longest current streak
         let sorted = habits.sorted { $0.currentStreak > $1.currentStreak }
-        let best = sorted.first!
+        guard let best = sorted.first else {
+            return .result(dialog: IntentDialog(LocalizedStringResource("No habits found.", table: "AppIntents")))
+        }
         let totalStreaks = habits.map(\.currentStreak).reduce(0, +)
         let activeStreaks = habits.filter { $0.currentStreak > 0 }.count
 

@@ -50,6 +50,7 @@ struct UserProfileView: View {
                         Image(systemName: HLIcon.settings)
                             .foregroundColor(.hlTextSecondary)
                     }
+                    .accessibilityLabel("Settings")
                 }
             }
         }

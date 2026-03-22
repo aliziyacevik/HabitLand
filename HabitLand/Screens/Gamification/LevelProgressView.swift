@@ -68,7 +68,7 @@ struct LevelProgressView: View {
 
                 VStack(spacing: HLSpacing.xxxs) {
                     Text(emoji)
-                        .font(.system(size: 36))
+                        .font(HLFont.largeTitle())
                     Text("Lv.\(level)")
                         .font(HLFont.headline())
                         .foregroundStyle(Color.hlTextPrimary)

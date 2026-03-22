@@ -72,6 +72,7 @@ struct MilestoneBadge: View {
                     Image(systemName: isAchieved ? HLIcon.medal : "lock.fill")
                         .font(.system(size: iconSize, weight: .semibold))
                         .foregroundStyle(isAchieved ? tier.primaryColor : Color.hlTextTertiary)
+                        .accessibilityHidden(true)
 
                     Text("\(days)")
                         .font(HLFont.caption2(.bold))

@@ -72,6 +72,7 @@ struct PomodoroView: View {
                         .background(Color.hlSurface)
                         .clipShape(Circle())
                 }
+                .accessibilityLabel("Close")
                 Spacer()
                 // Session dots
                 HStack(spacing: HLSpacing.xs) {
@@ -127,7 +128,7 @@ struct PomodoroView: View {
                         .animation(.linear(duration: 1), value: progress)
 
                     Text(formattedTime)
-                        .font(.system(size: 64, weight: .thin, design: .rounded))
+                        .font(HLFont.largeTitle(.thin))
                         .foregroundStyle(Color.hlTextPrimary)
                         .monospacedDigit()
                 }
@@ -148,6 +149,7 @@ struct PomodoroView: View {
                             .background(Color.hlSurface)
                             .clipShape(Circle())
                     }
+                    .accessibilityLabel("Reset timer")
 
                     // Play/Pause
                     Button {
@@ -165,6 +167,7 @@ struct PomodoroView: View {
                             .background(phase.color)
                             .clipShape(Circle())
                     }
+                    .accessibilityLabel(isRunning ? "Pause" : "Play")
 
                     // Skip to next phase
                     Button {
@@ -178,6 +181,7 @@ struct PomodoroView: View {
                             .background(phase.color.opacity(0.12))
                             .clipShape(Circle())
                     }
+                    .accessibilityLabel("Skip to next phase")
                 }
 
                 // Ambient sounds

@@ -59,6 +59,7 @@ struct EditProfileView: View {
                         .background(Color.white.clipShape(Circle()))
                 }
             }
+            .accessibilityLabel("Change avatar")
             .sheet(isPresented: $showAvatarPicker) {
                 AvatarPickerView(
                     selectedAvatarType: $selectedAvatarType,
@@ -160,6 +161,7 @@ struct EditProfileView: View {
                             Image(systemName: "minus.circle")
                                 .foregroundColor(.hlTextSecondary)
                         }
+                        .accessibilityLabel("Decrease daily habit goal")
                         Text("\(dailyHabitGoal)")
                             .font(HLFont.headline())
                             .foregroundColor(.hlPrimary)
@@ -170,6 +172,7 @@ struct EditProfileView: View {
                             Image(systemName: "plus.circle")
                                 .foregroundColor(.hlPrimary)
                         }
+                        .accessibilityLabel("Increase daily habit goal")
                     }
                 }
             }

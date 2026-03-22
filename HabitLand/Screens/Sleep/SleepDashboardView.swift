@@ -58,6 +58,7 @@ struct SleepDashboardView: View {
                         Image(systemName: HLIcon.clock)
                             .foregroundStyle(Color.hlTextSecondary)
                     }
+                    .accessibilityLabel("Sleep history")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -66,6 +67,7 @@ struct SleepDashboardView: View {
                         Image(systemName: HLIcon.lineChart)
                             .foregroundStyle(Color.hlTextSecondary)
                     }
+                    .accessibilityLabel("Sleep analytics")
                 }
             }
             .safeAreaInset(edge: .bottom) {

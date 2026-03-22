@@ -60,6 +60,7 @@ struct FriendCard: View {
                     Image(systemName: HLIcon.flame)
                         .font(.system(size: 12))
                         .foregroundColor(.hlFlame)
+                        .accessibilityHidden(true)
 
                     Text("\(friend.currentStreak)")
                         .font(HLFont.footnote(.semibold))
@@ -86,6 +87,8 @@ struct FriendCard: View {
             }
         }
         .hlCard()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(friend.name), Level \(friend.level), \(friend.currentStreak)-day streak")
     }
 }
 

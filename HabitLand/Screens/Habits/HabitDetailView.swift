@@ -50,6 +50,7 @@ struct HabitDetailView: View {
                     Image(systemName: HLIcon.more)
                         .foregroundStyle(Color.hlTextPrimary)
                 }
+                .accessibilityLabel("More options")
             }
         }
         .sheet(isPresented: $showEditSheet) {
@@ -297,11 +298,11 @@ struct HabitDetailView: View {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         let weekday = calendar.component(.weekday, from: today)
-        let startOfWeek = calendar.date(byAdding: .day, value: -(weekday - 1), to: today)!
+        let startOfWeek = calendar.date(byAdding: .day, value: -(weekday - 1), to: today) ?? today
         let labels = ["S", "M", "T", "W", "T", "F", "S"]
 
         return (0..<7).map { offset in
-            let date = calendar.date(byAdding: .day, value: offset, to: startOfWeek)!
+            let date = calendar.date(byAdding: .day, value: offset, to: startOfWeek) ?? startOfWeek
             let completed = isDateCompleted(date)
             let isToday = calendar.isDateInToday(date)
             return (day: labels[offset], completed: completed, isToday: isToday)
@@ -342,7 +343,7 @@ struct StatBox: View {
             let h = Habit(name: "Morning Meditation", icon: "brain.head.profile", colorHex: "#9966E6", category: .mindfulness)
             h.completions = (0..<15).map { i in
                 HabitCompletion(
-                    date: Calendar.current.date(byAdding: .day, value: -i, to: Date())!,
+                    date: Calendar.current.date(byAdding: .day, value: -i, to: Date()) ?? Date(),
                     isCompleted: Bool.random()
                 )
             }

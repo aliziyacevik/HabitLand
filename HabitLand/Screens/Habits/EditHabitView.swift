@@ -83,6 +83,7 @@ struct EditHabitView: View {
                         Image(systemName: HLIcon.close)
                             .foregroundStyle(Color.hlTextPrimary)
                     }
+                    .accessibilityLabel("Close")
                 }
             }
             .alert("Delete Habit?", isPresented: $showDeleteAlert) {

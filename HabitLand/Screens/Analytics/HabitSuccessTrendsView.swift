@@ -20,7 +20,7 @@ struct HabitSuccessTrendsView: View {
     private var today: Date { calendar.startOfDay(for: Date()) }
 
     private var ninetyDaysAgo: Date {
-        calendar.date(byAdding: .day, value: -89, to: today)!
+        calendar.date(byAdding: .day, value: -89, to: today) ?? today
     }
 
     private var dateRange: String {
@@ -45,7 +45,7 @@ struct HabitSuccessTrendsView: View {
 
     private var overallTrend: [TrendPoint] {
         (0..<90).map { offset in
-            let day = calendar.date(byAdding: .day, value: offset, to: ninetyDaysAgo)!
+            let day = calendar.date(byAdding: .day, value: offset, to: ninetyDaysAgo) ?? ninetyDaysAgo
             return TrendPoint(dayOffset: offset, rate: dailyRate(for: day, habits: habits))
         }
     }
@@ -55,7 +55,7 @@ struct HabitSuccessTrendsView: View {
         let sorted = habits.sorted { $0.totalCompletions > $1.totalCompletions }
         return Array(sorted.prefix(3)).map { habit in
             let points: [TrendPoint] = (0..<90).map { offset in
-                let day = calendar.date(byAdding: .day, value: offset, to: ninetyDaysAgo)!
+                let day = calendar.date(byAdding: .day, value: offset, to: ninetyDaysAgo) ?? ninetyDaysAgo
                 let dayStart = calendar.startOfDay(for: day)
                 let wd = calendar.component(.weekday, from: day) - 1
                 guard habit.targetDays.contains(wd), habit.createdAt <= day else {

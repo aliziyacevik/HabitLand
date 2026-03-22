@@ -113,6 +113,7 @@ struct FriendProfileView: View {
             Image(systemName: icon)
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(color)
+                .accessibilityHidden(true)
             Text(value)
                 .font(HLFont.headline())
                 .foregroundColor(.hlTextPrimary)
@@ -148,7 +149,7 @@ struct FriendProfileView: View {
                         .foregroundColor(.hlTextSecondary)
                 }
             } else {
-                Text("Activity syncing...")
+                Text("No recent activity")
                     .font(HLFont.caption())
                     .foregroundColor(.hlTextTertiary)
             }

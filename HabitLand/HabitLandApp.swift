@@ -260,11 +260,17 @@ struct HabitLandApp: App {
             .frame(.stars),
         ]
 
+        let completions = [210, 156, 68, 20, 9]
+        let todayDone = [4, 3, 2, 1, 0]
+
         for (i, f) in friends.enumerated() {
             let friend = Friend(name: f.name, username: "@\(f.name.lowercased())", avatarEmoji: f.emoji, level: f.level, currentStreak: f.streak)
             if i < avatarTypes.count {
                 friend.avatarType = avatarTypes[i]
             }
+            friend.totalCompletions = completions[i]
+            friend.habitsCompletedToday = todayDone[i]
+            friend.lastActive = i < 3 ? Date() : calendar.date(byAdding: .day, value: -(i - 1), to: today)
             context.insert(friend)
         }
 

@@ -41,7 +41,7 @@ struct PendingRequestsView: View {
     private func requestCard(_ request: FriendRequest) -> some View {
         HStack(spacing: HLSpacing.sm) {
             Text(request.fromEmoji)
-                .font(.system(size: 32))
+                .font(HLFont.largeTitle())
                 .frame(width: 48, height: 48)
                 .background(Color.hlPrimaryLight)
                 .cornerRadius(HLRadius.full)

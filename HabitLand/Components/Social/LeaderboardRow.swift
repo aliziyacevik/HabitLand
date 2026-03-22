@@ -73,6 +73,7 @@ struct LeaderboardRow: View {
                 Image(systemName: HLIcon.flame)
                     .font(.system(size: 11))
                     .foregroundColor(.hlFlame)
+                    .accessibilityHidden(true)
 
                 Text("\(entry.streak)")
                     .font(HLFont.caption(.medium))

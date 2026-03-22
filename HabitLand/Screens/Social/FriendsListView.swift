@@ -128,12 +128,13 @@ struct FriendsListView: View {
                         Image(systemName: HLIcon.flame)
                             .font(.system(size: 12))
                             .foregroundColor(.hlFlame)
+                            .accessibilityHidden(true)
                         Text("\(friend.currentStreak)d")
                             .font(HLFont.caption(.medium))
                             .foregroundColor(.hlTextSecondary)
                     }
 
-                    Text(friend.addedAt, style: .relative)
+                    Text(friendActivityText(friend))
                         .font(HLFont.caption())
                         .foregroundColor(.hlTextTertiary)
                 }
@@ -146,6 +147,20 @@ struct FriendsListView: View {
                 .foregroundColor(.hlTextTertiary)
         }
         .hlCard()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(friend.name), Level \(friend.level), \(friendActivityText(friend))")
+    }
+
+    // MARK: - Friend Activity Text
+
+    private func friendActivityText(_ friend: Friend) -> String {
+        if let lastActive = friend.lastActive, Calendar.current.isDateInToday(lastActive) {
+            return "Active today"
+        } else if friend.currentStreak > 0 {
+            return "\(friend.currentStreak)-day streak"
+        } else {
+            return "@\(friend.username)"
+        }
     }
 
     // MARK: - Level Badge
@@ -165,7 +180,7 @@ struct FriendsListView: View {
     private var emptyState: some View {
         VStack(spacing: HLSpacing.lg) {
             Text("\u{1F44B}")
-                .font(.system(size: 64))
+                .font(HLFont.largeTitle(.bold))
 
             Text("No Friends Yet")
                 .font(HLFont.title2())

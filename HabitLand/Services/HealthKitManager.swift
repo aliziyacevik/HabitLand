@@ -132,7 +132,7 @@ final class HealthKitManager: ObservableObject {
     func todayValue(for metric: HealthKitMetric) async -> Double {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: Date())
-        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { return 0 }
 
         if metric == .sleepHours {
             return await querySleepHours(start: startOfDay, end: endOfDay)

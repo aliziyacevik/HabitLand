@@ -147,25 +147,30 @@ struct LeaderboardView: View {
     }
 
     private func podiumPlace(entry: LeaderboardEntry, rank: Int, color: Color, height: CGFloat, crownIcon: String?) -> some View {
-        VStack(spacing: HLSpacing.xs) {
+        let isFirst = rank == 1
+        let avatarSize: CGFloat = isFirst ? 72 : 52
+
+        return VStack(spacing: HLSpacing.xs) {
             if let crown = crownIcon {
                 Image(systemName: crown)
-                    .font(.system(size: 20))
+                    .font(.system(size: isFirst ? 28 : 20, weight: .semibold))
                     .foregroundColor(.hlGold)
+                    .accessibilityHidden(true)
             }
 
-            AvatarView(name: entry.name, size: 56, avatarType: entry.avatarType)
+            AvatarView(name: entry.name, size: avatarSize, avatarType: entry.avatarType)
                 .overlay(
-                    Circle().stroke(color, lineWidth: 3)
+                    Circle().stroke(color, lineWidth: isFirst ? 4 : 3)
                 )
+                .shadow(color: isFirst ? color.opacity(0.4) : .clear, radius: 8)
 
             Text(entry.isCurrentUser ? "You" : entry.name)
-                .font(HLFont.caption(.semibold))
+                .font(isFirst ? HLFont.subheadline(.bold) : HLFont.caption(.semibold))
                 .foregroundColor(.hlTextPrimary)
                 .lineLimit(1)
 
             Text("\(entry.xp) XP")
-                .font(HLFont.caption2(.medium))
+                .font(isFirst ? HLFont.caption(.semibold) : HLFont.caption2(.medium))
                 .foregroundColor(.hlTextSecondary)
 
             RoundedRectangle(cornerRadius: HLRadius.sm)
@@ -178,6 +183,9 @@ struct LeaderboardView: View {
                 )
         }
         .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
+        .accessibilityLabel("\(entry.name), rank \(rank), \(entry.xp) XP")
+        .accessibilityAddTraits(.isButton)
     }
 
     // MARK: - Rankings List

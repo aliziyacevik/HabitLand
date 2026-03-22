@@ -26,7 +26,7 @@ struct GoalSetupView: View {
                     VStack(spacing: HLSpacing.lg) {
                         VStack(spacing: HLSpacing.xxs) {
                             Text("\(Int(dailyHabitGoal))")
-                                .font(.system(size: 64, weight: .bold, design: .rounded))
+                                .font(HLFont.display(.bold))
                                 .foregroundColor(.hlPrimary)
 
                             Text("daily habits")
@@ -60,7 +60,7 @@ struct GoalSetupView: View {
                         VStack(spacing: HLSpacing.xxs) {
                             HStack(alignment: .firstTextBaseline, spacing: HLSpacing.xxs) {
                                 Text(sleepGoalFormatted.hours)
-                                    .font(.system(size: 64, weight: .bold, design: .rounded))
+                                    .font(HLFont.display(.bold))
                                     .foregroundColor(.hlSleep)
 
                                 Text("h")
@@ -69,7 +69,7 @@ struct GoalSetupView: View {
 
                                 if !sleepGoalFormatted.minutes.isEmpty {
                                     Text(sleepGoalFormatted.minutes)
-                                        .font(.system(size: 64, weight: .bold, design: .rounded))
+                                        .font(HLFont.display(.bold))
                                         .foregroundColor(.hlSleep)
 
                                     Text("m")

@@ -41,6 +41,7 @@ struct StreakCard: View {
                     )
                 )
                 .scaleEffect(flameScale)
+                .accessibilityHidden(true)
                 .onAppear {
                     withAnimation(
                         .easeInOut(duration: 1.2)
@@ -66,6 +67,7 @@ struct StreakCard: View {
                 Image(systemName: HLIcon.trophy)
                     .font(.system(size: 12))
                     .foregroundColor(useGradient ? .white.opacity(0.7) : .hlGold)
+                    .accessibilityHidden(true)
 
                 Text("Best: \(bestStreak) days")
                     .font(HLFont.caption(.medium))

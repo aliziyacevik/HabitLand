@@ -215,7 +215,7 @@ struct AchievementManager {
                     let today = calendar.startOfDay(for: Date())
                     var perfectDays = 0
                     for offset in 0..<7 {
-                        let day = calendar.date(byAdding: .day, value: -offset, to: today)!
+                        let day = calendar.date(byAdding: .day, value: -offset, to: today) ?? today
                         let dayStart = calendar.startOfDay(for: day)
                         let activeHabits = habits.filter { !$0.isArchived && $0.targetDays.contains(calendar.component(.weekday, from: day) - 1) && $0.createdAt <= day }
                         guard !activeHabits.isEmpty else { continue }
@@ -327,12 +327,12 @@ struct AchievementManager {
         var perfectWeekends = 0
 
         for weekOffset in 0..<8 {
-            let weekEnd = calendar.date(byAdding: .day, value: -(weekOffset * 7), to: today)!
+            let weekEnd = calendar.date(byAdding: .day, value: -(weekOffset * 7), to: today) ?? today
             // Find Saturday and Sunday of that week
             let weekday = calendar.component(.weekday, from: weekEnd)
             let daysToSaturday = (weekday - 7 + 7) % 7
-            let saturday = calendar.date(byAdding: .day, value: -daysToSaturday, to: weekEnd)!
-            let sunday = calendar.date(byAdding: .day, value: 1, to: saturday)!
+            let saturday = calendar.date(byAdding: .day, value: -daysToSaturday, to: weekEnd) ?? weekEnd
+            let sunday = calendar.date(byAdding: .day, value: 1, to: saturday) ?? saturday
 
             var bothPerfect = true
             for day in [saturday, sunday] {
@@ -359,7 +359,7 @@ struct AchievementManager {
         var current = 0
 
         for offset in 0..<60 {
-            let day = calendar.date(byAdding: .day, value: -offset, to: today)!
+            let day = calendar.date(byAdding: .day, value: -offset, to: today) ?? today
             if qualifyingDays.contains(day) {
                 current += 1
                 maxConsecutive = max(maxConsecutive, current)
@@ -373,11 +373,11 @@ struct AchievementManager {
     private static func hasPerfectWeek(habits: [Habit], calendar: Calendar) -> Bool {
         let today = calendar.startOfDay(for: Date())
         for startOffset in 0..<16 {
-            let weekStart = calendar.date(byAdding: .day, value: -(startOffset + 6), to: today)!
+            let weekStart = calendar.date(byAdding: .day, value: -(startOffset + 6), to: today) ?? today
             var allPerfect = true
             var hasData = false
             for dayOffset in 0..<7 {
-                let day = calendar.date(byAdding: .day, value: dayOffset, to: weekStart)!
+                let day = calendar.date(byAdding: .day, value: dayOffset, to: weekStart) ?? weekStart
                 let dayStart = calendar.startOfDay(for: day)
                 let activeHabits = habits.filter { !$0.isArchived && $0.targetDays.contains(calendar.component(.weekday, from: day) - 1) && $0.createdAt <= day }
                 guard !activeHabits.isEmpty else { continue }

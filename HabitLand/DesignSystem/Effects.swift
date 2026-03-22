@@ -666,7 +666,7 @@ struct CelebrationOverlay: View {
             ConfettiPiece(
                 x: CGFloat.random(in: 0...screenWidth),
                 y: CGFloat.random(in: -50...0),
-                color: colors.randomElement()!,
+                color: colors.randomElement() ?? .hlPrimary,
                 size: CGFloat.random(in: 5...10),
                 rotation: Double.random(in: 0...360),
                 shape: Int.random(in: 0...2)
@@ -874,7 +874,7 @@ struct AchievementCelebrationOverlay: View {
             CelebrationOverlay.ConfettiPiece(
                 x: CGFloat.random(in: 0...screenWidth),
                 y: CGFloat.random(in: -50...0),
-                color: colors.randomElement()!,
+                color: colors.randomElement() ?? .hlPrimary,
                 size: CGFloat.random(in: 5...12),
                 rotation: Double.random(in: 0...360),
                 shape: Int.random(in: 0...2)
@@ -1008,21 +1008,21 @@ struct LevelUpCelebrationOverlay: View {
                         // Level number with transition
                         VStack(spacing: 2) {
                             Text("LEVEL")
-                                .font(.system(size: 10, weight: .heavy, design: .rounded))
+                                .font(HLFont.caption2(.heavy))
                                 .foregroundStyle(Color.hlGold)
                                 .tracking(2)
 
                             ZStack {
                                 // Old level (fades out + scales down)
                                 Text("\(data.oldLevel)")
-                                    .font(.system(size: 44, weight: .heavy, design: .rounded))
+                                    .font(HLFont.largeTitle(.heavy))
                                     .foregroundStyle(Color.hlTextTertiary)
                                     .opacity(showOldLevel ? 1 : 0)
                                     .scaleEffect(showOldLevel ? 1 : 0.3)
 
                                 // New level (fades in + bounces up)
                                 Text("\(data.newLevel)")
-                                    .font(.system(size: 44, weight: .heavy, design: .rounded))
+                                    .font(HLFont.largeTitle(.heavy))
                                     .foregroundStyle(Color.hlTextPrimary)
                                     .scaleEffect(numberScale)
                                     .opacity(showOldLevel ? 0 : 1)
@@ -1033,7 +1033,7 @@ struct LevelUpCelebrationOverlay: View {
                     // Title & info
                     VStack(spacing: HLSpacing.sm) {
                         Text("LEVEL UP!")
-                            .font(.system(size: 13, weight: .black, design: .rounded))
+                            .font(HLFont.footnote(.black))
                             .foregroundStyle(Color.hlGold)
                             .tracking(3)
 
@@ -1190,7 +1190,7 @@ struct LevelUpCelebrationOverlay: View {
             CelebrationOverlay.ConfettiPiece(
                 x: CGFloat.random(in: 0...screenWidth),
                 y: CGFloat.random(in: -50...0),
-                color: colors.randomElement()!,
+                color: colors.randomElement() ?? .hlPrimary,
                 size: CGFloat.random(in: 5...12),
                 rotation: Double.random(in: 0...360),
                 shape: Int.random(in: 0...2)

@@ -43,7 +43,7 @@ extension Color {
     static let hlTextTertiary = Color(UIColor { traits in
         traits.userInterfaceStyle == .dark
             ? UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)   // #6E6E73
-            : UIColor(red: 0.65, green: 0.65, blue: 0.68, alpha: 1)   // #A6A6AE
+            : UIColor(red: 0.45, green: 0.45, blue: 0.50, alpha: 1)   // #737380
     })
     static let hlDivider = Color(UIColor { traits in
         traits.userInterfaceStyle == .dark
@@ -81,37 +81,42 @@ extension Color {
 
 struct HLFont {
     static func largeTitle(_ weight: Font.Weight = .bold) -> Font {
-        .system(size: 34, weight: weight, design: .rounded)
+        .system(.largeTitle, design: .rounded, weight: weight)
     }
     static func title1(_ weight: Font.Weight = .bold) -> Font {
-        .system(size: 28, weight: weight, design: .rounded)
+        .system(.title, design: .rounded, weight: weight)
     }
     static func title2(_ weight: Font.Weight = .semibold) -> Font {
-        .system(size: 22, weight: weight, design: .rounded)
+        .system(.title2, design: .rounded, weight: weight)
     }
     static func title3(_ weight: Font.Weight = .semibold) -> Font {
-        .system(size: 20, weight: weight, design: .rounded)
+        .system(.title3, design: .rounded, weight: weight)
     }
     static func headline(_ weight: Font.Weight = .semibold) -> Font {
-        .system(size: 17, weight: weight, design: .rounded)
+        .system(.headline, design: .rounded, weight: weight)
     }
     static func body(_ weight: Font.Weight = .regular) -> Font {
-        .system(size: 17, weight: weight, design: .rounded)
+        .system(.body, design: .rounded, weight: weight)
     }
     static func callout(_ weight: Font.Weight = .regular) -> Font {
-        .system(size: 16, weight: weight, design: .rounded)
+        .system(.callout, design: .rounded, weight: weight)
     }
     static func subheadline(_ weight: Font.Weight = .regular) -> Font {
-        .system(size: 15, weight: weight, design: .rounded)
+        .system(.subheadline, design: .rounded, weight: weight)
     }
     static func footnote(_ weight: Font.Weight = .regular) -> Font {
-        .system(size: 13, weight: weight, design: .rounded)
+        .system(.footnote, design: .rounded, weight: weight)
     }
     static func caption(_ weight: Font.Weight = .regular) -> Font {
-        .system(size: 12, weight: weight, design: .rounded)
+        .system(.caption, design: .rounded, weight: weight)
     }
     static func caption2(_ weight: Font.Weight = .regular) -> Font {
-        .system(size: 11, weight: weight, design: .rounded)
+        .system(.caption2, design: .rounded, weight: weight)
+    }
+
+    /// Display size for large decorative numbers (40pt+). Uses largeTitle as base for Dynamic Type.
+    static func display(_ weight: Font.Weight = .bold) -> Font {
+        .system(.largeTitle, design: .rounded, weight: weight)
     }
 }
 

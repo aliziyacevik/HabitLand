@@ -68,13 +68,20 @@ struct AchievementCard: View {
                 Image(systemName: HLIcon.checkmark)
                     .font(.system(size: 14, weight: .bold))
                     .foregroundColor(.hlPrimary)
+                    .accessibilityHidden(true)
                     .padding(HLSpacing.xxs)
                     .background(Color.hlPrimaryLight)
                     .clipShape(Circle())
             }
         }
         .hlCard()
-        .opacity(isUnlocked ? 1.0 : 0.75)
+        .overlay(
+            RoundedRectangle(cornerRadius: HLRadius.lg)
+                .stroke(isUnlocked ? Color.hlPrimary.opacity(0.3) : Color.clear, lineWidth: 2)
+        )
+        .opacity(isUnlocked ? 1.0 : 0.6)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(name), \(isUnlocked ? "unlocked" : "locked")\(isUnlocked ? ", \(descriptionText)" : "")")
     }
 
     // MARK: - Subviews

@@ -50,6 +50,7 @@ struct StreakFlame: View {
             Image(systemName: HLIcon.flame)
                 .font(.system(size: size.iconSize, weight: .semibold))
                 .foregroundStyle(isActive ? Color.hlFlame : Color.hlTextTertiary)
+                .accessibilityHidden(true)
                 .shadow(
                     color: isActive ? Color.hlFlame.opacity(isPulsing ? 0.6 : 0.2) : .clear,
                     radius: size.glowRadius

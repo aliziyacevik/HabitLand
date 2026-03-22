@@ -164,7 +164,7 @@ final class NotificationManager: ObservableObject {
             ("Fresh Start!", "Yesterday is done. Today you can be even better."),
         ]
 
-        let pick = messages.randomElement()!
+        guard let pick = messages.randomElement() else { return }
         let content = UNMutableNotificationContent()
         content.title = pick.0
         content.body = pick.1

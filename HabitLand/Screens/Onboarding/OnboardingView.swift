@@ -269,7 +269,7 @@ struct OnboardingView: View {
                     .frame(width: 96, height: 96)
 
                 Text(selectedAvatar)
-                    .font(.system(size: 48))
+                    .font(HLFont.largeTitle(.bold))
             }
 
             Text(page.title)
@@ -290,7 +290,7 @@ struct OnboardingView: View {
                             HLHaptics.selection()
                         } label: {
                             Text(emoji)
-                                .font(.system(size: 28))
+                                .font(HLFont.title1())
                                 .frame(width: 48, height: 48)
                                 .background(
                                     selectedAvatar == emoji
@@ -391,7 +391,7 @@ private struct AnimatedOnboardingPage: View {
 
                 if let emoji = page.emoji {
                     Text(emoji)
-                        .font(.system(size: 72))
+                        .font(HLFont.largeTitle(.bold))
                         .scaleEffect(showIcon ? 1.0 : 0.3)
                         .opacity(showIcon ? 1 : 0)
                 } else {

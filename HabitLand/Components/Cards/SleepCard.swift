@@ -64,7 +64,7 @@ struct SleepCard: View {
 
                 VStack(spacing: HLSpacing.xxs) {
                     Text(qualityEmoji)
-                        .font(.system(size: 28))
+                        .font(HLFont.title1())
 
                     Text(qualityLabel)
                         .font(HLFont.caption(.medium))
@@ -90,6 +90,7 @@ struct SleepCard: View {
             }
         }
         .hlCard()
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Subviews
