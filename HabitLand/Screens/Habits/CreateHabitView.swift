@@ -444,16 +444,15 @@ struct CreateHabitView: View {
                         let toAdd = Array(templates.prefix(available))
                         guard !toAdd.isEmpty else { return }
 
-                        // Apply first to current form, create rest directly
-                        if let first = toAdd.first {
-                            applyTemplate(first)
-                        }
-                        for template in toAdd.dropFirst() {
-                            let habit = template.toHabit()
+                        for (index, template) in toAdd.enumerated() {
+                            let habit = template.toHabit(sortOrder: index)
                             modelContext.insert(habit)
                         }
                         try? modelContext.save()
+                        AchievementManager.checkAll(context: modelContext)
+                        // Close both browser and create view
                         showTemplateBrowser = false
+                        dismiss()
                     }
                 )
                 .navigationTitle("Choose a Template")

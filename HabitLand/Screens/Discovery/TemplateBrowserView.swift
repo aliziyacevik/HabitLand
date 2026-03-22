@@ -4,7 +4,7 @@ import SwiftUI
 
 struct TemplateBrowserView: View {
     let onSelect: (HabitTemplate) -> Void
-    var onPackSelect: (([HabitTemplate]) -> Void)?
+    var onPackSelect: ((_ templates: [HabitTemplate]) -> Void)?
 
     @State private var searchText = ""
     @State private var selectedCategory: HabitCategory?
@@ -191,21 +191,22 @@ struct TemplateBrowserView: View {
                         .padding(.vertical, HLSpacing.sm)
                     } else {
                         Button {
-                            if let onPackSelect {
-                                onPackSelect(pack.templates)
-                            }
+                            onPackSelect?(pack.templates)
                             withAnimation(HLAnimation.celebration) {
                                 addedPack = pack.id
                             }
                             HLHaptics.success()
                         } label: {
-                            Text("Use This Pack")
-                                .font(HLFont.callout(.semibold))
-                                .foregroundStyle(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, HLSpacing.sm)
-                                .background(pack.color)
-                                .cornerRadius(HLRadius.md)
+                            HStack(spacing: HLSpacing.xs) {
+                                Image(systemName: "plus.rectangle.on.rectangle")
+                                Text("Use This Pack (\(pack.templates.count) habits)")
+                            }
+                            .font(HLFont.callout(.semibold))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, HLSpacing.sm)
+                            .background(pack.color)
+                            .cornerRadius(HLRadius.md)
                         }
                     }
                 }

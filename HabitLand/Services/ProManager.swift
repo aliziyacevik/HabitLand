@@ -224,7 +224,7 @@ final class ProManager: ObservableObject {
 
     // MARK: - Free Tier Limits
 
-    static let freeHabitLimit = 3
+    static let freeHabitLimit = 5
     static let freeAchievementLimit = 5
 
     func canCreateHabit(currentCount: Int) -> Bool {
