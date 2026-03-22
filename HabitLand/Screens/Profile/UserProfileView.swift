@@ -33,8 +33,10 @@ struct UserProfileView: View {
                         .hlStaggeredAppear(index: 0)
                     statsRow
                         .hlStaggeredAppear(index: 1)
-                    achievementsSection
+                    streakFreezeCard
                         .hlStaggeredAppear(index: 2)
+                    achievementsSection
+                        .hlStaggeredAppear(index: 3)
                     quickLinksSection
                         .hlStaggeredAppear(index: 3)
                 }
@@ -174,6 +176,67 @@ struct UserProfileView: View {
                 .lineLimit(1)
         }
         .frame(width: 72)
+    }
+
+    // MARK: - Streak Freeze Card
+
+    @State private var showFreezePurchaseSuccess = false
+
+    private var streakFreezeCard: some View {
+        HStack(spacing: HLSpacing.sm) {
+            Image(systemName: "shield.fill")
+                .font(.system(size: 24, weight: .semibold))
+                .foregroundStyle(Color.hlInfo)
+                .frame(width: 40)
+
+            VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
+                Text("Streak Shields")
+                    .font(HLFont.headline())
+                    .foregroundStyle(Color.hlTextPrimary)
+                Text("\(profile?.streakFreezeCount ?? 0) shields — protects your streak if you miss a day")
+                    .font(HLFont.caption())
+                    .foregroundStyle(Color.hlTextSecondary)
+            }
+
+            Spacer()
+
+            Button {
+                if let profile = profile {
+                    if StreakFreezeManager.shared.purchaseFreeze(profile: profile) {
+                        showFreezePurchaseSuccess = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            showFreezePurchaseSuccess = false
+                        }
+                    }
+                }
+            } label: {
+                if showFreezePurchaseSuccess {
+                    Image(systemName: "checkmark")
+                        .font(HLFont.caption(.bold))
+                        .foregroundStyle(Color.hlSuccess)
+                } else {
+                    HStack(spacing: HLSpacing.xxxs) {
+                        Image(systemName: "star.fill")
+                            .font(.system(size: 10))
+                        Text("\(StreakFreezeManager.freezeCostXP)")
+                    }
+                    .font(HLFont.caption(.bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, HLSpacing.sm)
+                    .padding(.vertical, HLSpacing.xxs)
+                    .background(
+                        (profile?.xp ?? 0) >= StreakFreezeManager.freezeCostXP
+                            ? Color.hlPrimary
+                            : Color.hlTextTertiary
+                    )
+                    .cornerRadius(HLRadius.full)
+                }
+            }
+            .disabled((profile?.xp ?? 0) < StreakFreezeManager.freezeCostXP || (profile?.streakFreezeCount ?? 0) >= StreakFreezeManager.maxFreezeStock)
+        }
+        .hlCard()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Streak Shields, \(profile?.streakFreezeCount ?? 0) available. Costs \(StreakFreezeManager.freezeCostXP) XP to buy.")
     }
 
     private var quickLinksSection: some View {

@@ -236,6 +236,10 @@ final class UserProfile {
     var dailyBonusStreak: Int = 0
     var lastDailyBonusDate: Date?
 
+    // MARK: - Streak Freeze
+    var streakFreezeCount: Int = 0
+    var streakFreezeUsedDates: [Date] = []
+
     // MARK: - Referral System
     var referralCode: String?
     var referredByCode: String?
