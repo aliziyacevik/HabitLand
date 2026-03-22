@@ -187,8 +187,10 @@ struct HomeDashboardView: View {
                                 .hlStaggeredAppear(index: 5)
                             quickInsightsCard
                                 .hlStaggeredAppear(index: 5)
-                            weeklyOverviewCard
+                            focusTimerCard
                                 .hlStaggeredAppear(index: 6)
+                            weeklyOverviewCard
+                                .hlStaggeredAppear(index: 7)
 
                             dailyWisdomCard
                                 .hlStaggeredAppear(index: 7)
@@ -1105,8 +1107,61 @@ struct HomeDashboardView: View {
                 weekStat(title: "Total", value: "\(weeklyTotal)")
             }
             .frame(maxWidth: .infinity)
+
+            if proManager.canAccessAnalytics {
+                NavigationLink(destination: PersonalStatisticsView()) {
+                    HStack {
+                        Text("See Full Stats")
+                            .font(HLFont.caption(.semibold))
+                            .foregroundStyle(Color.hlPrimary)
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(Color.hlPrimary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+            }
         }
         .hlCard()
+    }
+
+    // MARK: - Focus Timer Card
+
+    private var focusTimerCard: some View {
+        Button {
+            showPomodoro = true
+        } label: {
+            HStack(spacing: HLSpacing.sm) {
+                ZStack {
+                    Circle()
+                        .fill(Color.hlFlame.opacity(0.12))
+                        .frame(width: 44, height: 44)
+                    Image(systemName: "timer")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(Color.hlFlame)
+                }
+
+                VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
+                    Text("Focus Timer")
+                        .font(HLFont.headline())
+                        .foregroundStyle(Color.hlTextPrimary)
+                    Text(proManager.canAccessFullPomodoro
+                         ? "25-min Pomodoro with ambient sounds"
+                         : "5-min focus session (Pro: 25 min)")
+                        .font(HLFont.caption())
+                        .foregroundStyle(Color.hlTextSecondary)
+                }
+
+                Spacer()
+
+                Image(systemName: "play.circle.fill")
+                    .font(.system(size: 28))
+                    .foregroundStyle(Color.hlFlame)
+            }
+            .hlCard()
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Start Focus Timer")
     }
 
     // MARK: - Perfect Day Calculator

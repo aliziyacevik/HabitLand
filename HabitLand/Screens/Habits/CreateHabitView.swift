@@ -346,6 +346,13 @@ struct CreateHabitView: View {
                 ForEach(HealthKitMetric.allCases) { metric in
                     Button {
                         selectedHealthMetric = metric
+                        // Auto-fill all fields from metric
+                        if name.isEmpty || HealthKitMetric.allCases.contains(where: { $0.suggestedName == name }) {
+                            name = metric.suggestedName
+                        }
+                        selectedIcon = metric.icon
+                        selectedColorHex = metric.suggestedColorHex
+                        selectedCategory = HabitCategory(rawValue: metric.suggestedCategory) ?? .health
                         goalCount = metric.defaultGoal
                         unit = metric.unit
                         HLHaptics.selection()

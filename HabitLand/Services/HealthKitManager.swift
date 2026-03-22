@@ -56,6 +56,39 @@ enum HealthKitMetric: String, Codable, CaseIterable, Identifiable {
         }
     }
 
+    var suggestedName: String {
+        switch self {
+        case .steps: return "10,000 Steps"
+        case .water: return "Drink 2L Water"
+        case .exerciseMinutes: return "30 Min Exercise"
+        case .activeCalories: return "Burn 500 Calories"
+        case .walkingDistance: return "Walk 5km"
+        case .standHours: return "Stand 12 Hours"
+        case .mindfulMinutes: return "10 Min Meditation"
+        case .sleepHours: return "Sleep 8 Hours"
+        }
+    }
+
+    var suggestedColorHex: String {
+        switch self {
+        case .steps, .exerciseMinutes, .activeCalories, .walkingDistance: return "#F24D4D" // fitness red
+        case .water: return "#338FFF" // blue
+        case .standHours: return "#34C759" // green
+        case .mindfulMinutes: return "#9966E6" // mindfulness purple
+        case .sleepHours: return "#6658B2" // sleep purple
+        }
+    }
+
+    var suggestedCategory: String {
+        switch self {
+        case .steps, .exerciseMinutes, .activeCalories, .walkingDistance: return "fitness"
+        case .water: return "health"
+        case .standHours: return "health"
+        case .mindfulMinutes: return "mindfulness"
+        case .sleepHours: return "sleep"
+        }
+    }
+
     var sampleType: HKQuantityType? {
         switch self {
         case .steps: return HKQuantityType(.stepCount)
