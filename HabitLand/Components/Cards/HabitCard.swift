@@ -154,12 +154,12 @@ struct HabitCard: View {
             ZStack {
                 Circle()
                     .stroke(color.opacity(0.15), lineWidth: 3)
-                    .frame(width: 36, height: 36)
+                    .frame(width: checkmarkSize, height: checkmarkSize)
 
                 Circle()
                     .trim(from: 0, to: progress)
                     .stroke(color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
-                    .frame(width: 36, height: 36)
+                    .frame(width: checkmarkSize, height: checkmarkSize)
                     .rotationEffect(.degrees(-90))
 
                 Image(systemName: "play.fill")
@@ -181,12 +181,12 @@ struct HabitCard: View {
             ZStack {
                 Circle()
                     .stroke(color.opacity(0.15), lineWidth: 3)
-                    .frame(width: 36, height: 36)
+                    .frame(width: checkmarkSize, height: checkmarkSize)
 
                 Circle()
                     .trim(from: 0, to: progress)
                     .stroke(color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
-                    .frame(width: 36, height: 36)
+                    .frame(width: checkmarkSize, height: checkmarkSize)
                     .rotationEffect(.degrees(-90))
 
                 Text("+1")
@@ -218,7 +218,7 @@ struct HabitCard: View {
                 if justCompleted {
                     Circle()
                         .fill(color.opacity(0.2))
-                        .frame(width: 36, height: 36)
+                        .frame(width: checkmarkSize, height: checkmarkSize)
                         .scaleEffect(justCompleted ? 2.2 : 1.0)
                         .opacity(justCompleted ? 0 : 0.4)
                         .animation(.easeOut(duration: 0.5), value: justCompleted)
@@ -227,12 +227,12 @@ struct HabitCard: View {
                 // Progress ring
                 Circle()
                     .stroke(color.opacity(0.15), lineWidth: 3)
-                    .frame(width: 36, height: 36)
+                    .frame(width: checkmarkSize, height: checkmarkSize)
 
                 Circle()
                     .trim(from: 0, to: progress)
                     .stroke(color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
-                    .frame(width: 36, height: 36)
+                    .frame(width: checkmarkSize, height: checkmarkSize)
                     .rotationEffect(.degrees(-90))
 
                 // Checkmark or empty
