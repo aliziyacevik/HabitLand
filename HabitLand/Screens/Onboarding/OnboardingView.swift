@@ -289,59 +289,7 @@ struct OnboardingView: View {
     @ViewBuilder
     private func sleepPreviewPage(_ page: OnboardingPage) -> some View {
         OnboardingPreviewPage(page: page, pageIndex: 2, currentPage: currentPage) {
-            VStack(spacing: HLSpacing.sm) {
-                // Mini sleep card
-                VStack(spacing: HLSpacing.sm) {
-                    HStack {
-                        Text("Last Night")
-                            .font(HLFont.headline())
-                            .foregroundStyle(Color.hlTextPrimary)
-                        Spacer()
-                        Text("😊")
-                            .font(HLFont.title3())
-                    }
-
-                    Text("7h 42m")
-                        .font(HLFont.title1())
-                        .foregroundStyle(Color.hlSleep)
-
-                    HStack(spacing: HLSpacing.lg) {
-                        HStack(spacing: HLSpacing.xxs) {
-                            Image(systemName: "bed.double.fill")
-                                .font(.system(size: 12))
-                                .foregroundStyle(Color.hlTextTertiary)
-                            Text("23:04")
-                                .font(HLFont.caption())
-                                .foregroundStyle(Color.hlTextSecondary)
-                        }
-                        HStack(spacing: HLSpacing.xxs) {
-                            Image(systemName: "sun.horizon.fill")
-                                .font(.system(size: 12))
-                                .foregroundStyle(Color.hlTextTertiary)
-                            Text("06:46")
-                                .font(HLFont.caption())
-                                .foregroundStyle(Color.hlTextSecondary)
-                        }
-                    }
-                }
-                .padding(HLSpacing.md)
-                .background(Color.hlSurface)
-                .cornerRadius(HLRadius.lg)
-
-                // Mini correlation insight
-                HStack(spacing: HLSpacing.sm) {
-                    Image(systemName: "link")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color.hlSleep)
-                    Text("You complete 40% more habits on days you sleep 7+ hours")
-                        .font(HLFont.caption())
-                        .foregroundStyle(Color.hlTextSecondary)
-                }
-                .padding(HLSpacing.md)
-                .background(Color.hlSleep.opacity(0.08))
-                .cornerRadius(HLRadius.lg)
-            }
-            .padding(.horizontal, HLSpacing.md)
+            SleepPreviewContent(isActive: currentPage == 2)
         }
     }
 
@@ -1055,6 +1003,165 @@ private struct StreakPreviewContent: View {
             withAnimation(HLAnimation.spring) {
                 questCompleted = true
                 showLevelUp = false
+            }
+        }
+    }
+}
+
+// MARK: - Sleep Preview Content (with animated duration + correlation count-up)
+
+private struct SleepPreviewContent: View {
+    let isActive: Bool
+    @State private var sleepHours = 0
+    @State private var sleepMinutes = 0
+    @State private var showMood = false
+    @State private var showTimes = false
+    @State private var showInsight = false
+    @State private var correlationPercent = 0
+    @State private var timer: Timer?
+
+    var body: some View {
+        VStack(spacing: HLSpacing.sm) {
+            // Mini sleep card
+            VStack(spacing: HLSpacing.sm) {
+                HStack {
+                    Text("Last Night")
+                        .font(HLFont.headline())
+                        .foregroundStyle(Color.hlTextPrimary)
+                    Spacer()
+                    if showMood {
+                        Text("😊")
+                            .font(HLFont.title3())
+                            .transition(.scale.combined(with: .opacity))
+                    }
+                }
+
+                // Animated duration
+                HStack(alignment: .firstTextBaseline, spacing: 0) {
+                    Text("\(sleepHours)")
+                        .font(HLFont.title1())
+                        .foregroundStyle(Color.hlSleep)
+                        .contentTransition(.numericText(value: Double(sleepHours)))
+                        .animation(.snappy, value: sleepHours)
+                    Text("h ")
+                        .font(HLFont.body())
+                        .foregroundStyle(Color.hlSleep.opacity(0.7))
+                    Text("\(sleepMinutes)")
+                        .font(HLFont.title1())
+                        .foregroundStyle(Color.hlSleep)
+                        .contentTransition(.numericText(value: Double(sleepMinutes)))
+                        .animation(.snappy, value: sleepMinutes)
+                    Text("m")
+                        .font(HLFont.body())
+                        .foregroundStyle(Color.hlSleep.opacity(0.7))
+                }
+
+                if showTimes {
+                    HStack(spacing: HLSpacing.lg) {
+                        HStack(spacing: HLSpacing.xxs) {
+                            Image(systemName: "bed.double.fill")
+                                .font(.system(size: 12))
+                                .foregroundStyle(Color.hlTextTertiary)
+                            Text("23:04")
+                                .font(HLFont.caption())
+                                .foregroundStyle(Color.hlTextSecondary)
+                        }
+                        HStack(spacing: HLSpacing.xxs) {
+                            Image(systemName: "sun.horizon.fill")
+                                .font(.system(size: 12))
+                                .foregroundStyle(Color.hlTextTertiary)
+                            Text("06:46")
+                                .font(HLFont.caption())
+                                .foregroundStyle(Color.hlTextSecondary)
+                        }
+                    }
+                    .transition(.opacity)
+                }
+            }
+            .padding(HLSpacing.md)
+            .background(Color.hlSurface)
+            .cornerRadius(HLRadius.lg)
+
+            // Correlation insight with animated percentage
+            if showInsight {
+                HStack(spacing: HLSpacing.sm) {
+                    Image(systemName: "link")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Color.hlSleep)
+                    Text("You complete ")
+                        .font(HLFont.caption())
+                        .foregroundStyle(Color.hlTextSecondary) +
+                    Text("\(correlationPercent)%")
+                        .font(HLFont.caption(.bold))
+                        .foregroundStyle(Color.hlSleep) +
+                    Text(" more habits on days you sleep 7+ hours")
+                        .font(HLFont.caption())
+                        .foregroundStyle(Color.hlTextSecondary)
+                }
+                .padding(HLSpacing.md)
+                .background(Color.hlSleep.opacity(0.08))
+                .cornerRadius(HLRadius.lg)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .padding(.horizontal, HLSpacing.md)
+        .onAppear { if isActive { runSequence() } }
+        .onDisappear { timer?.invalidate(); timer = nil }
+        .onChange(of: isActive) { _, active in
+            if active { resetAndRun() } else { timer?.invalidate(); timer = nil }
+        }
+    }
+
+    private func resetAndRun() {
+        timer?.invalidate()
+        sleepHours = 0
+        sleepMinutes = 0
+        showMood = false
+        showTimes = false
+        showInsight = false
+        correlationPercent = 0
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { runSequence() }
+    }
+
+    private func runSequence() {
+        // Phase 1: Hours count up 0→7 (0.5s-1.5s)
+        var h = 0
+        timer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { t in
+            h += 1
+            withAnimation(.snappy) { sleepHours = h }
+            if h >= 7 {
+                t.invalidate()
+                // Phase 2: Minutes count to 42 (fast)
+                var m = 0
+                timer = Timer.scheduledTimer(withTimeInterval: 0.04, repeats: true) { t2 in
+                    m += 3
+                    if m > 42 { m = 42 }
+                    withAnimation(.snappy) { sleepMinutes = m }
+                    if m >= 42 { t2.invalidate() }
+                }
+            }
+        }
+
+        // Phase 3: Mood emoji appears (2.5s)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            withAnimation(HLAnimation.bouncy) { showMood = true }
+        }
+
+        // Phase 4: Bedtime/wake times appear (3.0s)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            withAnimation(HLAnimation.standard) { showTimes = true }
+        }
+
+        // Phase 5: Correlation insight slides up with count-up (3.8s)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.8) {
+            withAnimation(HLAnimation.spring) { showInsight = true }
+            // Count up 0→40%
+            var pct = 0
+            Timer.scheduledTimer(withTimeInterval: 0.04, repeats: true) { t in
+                pct += 2
+                if pct > 40 { pct = 40 }
+                correlationPercent = pct
+                if pct >= 40 { t.invalidate() }
             }
         }
     }
