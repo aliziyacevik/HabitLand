@@ -787,18 +787,23 @@ private struct OnboardingPreviewPage<Preview: View>: View {
     @ViewBuilder let preview: () -> Preview
     @State private var showTitle = false
     @State private var showPreview = false
+    @State private var showPills = false
 
     var body: some View {
-        VStack(spacing: HLSpacing.md) {
+        VStack(spacing: HLSpacing.lg) {
             Spacer()
-                .frame(height: HLSpacing.md)
+                .frame(height: HLSpacing.sm)
 
-            // Preview card at top with slide-down animation
+            // Preview card at top
             preview()
                 .opacity(showPreview ? 1 : 0)
                 .offset(y: showPreview ? 0 : -30)
 
-            Spacer()
+            // Feature pills between preview and title
+            if showPills {
+                featurePills
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
 
             // Title + subtitle at bottom
             VStack(spacing: HLSpacing.sm) {
@@ -820,7 +825,7 @@ private struct OnboardingPreviewPage<Preview: View>: View {
             }
 
             Spacer()
-                .frame(height: HLSpacing.xl)
+                .frame(height: HLSpacing.md)
         }
         .padding(.horizontal, HLSpacing.md)
         .onAppear {
@@ -829,6 +834,50 @@ private struct OnboardingPreviewPage<Preview: View>: View {
             }
             withAnimation(HLAnimation.standard.delay(0.4)) {
                 showTitle = true
+            }
+            withAnimation(HLAnimation.standard.delay(0.7)) {
+                showPills = true
+            }
+        }
+    }
+
+    private var pills: [(icon: String, text: String, color: Color)] {
+        if page.isStreakPreview {
+            return [
+                ("flame.fill", "Streaks", .hlFlame),
+                ("star.fill", "XP", .hlGold),
+                ("scroll.fill", "Quests", .hlPrimary)
+            ]
+        } else if page.isSleepPreview {
+            return [
+                ("moon.fill", "Sleep Log", .hlSleep),
+                ("chart.bar.fill", "Analytics", .hlPrimary),
+                ("link", "Correlation", .hlFitness)
+            ]
+        } else {
+            return [
+                ("person.2.fill", "Friends", .hlPrimary),
+                ("trophy.fill", "Leaderboard", .hlGold),
+                ("flag.fill", "Challenges", .hlFlame)
+            ]
+        }
+    }
+
+    private var featurePills: some View {
+        HStack(spacing: HLSpacing.sm) {
+            ForEach(Array(pills.enumerated()), id: \.offset) { index, pill in
+                HStack(spacing: HLSpacing.xxs) {
+                    Image(systemName: pill.icon)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(pill.color)
+                    Text(pill.text)
+                        .font(HLFont.caption(.semibold))
+                        .foregroundStyle(Color.hlTextPrimary)
+                }
+                .padding(.horizontal, HLSpacing.sm)
+                .padding(.vertical, HLSpacing.xs)
+                .background(pill.color.opacity(0.1))
+                .cornerRadius(HLRadius.full)
             }
         }
     }
