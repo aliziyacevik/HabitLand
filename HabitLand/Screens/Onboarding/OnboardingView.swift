@@ -933,9 +933,16 @@ private struct StreakPreviewContent: View {
         }
         .padding(.horizontal, HLSpacing.md)
         .onAppear { startXPAnimation() }
+        .onDisappear {
+            streakTimer?.invalidate()
+            streakTimer = nil
+        }
         .onChange(of: isActive) { _, active in
             if active {
                 resetAndReplay()
+            } else {
+                streakTimer?.invalidate()
+                streakTimer = nil
             }
         }
     }

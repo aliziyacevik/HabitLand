@@ -68,7 +68,6 @@ final class ProManager: ObservableObject {
     // MARK: - Free Trial
 
     @Published private(set) var isTrialEligible = false
-    @Published private(set) var trialDaysRemaining: Int = 0
 
     /// Check if user is eligible for the free trial (never subscribed before)
     func checkTrialEligibility() async {
