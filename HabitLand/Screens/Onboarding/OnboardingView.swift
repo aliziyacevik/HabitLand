@@ -833,10 +833,12 @@ private struct StreakPreviewContent: View {
     @State private var levelText = "LV8"
     @State private var xpText = "520/800"
     @State private var flameBurst = false
+    @State private var streakCount = 0
+    @State private var streakTimer: Timer?
 
     var body: some View {
         VStack(spacing: HLSpacing.sm) {
-            // Mini streak card
+            // Mini streak card with counting animation
             HStack(spacing: HLSpacing.md) {
                 Image(systemName: "flame.fill")
                     .font(.system(size: 32, weight: .semibold))
@@ -847,12 +849,16 @@ private struct StreakPreviewContent: View {
                     .symbolEffect(.bounce, options: .repeating.speed(0.3))
 
                 VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
-                    Text("33")
-                        .font(HLFont.largeTitle()) +
-                    Text(" days")
-                        .font(HLFont.body())
-                        .foregroundColor(.hlTextSecondary)
-                    Text("Your streak grows every day")
+                    HStack(alignment: .firstTextBaseline, spacing: HLSpacing.xxs) {
+                        Text("\(streakCount)")
+                            .font(HLFont.largeTitle())
+                            .contentTransition(.numericText(value: Double(streakCount)))
+                            .animation(.snappy, value: streakCount)
+                        Text("days")
+                            .font(HLFont.body())
+                            .foregroundColor(.hlTextSecondary)
+                    }
+                    Text(streakCount < 33 ? "Building momentum..." : "Your streak grows every day")
                         .font(HLFont.caption())
                         .foregroundStyle(Color.hlTextTertiary)
                 }
@@ -935,6 +941,8 @@ private struct StreakPreviewContent: View {
     }
 
     private func resetAndReplay() {
+        streakTimer?.invalidate()
+        streakCount = 0
         xpProgress = 0
         showLevelUp = false
         levelText = "LV8"
@@ -944,27 +952,39 @@ private struct StreakPreviewContent: View {
     }
 
     private func startXPAnimation() {
-        // Phase 1: XP bar fills to 100%
-        withAnimation(.easeInOut(duration: 1.5).delay(0.8)) {
+        // Phase 0: Streak counter 1→33 (accelerating)
+        streakCount = 0
+        var count = 0
+        streakTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
+            count += 1
+            withAnimation(.easeOut(duration: 0.08)) {
+                streakCount = count
+            }
+            if count >= 33 {
+                timer.invalidate()
+            }
+        }
+
+        // Phase 1: XP bar fills to 100% (starts after counter finishes)
+        withAnimation(.easeInOut(duration: 1.5).delay(2.0)) {
             xpProgress = 1.0
         }
 
         // Phase 2: Level Up burst
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.8) {
             withAnimation(HLAnimation.bouncy) {
                 showLevelUp = true
                 levelText = "LV9"
                 xpText = "120/900"
                 flameBurst = true
             }
-            // Reset XP bar for new level
             withAnimation(.easeInOut(duration: 0.3).delay(0.1)) {
                 xpProgress = 0.13
             }
         }
 
         // Phase 3: Hide level up text
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.5) {
             withAnimation(HLAnimation.standard) {
                 showLevelUp = false
                 flameBurst = false
