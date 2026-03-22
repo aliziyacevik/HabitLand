@@ -23,10 +23,10 @@ struct CreateHabitView: View {
     private let iconOptions = [
         "checkmark.circle", "star.fill", "heart.fill", "bolt.fill",
         "flame.fill", "drop.fill", "leaf.fill", "brain.head.profile",
-        "figure.run", "figure.walk", "book.fill", "pencil",
-        "moon.fill", "sun.max.fill", "cup.and.saucer.fill", "fork.knife",
-        "pill.fill", "cross.fill", "bed.double.fill", "music.note",
-        "paintbrush.fill", "camera.fill", "phone.fill", "bubble.left.fill",
+        "figure.run", "figure.walk", "figure.stand", "book.fill",
+        "pencil", "moon.fill", "sun.max.fill", "cup.and.saucer.fill",
+        "fork.knife", "pill.fill", "cross.fill", "bed.double.fill",
+        "music.note", "paintbrush.fill", "camera.fill", "map.fill",
         "target", "flag.fill", "trophy.fill", "medal.fill",
         "dumbbell.fill", "bicycle", "note.text", "graduationcap.fill"
     ]

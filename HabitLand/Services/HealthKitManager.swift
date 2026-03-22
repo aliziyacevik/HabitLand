@@ -81,11 +81,11 @@ enum HealthKitMetric: String, Codable, CaseIterable, Identifiable {
 
     var suggestedCategory: String {
         switch self {
-        case .steps, .exerciseMinutes, .activeCalories, .walkingDistance: return "fitness"
-        case .water: return "health"
-        case .standHours: return "health"
-        case .mindfulMinutes: return "mindfulness"
-        case .sleepHours: return "sleep"
+        case .steps, .exerciseMinutes, .activeCalories, .walkingDistance: return "Fitness"
+        case .water: return "Health"
+        case .standHours: return "Health"
+        case .mindfulMinutes: return "Mindfulness"
+        case .sleepHours: return "Sleep"
         }
     }
 
