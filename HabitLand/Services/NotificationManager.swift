@@ -213,6 +213,8 @@ final class NotificationManager: ObservableObject {
         // Schedule coaching for best streak
         if let bestStreak = habits.map(\.streak).max() {
             scheduleStreakCoaching(currentStreak: bestStreak)
+            let weekCompletions = habits.filter(\.completed).count
+            scheduleWeeklyRecap(completedThisWeek: weekCompletions, bestStreak: bestStreak)
         }
     }
 
@@ -243,6 +245,25 @@ final class NotificationManager: ObservableObject {
             let request = UNNotificationRequest(identifier: "streak-milestone-\(milestone.days)", content: content, trigger: trigger)
             center.add(request)
         }
+    }
+
+    // MARK: - Weekly Recap Notification (Sunday 8pm)
+
+    func scheduleWeeklyRecap(completedThisWeek: Int, bestStreak: Int) {
+        let content = UNMutableNotificationContent()
+        content.title = "Your Week in Review"
+        content.body = "You completed \(completedThisWeek) habits this week with a \(bestStreak)-day best streak. Tap to see your full recap!"
+        content.sound = .default
+
+        var components = DateComponents()
+        components.weekday = 1 // Sunday
+        components.hour = 20
+        components.minute = 0
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+
+        center.removePendingNotificationRequests(withIdentifiers: ["weekly-recap"])
+        let request = UNNotificationRequest(identifier: "weekly-recap", content: content, trigger: trigger)
+        center.add(request)
     }
 
     // MARK: - Remove All

@@ -27,6 +27,7 @@ struct HomeDashboardView: View {
     @State private var levelUpData: LevelUpData?
     @ObservedObject private var proManager = ProManager.shared
     @ObservedObject private var questManager = WeeklyQuestManager.shared
+    @ObservedObject private var bonusManager = DailyBonusManager.shared
 
     // MARK: - Computed Properties
 
@@ -161,6 +162,11 @@ struct HomeDashboardView: View {
                         greetingHeader
                             .hlStaggeredAppear(index: 0)
 
+                        if bonusManager.showBonusBanner {
+                            dailyBonusBanner
+                                .transition(.move(edge: .top).combined(with: .opacity))
+                        }
+
                         if habits.isEmpty {
                             emptyState
                                 .hlStaggeredAppear(index: 1)
@@ -183,6 +189,9 @@ struct HomeDashboardView: View {
                                 .hlStaggeredAppear(index: 5)
                             weeklyOverviewCard
                                 .hlStaggeredAppear(index: 6)
+
+                            dailyWisdomCard
+                                .hlStaggeredAppear(index: 7)
 
                             if !inviteCardDismissed {
                                 inviteFriendsCard
@@ -223,6 +232,7 @@ struct HomeDashboardView: View {
                 .accessibilityLabel("Add new habit")
             }
             .background(Color.hlBackground.ignoresSafeArea())
+            .onAppear { bonusManager.recordDailyOpen() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -749,10 +759,23 @@ struct HomeDashboardView: View {
                     let newCompletedCount = habits.filter({ $0.todayCompleted || $0.id == habit.id }).count
                     if newCompletedCount == totalCount && totalCount > 0 {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            celebrationMessage = "All habits done!\nAmazing work today!"
+                            let perfectDayCount = calculatePerfectDays()
+                            if perfectDayCount >= 7 {
+                                celebrationMessage = "Perfect day #\(perfectDayCount)!\nYou're unstoppable! 🏆"
+                            } else if perfectDayCount >= 3 {
+                                celebrationMessage = "All habits done!\n\(perfectDayCount) perfect days this week! 🔥"
+                            } else {
+                                celebrationMessage = "All habits done!\nAmazing work today! 🎉"
+                            }
                             showCelebration = true
                             HLHaptics.heavy()
                         }
+                    }
+
+                    // First completion bonus XP
+                    let bonusXP = bonusManager.claimFirstCompletionBonus(baseXP: 10)
+                    if bonusXP > 0, let profile = profiles.first {
+                        profile.xp += bonusXP
                     }
                     // Streak milestones
                     let newStreak = habit.currentStreak + 1
@@ -1081,6 +1104,109 @@ struct HomeDashboardView: View {
             .frame(maxWidth: .infinity)
         }
         .hlCard()
+    }
+
+    // MARK: - Perfect Day Calculator
+
+    private func calculatePerfectDays() -> Int {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        var perfectDays = 0
+
+        for dayOffset in 0..<7 {
+            guard let day = calendar.date(byAdding: .day, value: -dayOffset, to: today) else { break }
+            let dayStart = calendar.startOfDay(for: day)
+            let activeHabits = habits.filter { !$0.isArchived }
+            guard !activeHabits.isEmpty else { break }
+            let allDone = activeHabits.allSatisfy { habit in
+                habit.safeCompletions.contains { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted }
+            }
+            if allDone { perfectDays += 1 } else if dayOffset > 0 { break }
+        }
+        return perfectDays
+    }
+
+    // MARK: - Daily Wisdom Card
+
+    private var dailyWisdomCard: some View {
+        let wisdoms: [(icon: String, title: String, body: String, color: Color)] = [
+            ("brain.head.profile", "Habit Stacking", "Attach a new habit to an existing one. 'After I brush my teeth, I'll meditate for 2 minutes.'", .hlMindfulness),
+            ("clock.fill", "The 2-Minute Rule", "If a habit takes less than 2 minutes, do it now. Small wins build momentum.", .hlPrimary),
+            ("arrow.triangle.2.circlepath", "Never Miss Twice", "Missing one day is an accident. Missing two is the start of a new habit. Get back on track today.", .hlFlame),
+            ("moon.stars.fill", "Sleep & Performance", "Studies show 7-8 hours of sleep increases habit adherence by 40%. Protect your sleep.", .hlSleep),
+            ("figure.run", "Motion Before Motivation", "Don't wait to feel motivated. Start the habit — motivation follows action.", .hlFitness),
+            ("person.2.fill", "Social Accountability", "People who share their goals with friends are 65% more likely to achieve them.", .hlPrimary),
+            ("chart.line.uptrend.xyaxis", "Track to Transform", "What gets measured gets managed. Tracking habits makes you 2x more likely to succeed.", .hlGold),
+        ]
+
+        let dayIndex = (Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 1) % wisdoms.count
+        let wisdom = wisdoms[dayIndex]
+
+        return HStack(spacing: HLSpacing.sm) {
+            Image(systemName: wisdom.icon)
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundStyle(wisdom.color)
+                .frame(width: 36)
+
+            VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
+                Text(wisdom.title)
+                    .font(HLFont.caption(.bold))
+                    .foregroundStyle(Color.hlTextPrimary)
+                Text(wisdom.body)
+                    .font(HLFont.caption())
+                    .foregroundStyle(Color.hlTextSecondary)
+                    .lineLimit(3)
+            }
+        }
+        .hlCard()
+    }
+
+    // MARK: - Daily Bonus Banner
+
+    private var dailyBonusBanner: some View {
+        HStack(spacing: HLSpacing.sm) {
+            Text(bonusManager.streakEmoji)
+                .font(HLFont.title3())
+
+            VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
+                Text(bonusManager.streakMessage)
+                    .font(HLFont.caption(.medium))
+                    .foregroundStyle(Color.hlTextPrimary)
+                if !bonusManager.todayBonusClaimed {
+                    Text("Complete a habit to claim!")
+                        .font(HLFont.caption2())
+                        .foregroundStyle(Color.hlGold)
+                }
+            }
+
+            Spacer()
+
+            Text(bonusManager.bonusLabel)
+                .font(HLFont.caption(.bold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, HLSpacing.sm)
+                .padding(.vertical, HLSpacing.xxs)
+                .background(
+                    LinearGradient(colors: [.hlGold, .hlFlame], startPoint: .leading, endPoint: .trailing)
+                )
+                .cornerRadius(HLRadius.full)
+
+            Button {
+                bonusManager.dismissBanner()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(Color.hlTextTertiary)
+                    .frame(width: 24, height: 24)
+            }
+        }
+        .padding(HLSpacing.sm)
+        .background(Color.hlGold.opacity(0.08))
+        .cornerRadius(HLRadius.lg)
+        .overlay(
+            RoundedRectangle(cornerRadius: HLRadius.lg)
+                .stroke(Color.hlGold.opacity(0.2), lineWidth: 1)
+        )
     }
 
     // MARK: - Invite Friends Card
