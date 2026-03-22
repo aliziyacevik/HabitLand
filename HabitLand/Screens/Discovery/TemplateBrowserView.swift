@@ -4,10 +4,11 @@ import SwiftUI
 
 struct TemplateBrowserView: View {
     let onSelect: (HabitTemplate) -> Void
+    var onPackSelect: (([HabitTemplate]) -> Void)?
 
     @State private var searchText = ""
     @State private var selectedCategory: HabitCategory?
-    @State private var expandedPack: String?
+    @State private var addedPack: String?
 
     private var filteredTemplates: [HabitTemplate] {
         var results: [HabitTemplate]
@@ -122,76 +123,56 @@ struct TemplateBrowserView: View {
                 HStack(spacing: HLSpacing.xs) {
                     ForEach(HabitTemplateLibrary.packs) { pack in
                         Button {
-                            withAnimation(HLAnimation.standard) {
-                                selectedCategory = nil
-                                expandedPack = expandedPack == pack.id ? nil : pack.id
+                            if let onPackSelect {
+                                onPackSelect(pack.templates)
+                            } else {
+                                // Fallback: select first template
+                                if let first = pack.templates.first {
+                                    onSelect(first)
+                                }
                             }
-                            HLHaptics.selection()
+                            withAnimation(HLAnimation.celebration) {
+                                addedPack = pack.id
+                            }
+                            HLHaptics.success()
                         } label: {
                             miniPackCard(pack)
                         }
                         .buttonStyle(.plain)
+                        .disabled(addedPack == pack.id)
                     }
                 }
-            }
-
-            // Expanded pack contents
-            if let packID = expandedPack,
-               let pack = HabitTemplateLibrary.packs.first(where: { $0.id == packID }) {
-                VStack(spacing: HLSpacing.xs) {
-                    HStack {
-                        Image(systemName: pack.icon)
-                            .foregroundColor(pack.color)
-                        Text(pack.name)
-                            .font(HLFont.callout(.semibold))
-                            .foregroundColor(.hlTextPrimary)
-                        Spacer()
-                        Text("\(pack.templates.count) habits")
-                            .font(HLFont.caption())
-                            .foregroundColor(.hlTextTertiary)
-                    }
-                    .padding(.horizontal, HLSpacing.xs)
-
-                    ForEach(pack.templates) { template in
-                        Button {
-                            HLHaptics.selection()
-                            onSelect(template)
-                        } label: {
-                            templateCard(template)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding(.top, HLSpacing.xs)
-                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
     }
 
     private func miniPackCard(_ pack: HabitTemplatePack) -> some View {
-        let isExpanded = expandedPack == pack.id
+        let isAdded = addedPack == pack.id
 
         return VStack(alignment: .leading, spacing: HLSpacing.xxs) {
-            Image(systemName: pack.icon)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(pack.color)
+            HStack {
+                Image(systemName: isAdded ? "checkmark.circle.fill" : pack.icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(isAdded ? .hlPrimary : pack.color)
+                Spacer()
+            }
 
             Text(pack.name)
                 .font(HLFont.caption(.semibold))
-                .foregroundColor(.hlTextPrimary)
+                .foregroundColor(isAdded ? .hlTextTertiary : .hlTextPrimary)
                 .lineLimit(1)
 
-            Text("\(pack.templates.count) habits")
+            Text(isAdded ? "Added!" : "\(pack.templates.count) habits")
                 .font(HLFont.caption2())
-                .foregroundColor(.hlTextTertiary)
+                .foregroundColor(isAdded ? .hlPrimary : .hlTextTertiary)
         }
         .frame(width: 100)
         .padding(HLSpacing.sm)
-        .background(isExpanded ? pack.color.opacity(0.08) : Color.hlSurface)
+        .background(isAdded ? Color.hlPrimary.opacity(0.08) : Color.hlSurface)
         .cornerRadius(HLRadius.md)
         .overlay(
             RoundedRectangle(cornerRadius: HLRadius.md)
-                .stroke(isExpanded ? pack.color : Color.hlCardBorder, lineWidth: isExpanded ? 2 : 1)
+                .stroke(isAdded ? Color.hlPrimary : Color.hlCardBorder, lineWidth: isAdded ? 2 : 1)
         )
     }
 

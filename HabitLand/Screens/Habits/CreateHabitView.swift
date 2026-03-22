@@ -431,10 +431,25 @@ struct CreateHabitView: View {
         }
         .sheet(isPresented: $showTemplateBrowser) {
             NavigationStack {
-                TemplateBrowserView { template in
-                    applyTemplate(template)
-                    showTemplateBrowser = false
-                }
+                TemplateBrowserView(
+                    onSelect: { template in
+                        applyTemplate(template)
+                        showTemplateBrowser = false
+                    },
+                    onPackSelect: { templates in
+                        // Apply first template to current form
+                        if let first = templates.first {
+                            applyTemplate(first)
+                        }
+                        // Create remaining templates as separate habits
+                        for template in templates.dropFirst() {
+                            let habit = template.toHabit()
+                            modelContext.insert(habit)
+                        }
+                        try? modelContext.save()
+                        showTemplateBrowser = false
+                    }
+                )
                 .navigationTitle("Choose a Template")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
