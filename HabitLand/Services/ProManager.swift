@@ -2,6 +2,7 @@ import Foundation
 import os
 import StoreKit
 import SwiftUI
+import UserNotifications
 
 @MainActor
 final class ProManager: ObservableObject {
@@ -232,12 +233,20 @@ final class ProManager: ObservableObject {
     private static let trialStartKey = "habitland_trial_start"
     private static let trialDuration: TimeInterval = 7 * 24 * 60 * 60 // 7 days
     private static let trialOfferedKey = "habitland_trial_offered"
+    private static let trialExpiryPaywallShownKey = "habitland_trial_expiry_paywall_shown"
 
     var isInAppTrialActive: Bool {
         guard let startDate = UserDefaults.standard.object(forKey: Self.trialStartKey) as? Date else {
             return false
         }
         return Date.now < startDate.addingTimeInterval(Self.trialDuration)
+    }
+
+    var hasTrialExpired: Bool {
+        guard let startDate = UserDefaults.standard.object(forKey: Self.trialStartKey) as? Date else {
+            return false
+        }
+        return Date.now >= startDate.addingTimeInterval(Self.trialDuration)
     }
 
     var trialRemainingDays: Int {
@@ -252,10 +261,51 @@ final class ProManager: ObservableObject {
         UserDefaults.standard.bool(forKey: Self.trialOfferedKey)
     }
 
+    var hasTrialExpiryPaywallBeenShown: Bool {
+        get { UserDefaults.standard.bool(forKey: Self.trialExpiryPaywallShownKey) }
+        set { UserDefaults.standard.set(newValue, forKey: Self.trialExpiryPaywallShownKey) }
+    }
+
+    /// Whether soft paywall should show (trial expired + not shown yet + not Pro)
+    var shouldShowTrialExpiryPaywall: Bool {
+        hasTrialExpired && !hasTrialExpiryPaywallBeenShown && !isPro
+    }
+
     func startInAppTrial() {
         UserDefaults.standard.set(Date.now, forKey: Self.trialStartKey)
         UserDefaults.standard.set(true, forKey: Self.trialOfferedKey)
         objectWillChange.send()
+        scheduleTrialExpiryNotifications()
+    }
+
+    // MARK: - Trial Expiry Notifications
+
+    private func scheduleTrialExpiryNotifications() {
+        let center = UNUserNotificationCenter.current()
+
+        // Day 5 — 2 days left
+        let day5Content = UNMutableNotificationContent()
+        day5Content.title = "Pro Trial: 2 Days Left"
+        day5Content.body = "You've been building great habits! Upgrade now to keep unlimited access."
+        day5Content.sound = .default
+        let day5Trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5 * 24 * 60 * 60, repeats: false)
+        center.add(UNNotificationRequest(identifier: "trial-expiry-2d", content: day5Content, trigger: day5Trigger))
+
+        // Day 6 — 1 day left
+        let day6Content = UNMutableNotificationContent()
+        day6Content.title = "Last Day of Pro Trial!"
+        day6Content.body = "Your free trial ends tomorrow. Don't lose your streaks and sleep data — upgrade to Pro."
+        day6Content.sound = .default
+        let day6Trigger = UNTimeIntervalNotificationTrigger(timeInterval: 6 * 24 * 60 * 60, repeats: false)
+        center.add(UNNotificationRequest(identifier: "trial-expiry-1d", content: day6Content, trigger: day6Trigger))
+
+        // Day 7 — expired
+        let day7Content = UNMutableNotificationContent()
+        day7Content.title = "Pro Trial Ended"
+        day7Content.body = "Your 7-day trial is over. Upgrade to Pro to keep all your features unlocked."
+        day7Content.sound = .default
+        let day7Trigger = UNTimeIntervalNotificationTrigger(timeInterval: 7 * 24 * 60 * 60, repeats: false)
+        center.add(UNNotificationRequest(identifier: "trial-expired", content: day7Content, trigger: day7Trigger))
     }
 
     // MARK: - Free Tier Limits
