@@ -31,12 +31,14 @@ struct OnboardingView: View {
 
     // Page state
     @State private var currentPage = 0
-    @State private var currentStep = 0 // 0=pages, 1=habits, 2=goals, 3=notifications, 4=complete
+    // Steps: 0=pages, 1=habits, 2=reminder, 3=theme, 4=notifications, 5=trial, 6=complete
+    @State private var currentStep = 0
 
     // Data collected
     @State private var userName = ""
     @State private var selectedAvatar = "🌱"
     @State private var habitsCreatedCount = 0
+    @State private var reminderTime = Calendar.current.date(from: DateComponents(hour: 20, minute: 0)) ?? Date()
 
     @FocusState private var nameFieldFocused: Bool
     var onComplete: () -> Void = {}
@@ -44,21 +46,34 @@ struct OnboardingView: View {
     private let pages: [OnboardingPage] = [
         OnboardingPage(
             systemImage: "",
-            emoji: "🌱",
-            title: "Welcome to HabitLand",
-            subtitle: "Build better habits, sleep well, and level up your life — one day at a time.",
+            emoji: "😩",
+            title: "Always giving up\non habits?",
+            subtitle: "You're not lazy. You just didn't have the right system. Until now.",
             accentColor: .hlPrimary
         ),
         OnboardingPage(
-            systemImage: "chart.line.uptrend.xyaxis",
-            title: "Track Everything",
-            subtitle: "Build daily habits, track your streaks, log your sleep, and discover patterns for peak performance.",
+            systemImage: "",
+            emoji: "🔥",
+            title: "This time is different",
+            subtitle: "Streaks keep you accountable. XP makes it fun. Friends make it social. Science makes it stick.",
+            accentColor: .hlFlame
+        ),
+        OnboardingPage(
+            systemImage: "moon.stars.fill",
+            title: "Sleep better,\ndo more",
+            subtitle: "Track your sleep and discover how rest affects your habits. Better sleep = more completions.",
+            accentColor: .hlSleep
+        ),
+        OnboardingPage(
+            systemImage: "person.2.fill",
+            title: "Compete with\nfriends",
+            subtitle: "Challenge your friends, climb the leaderboard, and nudge each other when motivation drops.",
             accentColor: .hlFitness
         ),
         OnboardingPage(
             systemImage: "trophy.fill",
             title: "Level Up Your Life",
-            subtitle: "Every habit you complete earns XP. Level up, unlock achievements, and watch yourself grow.",
+            subtitle: "Every habit you complete earns XP. Unlock achievements, new themes, and watch yourself grow.",
             accentColor: .hlGold,
             isLevelUpPage: true
         ),
@@ -83,30 +98,34 @@ struct OnboardingView: View {
                     }
                 }
             case 2:
+                reminderSetupStep
+            case 3:
                 ThemeOnboardingView {
                     withAnimation(HLAnimation.gentleSpring) {
-                        currentStep = 3
+                        currentStep = 4
                     }
                 }
-            case 3:
+            case 4:
                 NotificationSetupView(
                     onEnable: {
                         Task {
                             _ = await NotificationManager.shared.requestPermission()
                             await MainActor.run {
                                 withAnimation(HLAnimation.gentleSpring) {
-                                    currentStep = 4
+                                    currentStep = 5
                                 }
                             }
                         }
                     },
                     onSkip: {
                         withAnimation(HLAnimation.gentleSpring) {
-                            currentStep = 4
+                            currentStep = 5
                         }
                     }
                 )
-            case 4:
+            case 5:
+                trialWelcomeStep
+            case 6:
                 OnboardingCompleteView(
                     habitsCreated: habitsCreatedCount
                 ) {
@@ -347,6 +366,147 @@ struct OnboardingView: View {
         }
         profile.avatarEmoji = selectedAvatar
         try? modelContext.save()
+    }
+
+    // MARK: - Reminder Setup Step
+
+    private var reminderSetupStep: some View {
+        VStack(spacing: HLSpacing.xl) {
+            Spacer()
+
+            Image(systemName: "bell.badge.fill")
+                .font(.system(size: 64))
+                .foregroundStyle(Color.hlPrimary)
+                .symbolRenderingMode(.hierarchical)
+
+            VStack(spacing: HLSpacing.sm) {
+                Text("When should we\nremind you?")
+                    .font(HLFont.title1())
+                    .foregroundStyle(Color.hlTextPrimary)
+                    .multilineTextAlignment(.center)
+
+                Text("Pick a time for your daily habit reminder. You can change this later.")
+                    .font(HLFont.body())
+                    .foregroundStyle(Color.hlTextSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, HLSpacing.lg)
+            }
+
+            DatePicker("Reminder Time", selection: $reminderTime, displayedComponents: .hourAndMinute)
+                .datePickerStyle(.wheel)
+                .labelsHidden()
+                .frame(height: 150)
+
+            Spacer()
+
+            VStack(spacing: HLSpacing.sm) {
+                Button {
+                    saveReminderTime()
+                    withAnimation(HLAnimation.gentleSpring) {
+                        currentStep = 3
+                    }
+                } label: {
+                    Text("Set Reminder")
+                        .font(HLFont.headline())
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, HLSpacing.md)
+                        .background(Color.hlPrimary)
+                        .cornerRadius(HLRadius.lg)
+                }
+
+                Button {
+                    withAnimation(HLAnimation.gentleSpring) {
+                        currentStep = 3
+                    }
+                } label: {
+                    Text("Skip for now")
+                        .font(HLFont.subheadline())
+                        .foregroundStyle(Color.hlTextSecondary)
+                }
+            }
+            .padding(.horizontal, HLSpacing.xl)
+            .padding(.bottom, HLSpacing.xxxl)
+        }
+    }
+
+    private func saveReminderTime() {
+        let components = Calendar.current.dateComponents([.hour, .minute], from: reminderTime)
+        UserDefaults.standard.set(components.hour ?? 20, forKey: "dailyReminderHour")
+        UserDefaults.standard.set(components.minute ?? 0, forKey: "dailyReminderMinute")
+    }
+
+    // MARK: - Trial Welcome Step
+
+    private var trialWelcomeStep: some View {
+        VStack(spacing: HLSpacing.xl) {
+            Spacer()
+
+            ZStack {
+                Circle()
+                    .fill(Color.hlGold.opacity(0.12))
+                    .frame(width: 160, height: 160)
+
+                Image(systemName: "crown.fill")
+                    .font(.system(size: 64))
+                    .foregroundStyle(Color.hlGold)
+            }
+
+            VStack(spacing: HLSpacing.sm) {
+                Text("7 Days of Pro\nOn Us!")
+                    .font(HLFont.title1())
+                    .foregroundStyle(Color.hlTextPrimary)
+                    .multilineTextAlignment(.center)
+
+                Text("You get full access to everything for 7 days:")
+                    .font(HLFont.body())
+                    .foregroundStyle(Color.hlTextSecondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            VStack(alignment: .leading, spacing: HLSpacing.sm) {
+                trialFeatureRow(icon: "infinity", text: "Unlimited habits", color: .hlPrimary)
+                trialFeatureRow(icon: "moon.stars.fill", text: "Sleep tracking & insights", color: .hlSleep)
+                trialFeatureRow(icon: "person.2.fill", text: "Friends, leaderboard & challenges", color: .hlFitness)
+                trialFeatureRow(icon: "chart.line.uptrend.xyaxis", text: "Detailed analytics", color: .hlGold)
+                trialFeatureRow(icon: "paintpalette.fill", text: "All themes & customization", color: .hlFlame)
+            }
+            .padding(.horizontal, HLSpacing.xl)
+
+            Spacer()
+
+            Button {
+                withAnimation(HLAnimation.gentleSpring) {
+                    currentStep = 6
+                }
+            } label: {
+                Text("Start My Free Trial")
+                    .font(HLFont.headline())
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, HLSpacing.md)
+                    .background(Color.hlPrimary)
+                    .cornerRadius(HLRadius.lg)
+            }
+            .padding(.horizontal, HLSpacing.xl)
+            .padding(.bottom, HLSpacing.xxxl)
+        }
+    }
+
+    private func trialFeatureRow(icon: String, text: String, color: Color) -> some View {
+        HStack(spacing: HLSpacing.sm) {
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(color)
+                .frame(width: 28)
+            Text(text)
+                .font(HLFont.body())
+                .foregroundStyle(Color.hlTextPrimary)
+            Spacer()
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 18))
+                .foregroundStyle(Color.hlSuccess)
+        }
     }
 
     // MARK: - First XP Award
