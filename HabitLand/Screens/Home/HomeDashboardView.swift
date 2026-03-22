@@ -19,6 +19,8 @@ struct HomeDashboardView: View {
     @State private var showChain = false
     @State private var showPaywall = false
     @State private var showUndoToast = false
+    @State private var showInviteFriends = false
+    @AppStorage("invite_card_dismissed") private var inviteCardDismissed = false
     @State private var undoHabitName = ""
     @State private var undoCompletion: HabitCompletion?
     @State private var achievementCelebration: AchievementCelebrationData?
@@ -181,6 +183,11 @@ struct HomeDashboardView: View {
                                 .hlStaggeredAppear(index: 5)
                             weeklyOverviewCard
                                 .hlStaggeredAppear(index: 6)
+
+                            if !inviteCardDismissed {
+                                inviteFriendsCard
+                                    .hlStaggeredAppear(index: 7)
+                            }
                         }
                     }
                     .padding(.horizontal, HLSpacing.md)
@@ -519,6 +526,32 @@ struct HomeDashboardView: View {
             }
         }
         .hlCard()
+        .overlay(alignment: .topTrailing) {
+            if let milestone = streakMilestoneText {
+                Text(milestone)
+                    .font(HLFont.caption2(.bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, HLSpacing.xs)
+                    .padding(.vertical, HLSpacing.xxxs)
+                    .background(Color.hlFlame)
+                    .cornerRadius(HLRadius.full)
+                    .offset(x: -HLSpacing.sm, y: -HLSpacing.xs)
+            }
+        }
+    }
+
+    private var streakMilestoneText: String? {
+        switch streakDays {
+        case 3: return "3 days!"
+        case 7: return "1 week!"
+        case 14: return "2 weeks!"
+        case 21: return "Habit formed!"
+        case 30: return "1 month!"
+        case 50: return "50 days!"
+        case 100: return "100 days!"
+        case 365: return "1 year!"
+        default: return nil
+        }
     }
 
     // MARK: - Weekly Quests Card
@@ -1020,6 +1053,54 @@ struct HomeDashboardView: View {
             .frame(maxWidth: .infinity)
         }
         .hlCard()
+    }
+
+    // MARK: - Invite Friends Card
+
+    private var inviteFriendsCard: some View {
+        VStack(spacing: HLSpacing.sm) {
+            HStack {
+                Text("Build Habits Together")
+                    .font(HLFont.headline())
+                    .foregroundStyle(Color.hlTextPrimary)
+                Spacer()
+                Button {
+                    withAnimation(HLAnimation.quick) {
+                        inviteCardDismissed = true
+                    }
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(Color.hlTextTertiary)
+                }
+                .accessibilityLabel("Dismiss invite card")
+            }
+
+            Text("Invite a friend and both of you get 1 week of Pro free! Compete on the leaderboard and keep each other accountable.")
+                .font(HLFont.subheadline())
+                .foregroundStyle(Color.hlTextSecondary)
+
+            Button {
+                showInviteFriends = true
+            } label: {
+                HStack(spacing: HLSpacing.xs) {
+                    Image(systemName: "person.badge.plus")
+                        .font(.system(size: 16, weight: .semibold))
+                    Text("Invite a Friend")
+                        .font(HLFont.headline())
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, HLSpacing.sm)
+                .background(Color.hlPrimary)
+                .cornerRadius(HLRadius.md)
+            }
+        }
+        .hlCard()
+        .sheet(isPresented: $showInviteFriends) {
+            InviteFriendsView()
+                .hlSheetContent()
+        }
     }
 
     private func weekStat(title: String, value: String) -> some View {

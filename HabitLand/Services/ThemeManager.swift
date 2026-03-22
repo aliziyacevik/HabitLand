@@ -12,6 +12,22 @@ enum AccentTheme: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// Level required to unlock this theme (0 = free)
+    var requiredLevel: Int {
+        switch self {
+        case .emerald: return 0
+        case .ocean: return 0
+        case .lavender: return 5
+        case .sunset: return 10
+        case .rose: return 15
+        case .sky: return 20
+        }
+    }
+
+    @MainActor func isUnlocked(at level: Int) -> Bool {
+        level >= requiredLevel || ProManager.shared.isPro
+    }
+
     var primary: Color {
         switch self {
         case .emerald: return Color(red: 0.20, green: 0.78, blue: 0.55)

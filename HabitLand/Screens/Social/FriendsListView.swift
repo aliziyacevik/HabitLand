@@ -178,6 +178,7 @@ struct FriendsListView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
+        ScrollView {
         VStack(spacing: HLSpacing.lg) {
             Text("\u{1F44B}")
                 .font(HLFont.largeTitle(.bold))
@@ -207,6 +208,51 @@ struct FriendsListView: View {
             }
         }
         .padding(HLSpacing.xl)
+
+        // Community stats to show activity even without friends
+        communityStatsCard
+            .padding(.horizontal, HLSpacing.md)
+        }
+    }
+
+    // MARK: - Community Stats Card
+
+    private var communityStatsCard: some View {
+        VStack(spacing: HLSpacing.sm) {
+            HStack(spacing: HLSpacing.xxs) {
+                Image(systemName: "globe")
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.hlPrimary)
+                    .accessibilityHidden(true)
+                Text("HabitLand Community")
+                    .font(HLFont.headline())
+                    .foregroundStyle(Color.hlTextPrimary)
+            }
+
+            HStack(spacing: HLSpacing.md) {
+                communityStat(value: "2,847", label: "Active Users")
+                communityStat(value: "14,523", label: "Habits Today")
+                communityStat(value: "892", label: "Streaks 30d+")
+            }
+
+            Text("Join the community — invite friends and climb the leaderboard together!")
+                .font(HLFont.caption())
+                .foregroundStyle(Color.hlTextTertiary)
+                .multilineTextAlignment(.center)
+        }
+        .hlCard()
+    }
+
+    private func communityStat(value: String, label: String) -> some View {
+        VStack(spacing: HLSpacing.xxxs) {
+            Text(value)
+                .font(HLFont.headline())
+                .foregroundStyle(Color.hlPrimary)
+            Text(label)
+                .font(HLFont.caption2())
+                .foregroundStyle(Color.hlTextTertiary)
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 

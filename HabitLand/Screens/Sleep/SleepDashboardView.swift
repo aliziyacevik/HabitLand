@@ -3,6 +3,7 @@ import SwiftData
 
 struct SleepDashboardView: View {
     @Query(sort: \SleepLog.wakeTime, order: .reverse) private var sleepLogs: [SleepLog]
+    @Query(filter: #Predicate<Habit> { !$0.isArchived }) private var habits: [Habit]
     @State private var showLogSleep = false
     @State private var showAnalytics = false
     @State private var showHistory = false
@@ -12,7 +13,7 @@ struct SleepDashboardView: View {
 
     private var weekLogs: [SleepLog] {
         let calendar = Calendar.current
-        let weekAgo = calendar.date(byAdding: .day, value: -7, to: calendar.startOfDay(for: Date()))!
+        guard let weekAgo = calendar.date(byAdding: .day, value: -7, to: calendar.startOfDay(for: Date())) else { return [] }
         return sleepLogs.filter { $0.wakeTime >= weekAgo }
     }
 
@@ -44,6 +45,8 @@ struct SleepDashboardView: View {
                         .hlStaggeredAppear(index: 2)
                     insightsCard
                         .hlStaggeredAppear(index: 3)
+                    sleepHabitCorrelationCard
+                        .hlStaggeredAppear(index: 4)
                 }
                 .padding(.horizontal, HLSpacing.md)
                 .padding(.bottom, HLSpacing.xl)
@@ -301,7 +304,7 @@ struct SleepDashboardView: View {
                 result.append(0)
                 continue
             }
-            let nextDay = calendar.date(byAdding: .day, value: 1, to: day)!
+            guard let nextDay = calendar.date(byAdding: .day, value: 1, to: day) else { result.append(0); continue }
             if let log = sleepLogs.first(where: {
                 let wake = calendar.startOfDay(for: $0.wakeTime)
                 return wake >= day && wake < nextDay
@@ -312,6 +315,137 @@ struct SleepDashboardView: View {
             }
         }
         return result
+    }
+
+    // MARK: - Sleep & Habit Correlation
+
+    private var sleepHabitCorrelationCard: some View {
+        let correlation = computeSleepHabitCorrelation()
+
+        return VStack(alignment: .leading, spacing: HLSpacing.sm) {
+            HStack(spacing: HLSpacing.xs) {
+                Image(systemName: "link")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Color.hlSleep)
+                    .accessibilityHidden(true)
+                Text("Sleep & Habits")
+                    .font(HLFont.headline())
+                    .foregroundStyle(Color.hlTextPrimary)
+
+                Spacer()
+
+                if !ProManager.shared.isPro {
+                    Text("PRO")
+                        .font(HLFont.caption2(.bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, HLSpacing.xs)
+                        .padding(.vertical, HLSpacing.xxxs)
+                        .background(Color.hlPrimary)
+                        .cornerRadius(HLRadius.full)
+                }
+            }
+
+            if ProManager.shared.isPro {
+                if let c = correlation {
+                    Text(c.message)
+                        .font(HLFont.subheadline())
+                        .foregroundStyle(Color.hlTextSecondary)
+
+                    HStack(spacing: HLSpacing.lg) {
+                        correlationStat(
+                            value: "\(c.goodSleepCompletionRate)%",
+                            label: "Good sleep days",
+                            color: .hlSuccess
+                        )
+                        correlationStat(
+                            value: "\(c.poorSleepCompletionRate)%",
+                            label: "Poor sleep days",
+                            color: .hlWarning
+                        )
+                    }
+                } else {
+                    Text("Log a few more nights to see how sleep affects your habits")
+                        .font(HLFont.subheadline())
+                        .foregroundStyle(Color.hlTextTertiary)
+                }
+            } else {
+                Text("Unlock Pro to see how your sleep quality affects habit completion")
+                    .font(HLFont.subheadline())
+                    .foregroundStyle(Color.hlTextTertiary)
+            }
+        }
+        .hlCard()
+    }
+
+    private func correlationStat(value: String, label: String, color: Color) -> some View {
+        VStack(spacing: HLSpacing.xxxs) {
+            Text(value)
+                .font(HLFont.title2())
+                .foregroundStyle(color)
+            Text(label)
+                .font(HLFont.caption2())
+                .foregroundStyle(Color.hlTextTertiary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private struct CorrelationResult {
+        let goodSleepCompletionRate: Int
+        let poorSleepCompletionRate: Int
+        let message: String
+    }
+
+    private func computeSleepHabitCorrelation() -> CorrelationResult? {
+        let calendar = Calendar.current
+        guard sleepLogs.count >= 3, !habits.isEmpty else { return nil }
+
+        let last30 = sleepLogs.prefix(30)
+        var goodSleepDays: [Date] = []
+        var poorSleepDays: [Date] = []
+
+        for log in last30 {
+            let day = calendar.startOfDay(for: log.wakeTime)
+            if log.durationHours >= 7 {
+                goodSleepDays.append(day)
+            } else {
+                poorSleepDays.append(day)
+            }
+        }
+
+        func completionRate(for days: [Date]) -> Int {
+            guard !days.isEmpty, !habits.isEmpty else { return 0 }
+            let totalExpected = days.count * habits.count
+            var totalCompleted = 0
+            for day in days {
+                for habit in habits {
+                    if habit.safeCompletions.contains(where: {
+                        calendar.startOfDay(for: $0.date) == day && $0.isCompleted
+                    }) {
+                        totalCompleted += 1
+                    }
+                }
+            }
+            return min(100, Int(Double(totalCompleted) / Double(totalExpected) * 100))
+        }
+
+        let goodRate = completionRate(for: goodSleepDays)
+        let poorRate = completionRate(for: poorSleepDays)
+        let diff = goodRate - poorRate
+
+        let message: String
+        if diff > 15 {
+            message = "You complete \(diff)% more habits on days you sleep 7+ hours!"
+        } else if diff > 0 {
+            message = "Better sleep slightly improves your habit completion rate."
+        } else {
+            message = "Your habits stay consistent regardless of sleep — impressive discipline!"
+        }
+
+        return CorrelationResult(
+            goodSleepCompletionRate: goodRate,
+            poorSleepCompletionRate: poorRate,
+            message: message
+        )
     }
 }
 

@@ -1,7 +1,10 @@
 import SwiftUI
+import SwiftData
 
 struct AppearanceSettingsView: View {
     @ObservedObject private var themeManager = ThemeManager.shared
+    @Query private var profiles: [UserProfile]
+    private var userLevel: Int { profiles.first?.level ?? 1 }
 
     var body: some View {
         List {
@@ -108,7 +111,12 @@ struct AppearanceSettingsView: View {
                 GridItem(.flexible())
             ], spacing: HLSpacing.sm) {
                 ForEach(AccentTheme.allCases) { theme in
+                    let locked = !theme.isUnlocked(at: userLevel)
                     Button {
+                        guard !locked else {
+                            HLHaptics.warning()
+                            return
+                        }
                         withAnimation(HLAnimation.quick) {
                             themeManager.accentTheme = theme
                         }
@@ -125,10 +133,17 @@ struct AppearanceSettingsView: View {
                                         )
                                     )
                                     .frame(width: 48, height: 48)
+                                    .opacity(locked ? 0.4 : 1.0)
 
-                                Image(systemName: theme.icon)
-                                    .font(.system(size: 18, weight: .semibold))
-                                    .foregroundStyle(.white)
+                                if locked {
+                                    Image(systemName: "lock.fill")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundStyle(.white)
+                                } else {
+                                    Image(systemName: theme.icon)
+                                        .font(.system(size: 18, weight: .semibold))
+                                        .foregroundStyle(.white)
+                                }
                             }
                             .overlay {
                                 if themeManager.accentTheme == theme {
@@ -138,9 +153,10 @@ struct AppearanceSettingsView: View {
                                 }
                             }
 
-                            Text(theme.rawValue)
+                            Text(locked ? "Lv.\(theme.requiredLevel)" : theme.rawValue)
                                 .font(HLFont.caption(.medium))
                                 .foregroundStyle(
+                                    locked ? Color.hlTextTertiary :
                                     themeManager.accentTheme == theme
                                         ? theme.primary
                                         : Color.hlTextSecondary

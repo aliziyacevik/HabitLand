@@ -31,6 +31,9 @@ final class ProManager: ObservableObject {
         if let expiresAt = referralProExpiresAt, expiresAt > Date.now {
             return true
         }
+        if isInAppTrialActive {
+            return true
+        }
         return !purchasedProductIDs.isEmpty
     }
 
@@ -42,6 +45,8 @@ final class ProManager: ObservableObject {
         } else if let expiresAt = referralProExpiresAt, expiresAt > Date.now {
             let days = Calendar.current.dateComponents([.day], from: Date.now, to: expiresAt).day ?? 0
             return ("Pro (Referral - \(days)d left)", "gift.fill")
+        } else if isInAppTrialActive {
+            return ("Pro Trial (\(trialRemainingDays)d left)", "sparkles")
         }
         #if DEBUG
         if debugProEnabled || ProcessInfo.processInfo.arguments.contains("-screenshotMode") {
@@ -222,13 +227,44 @@ final class ProManager: ObservableObject {
         }
     }
 
+    // MARK: - In-App Trial (UserDefaults-based, no StoreKit needed)
+
+    private static let trialStartKey = "habitland_trial_start"
+    private static let trialDuration: TimeInterval = 7 * 24 * 60 * 60 // 7 days
+    private static let trialOfferedKey = "habitland_trial_offered"
+
+    var isInAppTrialActive: Bool {
+        guard let startDate = UserDefaults.standard.object(forKey: Self.trialStartKey) as? Date else {
+            return false
+        }
+        return Date.now < startDate.addingTimeInterval(Self.trialDuration)
+    }
+
+    var trialRemainingDays: Int {
+        guard let startDate = UserDefaults.standard.object(forKey: Self.trialStartKey) as? Date else {
+            return 0
+        }
+        let end = startDate.addingTimeInterval(Self.trialDuration)
+        return max(0, Calendar.current.dateComponents([.day], from: Date.now, to: end).day ?? 0)
+    }
+
+    var hasTrialBeenOffered: Bool {
+        UserDefaults.standard.bool(forKey: Self.trialOfferedKey)
+    }
+
+    func startInAppTrial() {
+        UserDefaults.standard.set(Date.now, forKey: Self.trialStartKey)
+        UserDefaults.standard.set(true, forKey: Self.trialOfferedKey)
+        objectWillChange.send()
+    }
+
     // MARK: - Free Tier Limits
 
     static let freeHabitLimit = 5
     static let freeAchievementLimit = 5
 
     func canCreateHabit(currentCount: Int) -> Bool {
-        isPro || currentCount < Self.freeHabitLimit
+        isPro || isInAppTrialActive || currentCount < Self.freeHabitLimit
     }
 }
 

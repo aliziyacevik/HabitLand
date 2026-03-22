@@ -185,9 +185,64 @@ final class NotificationManager: ObservableObject {
 
     // MARK: - Daily Scheduling (call from app lifecycle)
 
+    // MARK: - Evening Reminder
+
+    func scheduleEveningReminder(pendingCount: Int) {
+        guard pendingCount > 0 else { return }
+
+        let content = UNMutableNotificationContent()
+        content.title = pendingCount == 1 ? "1 Habit Left Today" : "\(pendingCount) Habits Left Today"
+        content.body = "You still have time! Complete your habits before the day ends."
+        content.sound = .default
+
+        var components = DateComponents()
+        components.hour = 20
+        components.minute = 0
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+
+        let request = UNNotificationRequest(identifier: "evening-reminder", content: content, trigger: trigger)
+        center.add(request)
+    }
+
     func scheduleDailyNotifications(habits: [(id: UUID, name: String, streak: Int, completed: Bool)]) {
         scheduleStreakAtRiskReminders(habits: habits)
         scheduleMorningMotivation()
+        let pending = habits.filter { !$0.completed }.count
+        scheduleEveningReminder(pendingCount: pending)
+
+        // Schedule coaching for best streak
+        if let bestStreak = habits.map(\.streak).max() {
+            scheduleStreakCoaching(currentStreak: bestStreak)
+        }
+    }
+
+    // MARK: - Streak Milestone Coaching
+
+    func scheduleStreakCoaching(currentStreak: Int) {
+        let milestones: [(days: Int, title: String, body: String)] = [
+            (3, "3-Day Streak!", "You're building momentum. Research shows it takes 21 days to form a habit — keep going!"),
+            (7, "1 Week Strong!", "A full week! You're proving to yourself this time is different."),
+            (14, "2 Weeks In!", "You're halfway to making this automatic. Your brain is rewiring itself right now."),
+            (21, "21 Days — Habit Formed!", "Science says it takes 21 days. You did it! This habit is becoming part of who you are."),
+            (30, "30-Day Champion!", "A full month of consistency. You're in the top 8% of habit builders."),
+            (50, "50 Days — Unstoppable!", "Half a century of days. This isn't a habit anymore — it's a lifestyle."),
+            (100, "100 Days — Legend!", "Triple digits! You've built something truly remarkable."),
+        ]
+
+        for milestone in milestones where milestone.days == currentStreak + 1 {
+            let content = UNMutableNotificationContent()
+            content.title = milestone.title
+            content.body = milestone.body
+            content.sound = .default
+
+            var components = DateComponents()
+            components.hour = 9
+            components.minute = 0
+            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+
+            let request = UNNotificationRequest(identifier: "streak-milestone-\(milestone.days)", content: content, trigger: trigger)
+            center.add(request)
+        }
     }
 
     // MARK: - Remove All
