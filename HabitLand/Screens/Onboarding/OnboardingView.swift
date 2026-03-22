@@ -11,14 +11,16 @@ private struct OnboardingPage: Identifiable {
     let subtitle: String
     let accentColor: Color
     let isLevelUpPage: Bool
+    let isLeaderboardPreview: Bool
 
-    init(systemImage: String, emoji: String? = nil, title: String, subtitle: String, accentColor: Color, isLevelUpPage: Bool = false) {
+    init(systemImage: String, emoji: String? = nil, title: String, subtitle: String, accentColor: Color, isLevelUpPage: Bool = false, isLeaderboardPreview: Bool = false) {
         self.systemImage = systemImage
         self.emoji = emoji
         self.title = title
         self.subtitle = subtitle
         self.accentColor = accentColor
         self.isLevelUpPage = isLevelUpPage
+        self.isLeaderboardPreview = isLeaderboardPreview
     }
 }
 
@@ -31,7 +33,7 @@ struct OnboardingView: View {
 
     // Page state
     @State private var currentPage = 0
-    // Steps: 0=pages, 1=habits, 2=reminder, 3=theme, 4=notifications, 5=trial, 6=complete
+    // Steps: 0=pages, 1=habits, 2=reminder+notif, 3=theme, 4=trial, 5=complete
     @State private var currentStep = 0
 
     // Data collected
@@ -68,7 +70,8 @@ struct OnboardingView: View {
             systemImage: "person.2.fill",
             title: "Compete with\nfriends",
             subtitle: "Challenge your friends, climb the leaderboard, and nudge each other when motivation drops.",
-            accentColor: .hlFitness
+            accentColor: .hlFitness,
+            isLeaderboardPreview: true
         ),
         OnboardingPage(
             systemImage: "trophy.fill",
@@ -106,26 +109,8 @@ struct OnboardingView: View {
                     }
                 }
             case 4:
-                NotificationSetupView(
-                    onEnable: {
-                        Task {
-                            _ = await NotificationManager.shared.requestPermission()
-                            await MainActor.run {
-                                withAnimation(HLAnimation.gentleSpring) {
-                                    currentStep = 5
-                                }
-                            }
-                        }
-                    },
-                    onSkip: {
-                        withAnimation(HLAnimation.gentleSpring) {
-                            currentStep = 5
-                        }
-                    }
-                )
-            case 5:
                 trialWelcomeStep
-            case 6:
+            case 5:
                 OnboardingCompleteView(
                     habitsCreated: habitsCreatedCount
                 ) {
@@ -191,6 +176,9 @@ struct OnboardingView: View {
                             .tag(index)
                     } else if page.isLevelUpPage {
                         levelUpPageView(page)
+                            .tag(index)
+                    } else if page.isLeaderboardPreview {
+                        leaderboardPreviewPage(page)
                             .tag(index)
                     } else {
                         pageView(page)
@@ -272,6 +260,128 @@ struct OnboardingView: View {
     private func levelUpPageView(_ page: OnboardingPage) -> some View {
         LevelUpPreviewPage(page: page)
             .padding(.horizontal, HLSpacing.lg)
+    }
+
+    // MARK: - Leaderboard Preview Page
+
+    @ViewBuilder
+    private func leaderboardPreviewPage(_ page: OnboardingPage) -> some View {
+        VStack(spacing: HLSpacing.md) {
+            Spacer()
+
+            Text(page.title)
+                .font(HLFont.title1())
+                .foregroundColor(.hlTextPrimary)
+                .multilineTextAlignment(.center)
+
+            Text(page.subtitle)
+                .font(HLFont.subheadline())
+                .foregroundColor(.hlTextSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, HLSpacing.md)
+
+            // Mini leaderboard preview
+            VStack(spacing: 0) {
+                // Podium
+                HStack(alignment: .bottom, spacing: HLSpacing.sm) {
+                    onboardingPodiumPlace(name: "Mike", emoji: "🐻", xp: 640, rank: 2, color: .hlSilver, height: 48)
+                    onboardingPodiumPlace(name: "Sarah", emoji: "🦊", xp: 810, rank: 1, color: .hlGold, height: 64, hasCrown: true)
+                    onboardingPodiumPlace(name: "You", emoji: selectedAvatar, xp: 520, rank: 3, color: .hlBronze, height: 36)
+                }
+                .padding(HLSpacing.md)
+
+                Divider()
+
+                // Rankings
+                VStack(spacing: 0) {
+                    onboardingRankRow(rank: 4, name: "Emma", emoji: "🐼", xp: 380, streak: 14)
+                    onboardingRankRow(rank: 5, name: "James", emoji: "🐸", xp: 210, streak: 5)
+                }
+                .padding(.horizontal, HLSpacing.sm)
+                .padding(.vertical, HLSpacing.xs)
+            }
+            .background(Color.hlSurface)
+            .cornerRadius(HLRadius.lg)
+            .hlShadow(HLShadow.sm)
+            .padding(.horizontal, HLSpacing.xl)
+
+            Spacer()
+        }
+        .padding(.horizontal, HLSpacing.md)
+    }
+
+    private func onboardingPodiumPlace(name: String, emoji: String, xp: Int, rank: Int, color: Color, height: CGFloat, hasCrown: Bool = false) -> some View {
+        VStack(spacing: HLSpacing.xxs) {
+            if hasCrown {
+                Image(systemName: "crown.fill")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.hlGold)
+            }
+
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.2))
+                    .frame(width: rank == 1 ? 52 : 40, height: rank == 1 ? 52 : 40)
+                Text(emoji)
+                    .font(.system(size: rank == 1 ? 24 : 18))
+            }
+
+            Text(name)
+                .font(HLFont.caption(.semibold))
+                .foregroundColor(.hlTextPrimary)
+                .lineLimit(1)
+
+            Text("\(xp) XP")
+                .font(HLFont.caption2())
+                .foregroundColor(.hlTextSecondary)
+
+            RoundedRectangle(cornerRadius: HLRadius.xs)
+                .fill(color.opacity(0.25))
+                .frame(height: height)
+                .overlay(
+                    Text("#\(rank)")
+                        .font(HLFont.caption(.bold))
+                        .foregroundColor(color)
+                )
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func onboardingRankRow(rank: Int, name: String, emoji: String, xp: Int, streak: Int) -> some View {
+        HStack(spacing: HLSpacing.sm) {
+            Text("\(rank)")
+                .font(HLFont.caption(.bold))
+                .foregroundColor(.hlTextTertiary)
+                .frame(width: 20)
+
+            ZStack {
+                Circle()
+                    .fill(Color.hlPrimary.opacity(0.1))
+                    .frame(width: 32, height: 32)
+                Text(emoji)
+                    .font(.system(size: 16))
+            }
+
+            Text(name)
+                .font(HLFont.subheadline(.medium))
+                .foregroundColor(.hlTextPrimary)
+
+            Spacer()
+
+            HStack(spacing: HLSpacing.xxs) {
+                Image(systemName: "flame.fill")
+                    .font(.system(size: 10))
+                    .foregroundColor(.hlFlame)
+                Text("\(streak)d")
+                    .font(HLFont.caption2())
+                    .foregroundColor(.hlTextSecondary)
+            }
+
+            Text("\(xp) XP")
+                .font(HLFont.caption(.semibold))
+                .foregroundColor(.hlTextSecondary)
+        }
+        .padding(.vertical, HLSpacing.xs)
     }
 
     // MARK: - Name Entry + Avatar Picker
@@ -385,7 +495,7 @@ struct OnboardingView: View {
                     .foregroundStyle(Color.hlTextPrimary)
                     .multilineTextAlignment(.center)
 
-                Text("Pick a time for your daily habit reminder. You can change this later.")
+                Text("Pick a time and we'll send you a daily reminder. You can change this in Settings.")
                     .font(HLFont.body())
                     .foregroundStyle(Color.hlTextSecondary)
                     .multilineTextAlignment(.center)
@@ -402,17 +512,26 @@ struct OnboardingView: View {
             VStack(spacing: HLSpacing.sm) {
                 Button {
                     saveReminderTime()
-                    withAnimation(HLAnimation.gentleSpring) {
-                        currentStep = 3
+                    Task {
+                        _ = await NotificationManager.shared.requestPermission()
+                        await MainActor.run {
+                            withAnimation(HLAnimation.gentleSpring) {
+                                currentStep = 3
+                            }
+                        }
                     }
                 } label: {
-                    Text("Set Reminder")
-                        .font(HLFont.headline())
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, HLSpacing.md)
-                        .background(Color.hlPrimary)
-                        .cornerRadius(HLRadius.lg)
+                    HStack(spacing: HLSpacing.xs) {
+                        Image(systemName: "bell.fill")
+                            .font(.system(size: 16))
+                        Text("Enable Reminders")
+                    }
+                    .font(HLFont.headline())
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, HLSpacing.md)
+                    .background(Color.hlPrimary)
+                    .cornerRadius(HLRadius.lg)
                 }
 
                 Button {
@@ -477,7 +596,7 @@ struct OnboardingView: View {
 
             Button {
                 withAnimation(HLAnimation.gentleSpring) {
-                    currentStep = 6
+                    currentStep = 5
                 }
             } label: {
                 Text("Start My Free Trial")
