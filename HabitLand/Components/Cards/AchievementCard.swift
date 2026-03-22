@@ -9,6 +9,8 @@ struct AchievementCard: View {
     let progress: Double
     let targetValue: Int
 
+    @ScaledMetric(relativeTo: .body) private var iconSize: CGFloat = 48
+
     // MARK: - Model Initializer
 
     init(achievement: Achievement) {
@@ -102,7 +104,7 @@ struct AchievementCard: View {
                             endPoint: .bottomTrailing
                         )
                 )
-                .frame(width: 48, height: 48)
+                .frame(width: iconSize, height: iconSize)
 
             Image(systemName: icon)
                 .font(.system(size: 22, weight: .semibold))

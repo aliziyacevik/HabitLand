@@ -49,6 +49,8 @@ struct SleepQualityGraph: View {
             }
         }
         .frame(height: height)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(sleepGraphAccessibilityLabel)
         .onAppear {
             animatedFractions = Array(repeating: 0, count: data.count)
             withAnimation(HLAnimation.slow) {
@@ -60,6 +62,16 @@ struct SleepQualityGraph: View {
                 animatedFractions = data.map { $0.hours / maxHours }
             }
         }
+    }
+
+    // MARK: - Accessibility
+
+    private var sleepGraphAccessibilityLabel: String {
+        let descriptions = data.map { "\($0.dayLabel) \(String(format: "%.1f", $0.hours)) hours, \($0.quality)" }
+        let summary = descriptions.joined(separator: ", ")
+        let avg = data.isEmpty ? 0 : data.map(\.hours).reduce(0, +) / Double(data.count)
+        let metGoal = data.filter { $0.hours >= goalHours }.count
+        return "Sleep quality chart. \(summary). Average \(String(format: "%.1f", avg)) hours. \(metGoal) of \(data.count) nights met \(String(format: "%.0f", goalHours))-hour goal."
     }
 
     // MARK: - Bar Column

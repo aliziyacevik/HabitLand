@@ -6,7 +6,9 @@ struct AchievementBadge: View {
     let isUnlocked: Bool
     var size: CGFloat = 64
 
-    private var iconSize: CGFloat { size * 0.4 }
+    @ScaledMetric(relativeTo: .body) private var scaledSize: CGFloat = 64
+    private var badgeSize: CGFloat { scaledSize * (size / 64.0) }
+    private var iconSize: CGFloat { badgeSize * 0.4 }
 
     var body: some View {
         VStack(spacing: HLSpacing.xs) {
@@ -15,14 +17,14 @@ struct AchievementBadge: View {
                 if isUnlocked {
                     Circle()
                         .fill(Color.hlGold.opacity(0.15))
-                        .frame(width: size + 8, height: size + 8)
+                        .frame(width: badgeSize + 8, height: badgeSize + 8)
                         .blur(radius: 6)
                 }
 
                 // Background circle
                 Circle()
                     .fill(isUnlocked ? Color.hlGold.opacity(0.15) : Color.hlDivider.opacity(0.6))
-                    .frame(width: size, height: size)
+                    .frame(width: badgeSize, height: badgeSize)
 
                 // Border
                 Circle()
@@ -30,7 +32,7 @@ struct AchievementBadge: View {
                         isUnlocked ? Color.hlGold : Color.hlTextTertiary.opacity(0.4),
                         lineWidth: 2
                     )
-                    .frame(width: size, height: size)
+                    .frame(width: badgeSize, height: badgeSize)
 
                 // Icon
                 Image(systemName: isUnlocked ? icon : "lock.fill")
@@ -44,7 +46,7 @@ struct AchievementBadge: View {
                 .foregroundStyle(isUnlocked ? Color.hlTextPrimary : Color.hlTextTertiary)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
-                .frame(width: size + HLSpacing.md)
+                .frame(width: badgeSize + HLSpacing.md)
         }
     }
 }

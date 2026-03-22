@@ -28,6 +28,8 @@ struct WeeklyChart: View {
             }
         }
         .frame(height: height)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(weeklyChartAccessibilityLabel)
         .onAppear {
             withAnimation(HLAnimation.slow) {
                 animatedData = data.map { min(max($0, 0), 1.0) }
@@ -38,6 +40,27 @@ struct WeeklyChart: View {
                 animatedData = newValue.map { min(max($0, 0), 1.0) }
             }
         }
+    }
+
+    // MARK: - Accessibility
+
+    private var weeklyChartAccessibilityLabel: String {
+        let descriptions = data.enumerated().map { index, value in
+            let label = index < Self.dayLabels.count ? Self.dayLabels[index] : "Day \(index + 1)"
+            return "\(label) \(Int(min(max(value, 0), 1.0) * 100))%"
+        }
+        let summary = descriptions.joined(separator: ", ")
+        let values = data.map { min(max($0, 0), 1.0) }
+        let avg = values.isEmpty ? 0 : values.reduce(0, +) / Double(values.count)
+        let trend: String
+        if values.count >= 2 {
+            let firstHalf = values.prefix(values.count / 2).reduce(0, +) / Double(max(values.count / 2, 1))
+            let secondHalf = values.suffix(values.count / 2).reduce(0, +) / Double(max(values.count / 2, 1))
+            trend = secondHalf > firstHalf + 0.05 ? "Trend: improving" : (secondHalf < firstHalf - 0.05 ? "Trend: declining" : "Trend: steady")
+        } else {
+            trend = ""
+        }
+        return "Weekly completion chart. \(summary). Average \(Int(avg * 100))%. \(trend)"
     }
 
     // MARK: - Bar Column

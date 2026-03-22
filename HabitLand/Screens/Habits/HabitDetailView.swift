@@ -143,6 +143,8 @@ struct HabitDetailView: View {
                 Spacer()
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(calendarHeatMapAccessibilityLabel)
         .hlCard()
     }
 
@@ -155,6 +157,8 @@ struct HabitDetailView: View {
             StatBox(title: "Total", value: "\(habit.totalCompletions)", subtitle: "done", color: Color.hlPrimary)
             StatBox(title: "Rate", value: "\(Int(habit.weekCompletionRate * 100))%", subtitle: "weekly", color: Color.hlInfo)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(habit.currentStreak)-day current streak, \(habit.bestStreak)-day best streak, \(habit.totalCompletions) total completions, \(Int(habit.weekCompletionRate * 100)) percent weekly rate")
     }
 
     // MARK: - Weekly Chart
@@ -180,6 +184,8 @@ struct HabitDetailView: View {
                 }
             }
             .frame(height: 64)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(habitWeeklyChartAccessibilityLabel)
         }
         .hlCard()
     }
@@ -278,6 +284,25 @@ struct HabitDetailView: View {
         .hlCard()
     }
 
+    // MARK: - Accessibility Helpers
+
+    private var calendarHeatMapAccessibilityLabel: String {
+        let days = last30Days()
+        let completedDays = days.filter { isDateCompleted($0) }.count
+        return "Last 30 days calendar. \(completedDays) of \(days.count) days completed."
+    }
+
+    private var habitWeeklyChartAccessibilityLabel: String {
+        let dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        let data = weekDayData()
+        let descriptions = data.enumerated().map { index, item in
+            let name = index < dayNames.count ? dayNames[index] : item.day
+            return "\(name) \(item.completed ? "completed" : "not completed")"
+        }
+        let completedCount = data.filter(\.completed).count
+        return "This week: \(descriptions.joined(separator: ", ")). \(completedCount) of \(data.count) days completed."
+    }
+
     // MARK: - Helpers
 
     private func last30Days() -> [Date] {
@@ -331,6 +356,8 @@ struct StatBox: View {
                 .foregroundStyle(Color.hlTextTertiary)
         }
         .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(value) \(subtitle) \(title)")
         .hlCard(padding: HLSpacing.sm)
     }
 }

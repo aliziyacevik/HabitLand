@@ -75,6 +75,8 @@ struct CircularProgressRing: View {
             }
         }
         .frame(width: size.diameter, height: size.diameter)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(Int(min(progress, 1.0) * 100)) percent complete")
         .hlRingGlow(progress: animatedProgress, color: color)
         .onAppear {
             withAnimation(HLAnimation.progressFill) {

@@ -49,11 +49,28 @@ struct HabitAnalyticsGraph: View {
             }
         }
         .frame(height: height)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(analyticsGraphAccessibilityLabel)
         .onAppear {
             withAnimation(.easeInOut(duration: 1.0)) {
                 animationProgress = 1.0
             }
         }
+    }
+
+    // MARK: - Accessibility
+
+    private var analyticsGraphAccessibilityLabel: String {
+        guard !data.isEmpty else { return "Habit analytics graph. No data available." }
+        let values = data.map { min(max($0, 0), 1.0) }
+        let avg = Int(values.reduce(0, +) / Double(values.count) * 100)
+        let latest = Int((values.last ?? 0) * 100)
+        let earliest = Int((values.first ?? 0) * 100)
+        let trend: String
+        if latest > earliest + 5 { trend = "improving" }
+        else if latest < earliest - 5 { trend = "declining" }
+        else { trend = "steady" }
+        return "Habit completion trend over \(data.count) days. Average \(avg)%, most recent \(latest)%. Trend: \(trend)."
     }
 
     // MARK: - Geometry Helpers

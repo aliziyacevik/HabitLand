@@ -8,13 +8,16 @@ struct ProgressCard: View {
     var ringColor: Color = .hlPrimary
     var ringSize: CGFloat = 72
 
+    @ScaledMetric(relativeTo: .body) private var scaledBaseSize: CGFloat = 72
+    private var scaledRingSize: CGFloat { scaledBaseSize * (ringSize / 72.0) }
+
     var body: some View {
         VStack(spacing: HLSpacing.sm) {
             // Circular progress ring
             ZStack {
                 Circle()
                     .stroke(ringColor.opacity(0.15), lineWidth: 6)
-                    .frame(width: ringSize, height: ringSize)
+                    .frame(width: scaledRingSize, height: scaledRingSize)
 
                 Circle()
                     .trim(from: 0, to: min(progress, 1.0))
@@ -22,7 +25,7 @@ struct ProgressCard: View {
                         ringColor,
                         style: StrokeStyle(lineWidth: 6, lineCap: .round)
                     )
-                    .frame(width: ringSize, height: ringSize)
+                    .frame(width: scaledRingSize, height: scaledRingSize)
                     .rotationEffect(.degrees(-90))
                     .animation(HLAnimation.slow, value: progress)
 
@@ -44,6 +47,8 @@ struct ProgressCard: View {
                 .lineLimit(1)
         }
         .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(title): \(value). \(subtitle)")
         .hlCard()
     }
 }

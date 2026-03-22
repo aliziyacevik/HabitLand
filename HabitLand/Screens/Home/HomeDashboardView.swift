@@ -429,6 +429,8 @@ struct HomeDashboardView: View {
                         .foregroundStyle(Color.hlTextTertiary)
                         .monospacedDigit()
                 }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Level \(profile.level). \(profile.xp) of \(profile.xpForNextLevel) XP to next level")
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -457,6 +459,8 @@ struct HomeDashboardView: View {
                 }
             }
             .frame(width: 100, height: 100)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Daily progress: \(Int(completionPercent * 100)) percent complete, \(completedCount) of \(totalCount) habits done")
 
             VStack(alignment: .leading, spacing: HLSpacing.xs) {
                 Text("Daily Progress")
@@ -540,6 +544,8 @@ struct HomeDashboardView: View {
                     .foregroundStyle(Color.hlTextSecondary)
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Current streak: \(streakDays) days. Best streak: \(bestStreak) days")
         .hlCard()
         .overlay(alignment: .topTrailing) {
             if let milestone = streakMilestoneText {
@@ -1100,6 +1106,8 @@ struct HomeDashboardView: View {
                 }
             }
             .frame(height: 100)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(weeklyBarChartAccessibilityLabel)
 
             HStack(spacing: HLSpacing.lg) {
                 weekStat(title: "Avg", value: "\(weeklyAverage)%")
@@ -1107,6 +1115,8 @@ struct HomeDashboardView: View {
                 weekStat(title: "Total", value: "\(weeklyTotal)")
             }
             .frame(maxWidth: .infinity)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Weekly stats: average \(weeklyAverage) percent, best day \(weeklyBest) percent, \(weeklyTotal) total completions")
 
             if proManager.canAccessAnalytics {
                 NavigationLink(destination: PersonalStatisticsView()) {
@@ -1332,6 +1342,17 @@ struct HomeDashboardView: View {
                 .font(HLFont.caption())
                 .foregroundStyle(Color.hlTextTertiary)
         }
+    }
+
+    // MARK: - Accessibility Helpers
+
+    private var weeklyBarChartAccessibilityLabel: String {
+        let dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        let descriptions = weeklyDays.enumerated().map { index, day in
+            let name = index < dayNames.count ? dayNames[index] : day.label
+            return "\(name) \(day.value)%"
+        }
+        return "Weekly progress chart. \(descriptions.joined(separator: ", ")). Average \(weeklyAverage) percent."
     }
 }
 

@@ -198,6 +198,8 @@ struct WeeklyProgressView: View {
             )
         }
         .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Weekly summary: \(Int(currentWeekAverage)) percent average, \(weeklyData.filter { $0.completionPercent >= 100 }.count) perfect days, \(weeklyData.reduce(0) { $0 + $1.completedCount }) total done")
         .hlCard()
     }
 
@@ -239,6 +241,8 @@ struct WeeklyProgressView: View {
                 }
             }
             .frame(height: 160)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(completionRateChartAccessibilityLabel)
 
             if let best = bestDay {
                 HStack(spacing: HLSpacing.xs) {
@@ -302,6 +306,8 @@ struct WeeklyProgressView: View {
                 }
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Week comparison: this week \(Int(currentWeekAverage)) percent, last week \(Int(previousWeekAverage)) percent, \(abs(Int(weekOverWeekChange))) percent \(weekOverWeekChange >= 0 ? "improvement" : "decrease")")
         .hlCard()
     }
 
@@ -412,6 +418,14 @@ struct WeeklyProgressView: View {
             }
         }
         .hlCard()
+    }
+
+    // MARK: - Accessibility Helpers
+
+    private var completionRateChartAccessibilityLabel: String {
+        let descriptions = weeklyData.map { "\($0.fullLabel) \(Int($0.completionPercent))%" }
+        let bestText = bestDay.map { "Best day: \($0.fullLabel) at \(Int($0.completionPercent))%" } ?? ""
+        return "Completion rate chart. \(descriptions.joined(separator: ", ")). \(bestText)"
     }
 }
 

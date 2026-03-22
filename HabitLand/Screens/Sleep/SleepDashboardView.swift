@@ -206,6 +206,8 @@ struct SleepDashboardView: View {
                 }
             }
             .frame(height: 145)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(weeklySleepChartAccessibilityLabel)
         }
         .hlCard()
     }
@@ -250,6 +252,8 @@ struct SleepDashboardView: View {
                 .foregroundStyle(Color.hlTextSecondary)
         }
         .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(title): \(value)")
         .hlCard()
     }
 
@@ -284,6 +288,20 @@ struct SleepDashboardView: View {
             .hlCard()
         }
         .buttonStyle(.plain)
+    }
+
+    // MARK: - Accessibility Helpers
+
+    private var weeklySleepChartAccessibilityLabel: String {
+        let dayLabels = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        let hours = weekDayHours()
+        let descriptions = hours.enumerated().map { index, h in
+            let name = index < dayLabels.count ? dayLabels[index] : "Day \(index + 1)"
+            return h > 0 ? "\(name) \(String(format: "%.1f", h)) hours" : "\(name) no data"
+        }
+        let loggedNights = hours.filter { $0 > 0 }
+        let avg = loggedNights.isEmpty ? 0 : loggedNights.reduce(0, +) / Double(loggedNights.count)
+        return "Weekly sleep chart. \(descriptions.joined(separator: ", ")). Average \(String(format: "%.1f", avg)) hours across \(loggedNights.count) nights."
     }
 
     // MARK: - Helpers
@@ -387,6 +405,8 @@ struct SleepDashboardView: View {
                 .foregroundStyle(Color.hlTextTertiary)
         }
         .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(label): \(value) habit completion")
     }
 
     private struct CorrelationResult {

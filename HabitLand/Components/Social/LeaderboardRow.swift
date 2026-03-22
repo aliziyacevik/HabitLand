@@ -44,6 +44,10 @@ struct LeaderboardEntry: Identifiable {
 struct LeaderboardRow: View {
     let entry: LeaderboardEntry
 
+    @ScaledMetric(relativeTo: .body) private var avatarSizeLarge: CGFloat = 44
+    @ScaledMetric(relativeTo: .body) private var avatarSizeSmall: CGFloat = 36
+    @ScaledMetric(relativeTo: .body) private var rankBadgeSize: CGFloat = 28
+
     private var isTopThree: Bool {
         entry.rank <= 3
     }
@@ -61,7 +65,7 @@ struct LeaderboardRow: View {
         HStack(spacing: HLSpacing.sm) {
             rankBadge
 
-            AvatarView(name: entry.isCurrentUser ? "You" : entry.name, size: isTopThree ? 44 : 36, avatarType: entry.avatarType)
+            AvatarView(name: entry.isCurrentUser ? "You" : entry.name, size: isTopThree ? avatarSizeLarge : avatarSizeSmall, avatarType: entry.avatarType)
 
             Text(entry.isCurrentUser ? "You" : entry.name)
                 .font(isTopThree ? HLFont.headline() : HLFont.body())
@@ -97,7 +101,7 @@ struct LeaderboardRow: View {
             ZStack {
                 Circle()
                     .fill(rankColor)
-                    .frame(width: 28, height: 28)
+                    .frame(width: rankBadgeSize, height: rankBadgeSize)
 
                 Text("\(entry.rank)")
                     .font(HLFont.footnote(.bold))
@@ -107,7 +111,7 @@ struct LeaderboardRow: View {
             Text("\(entry.rank)")
                 .font(HLFont.footnote(.semibold))
                 .foregroundColor(.hlTextTertiary)
-                .frame(width: 28, alignment: .center)
+                .frame(width: rankBadgeSize, alignment: .center)
         }
     }
 }

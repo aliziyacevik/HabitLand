@@ -25,10 +25,12 @@ struct FriendCard: View {
     var action: FriendCardAction = .add
     var onAction: (() -> Void)? = nil
 
+    @ScaledMetric(relativeTo: .body) private var avatarSize: CGFloat = 48
+
     var body: some View {
         HStack(spacing: HLSpacing.sm) {
             // Avatar
-            AvatarView(name: friend.name, size: 48, avatarType: friend.avatarType)
+            AvatarView(name: friend.name, size: avatarSize, avatarType: friend.avatarType)
 
             // Info
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
