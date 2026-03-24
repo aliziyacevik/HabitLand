@@ -4,6 +4,9 @@ import SwiftData
 struct HabitTimerView: View {
     @ScaledMetric(relativeTo: .body) private var controlIconSize: CGFloat = 20
     @ScaledMetric(relativeTo: .title3) private var playIconSize: CGFloat = 28
+    @ScaledMetric(relativeTo: .title3) private var controlButtonSize: CGFloat = 56
+    @ScaledMetric(relativeTo: .title) private var playButtonSize: CGFloat = 72
+    @ScaledMetric(relativeTo: .largeTitle) private var timerRingSize: CGFloat = 240
     @ObservedObject private var timerManager = HabitTimerManager.shared
     @Environment(\.modelContext) private var modelContext
     @Binding var isPresented: Bool
@@ -30,7 +33,7 @@ struct HabitTimerView: View {
                     // Background ring
                     Circle()
                         .stroke(Color.hlDivider, lineWidth: 8)
-                        .frame(width: 240, height: 240)
+                        .frame(width: min(timerRingSize, 300), height: min(timerRingSize, 300))
 
                     // Progress ring
                     Circle()
@@ -39,7 +42,7 @@ struct HabitTimerView: View {
                             timerManager.habitColor,
                             style: StrokeStyle(lineWidth: 8, lineCap: .round)
                         )
-                        .frame(width: 240, height: 240)
+                        .frame(width: min(timerRingSize, 300), height: min(timerRingSize, 300))
                         .rotationEffect(.degrees(-90))
                         .animation(.linear(duration: 1), value: timerManager.progress)
 
@@ -68,7 +71,7 @@ struct HabitTimerView: View {
                         Image(systemName: "xmark")
                             .font(.system(size: min(controlIconSize, 24), weight: .semibold))
                             .foregroundStyle(Color.hlTextSecondary)
-                            .frame(width: 56, height: 56)
+                            .frame(width: min(controlButtonSize, 72), height: min(controlButtonSize, 72))
                             .background(Color.hlSurface)
                             .clipShape(Circle())
                     }
@@ -86,7 +89,7 @@ struct HabitTimerView: View {
                         Image(systemName: timerManager.isRunning ? "pause.fill" : "play.fill")
                             .font(.system(size: min(playIconSize, 32), weight: .semibold))
                             .foregroundStyle(.white)
-                            .frame(width: 72, height: 72)
+                            .frame(width: min(playButtonSize, 96), height: min(playButtonSize, 96))
                             .background(timerManager.habitColor)
                             .clipShape(Circle())
                     }
@@ -101,7 +104,7 @@ struct HabitTimerView: View {
                         Image(systemName: "forward.fill")
                             .font(.system(size: min(controlIconSize, 24), weight: .semibold))
                             .foregroundStyle(timerManager.habitColor)
-                            .frame(width: 56, height: 56)
+                            .frame(width: min(controlButtonSize, 72), height: min(controlButtonSize, 72))
                             .background(timerManager.habitColor.opacity(0.12))
                             .clipShape(Circle())
                     }

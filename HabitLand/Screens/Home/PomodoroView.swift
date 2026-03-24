@@ -6,6 +6,10 @@ struct PomodoroView: View {
     @ScaledMetric(relativeTo: .body) private var controlIconSize: CGFloat = 20
     @ScaledMetric(relativeTo: .title3) private var playIconSize: CGFloat = 28
     @ScaledMetric(relativeTo: .title) private var phaseIconSize: CGFloat = 32
+    @ScaledMetric(relativeTo: .body) private var closeButtonSize: CGFloat = 40
+    @ScaledMetric(relativeTo: .title3) private var controlButtonSize: CGFloat = 56
+    @ScaledMetric(relativeTo: .title) private var playButtonSize: CGFloat = 72
+    @ScaledMetric(relativeTo: .largeTitle) private var timerRingSize: CGFloat = 260
     @Environment(\.modelContext) private var modelContext
     @Binding var isPresented: Bool
 
@@ -73,7 +77,7 @@ struct PomodoroView: View {
                     Image(systemName: "xmark")
                         .font(.system(size: min(closeIconSize, 20), weight: .semibold))
                         .foregroundStyle(Color.hlTextSecondary)
-                        .frame(width: 40, height: 40)
+                        .frame(width: min(closeButtonSize, 56), height: min(closeButtonSize, 56))
                         .background(Color.hlSurface)
                         .clipShape(Circle())
                 }
@@ -88,7 +92,7 @@ struct PomodoroView: View {
                     }
                 }
                 Spacer()
-                Color.clear.frame(width: 40, height: 40)
+                Color.clear.frame(width: min(closeButtonSize, 56), height: min(closeButtonSize, 56))
             }
             .padding(.horizontal, HLSpacing.lg)
             .padding(.top, HLSpacing.sm)
@@ -120,7 +124,7 @@ struct PomodoroView: View {
                 ZStack {
                     Circle()
                         .stroke(Color.hlDivider, lineWidth: 10)
-                        .frame(width: 260, height: 260)
+                        .frame(width: min(timerRingSize, 320), height: min(timerRingSize, 320))
 
                     Circle()
                         .trim(from: 0, to: progress)
@@ -128,7 +132,7 @@ struct PomodoroView: View {
                             phase.color,
                             style: StrokeStyle(lineWidth: 10, lineCap: .round)
                         )
-                        .frame(width: 260, height: 260)
+                        .frame(width: min(timerRingSize, 320), height: min(timerRingSize, 320))
                         .rotationEffect(.degrees(-90))
                         .animation(.linear(duration: 1), value: progress)
 
@@ -150,7 +154,7 @@ struct PomodoroView: View {
                         Image(systemName: "arrow.counterclockwise")
                             .font(.system(size: min(controlIconSize, 24), weight: .semibold))
                             .foregroundStyle(Color.hlTextSecondary)
-                            .frame(width: 56, height: 56)
+                            .frame(width: min(controlButtonSize, 72), height: min(controlButtonSize, 72))
                             .background(Color.hlSurface)
                             .clipShape(Circle())
                     }
@@ -168,7 +172,7 @@ struct PomodoroView: View {
                         Image(systemName: isRunning ? "pause.fill" : "play.fill")
                             .font(.system(size: min(playIconSize, 32), weight: .semibold))
                             .foregroundStyle(.white)
-                            .frame(width: 72, height: 72)
+                            .frame(width: min(playButtonSize, 96), height: min(playButtonSize, 96))
                             .background(phase.color)
                             .clipShape(Circle())
                     }
@@ -182,7 +186,7 @@ struct PomodoroView: View {
                         Image(systemName: "forward.fill")
                             .font(.system(size: min(controlIconSize, 24), weight: .semibold))
                             .foregroundStyle(phase.color)
-                            .frame(width: 56, height: 56)
+                            .frame(width: min(controlButtonSize, 72), height: min(controlButtonSize, 72))
                             .background(phase.color.opacity(0.12))
                             .clipShape(Circle())
                     }
