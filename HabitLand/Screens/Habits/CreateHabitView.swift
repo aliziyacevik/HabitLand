@@ -614,6 +614,7 @@ struct CreateHabitView: View {
             Task {
                 let authorized = await healthKit.requestAuthorization(for: [metric])
                 if authorized {
+                    try? await Task.sleep(for: .seconds(1))
                     await healthKit.syncHealthHabits(context: modelContext)
                 }
                 await MainActor.run { dismiss() }

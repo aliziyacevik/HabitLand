@@ -86,6 +86,20 @@ struct OnboardingView: View {
             switch currentStep {
             case 1:
                 VStack(spacing: 0) {
+                    HStack {
+                        Button {
+                            withAnimation(HLAnimation.gentleSpring) { currentStep = 0 }
+                        } label: {
+                            HStack(spacing: HLSpacing.xxs) {
+                                Image(systemName: "chevron.left")
+                                Text("Back")
+                            }
+                            .font(HLFont.callout(.medium))
+                            .foregroundStyle(Color.hlTextSecondary)
+                        }
+                        .padding(.leading, HLSpacing.lg)
+                        Spacer()
+                    }
                     stepIndicator(step: 3)
                     ThemeOnboardingView {
                         withAnimation(HLAnimation.gentleSpring) {
@@ -113,7 +127,9 @@ struct OnboardingView: View {
             HStack {
                 if currentPage > 0 {
                     Button {
-                        currentPage -= 1
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            currentPage -= 1
+                        }
                     } label: {
                         HStack(spacing: HLSpacing.xxs) {
                             Image(systemName: "chevron.left")
@@ -181,7 +197,9 @@ struct OnboardingView: View {
                 isFullWidth: true
             ) {
                 if currentPage < pages.count - 1 {
-                    currentPage += 1
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        currentPage += 1
+                    }
                 } else {
                     saveName()
                     withAnimation(HLAnimation.gentleSpring) {
