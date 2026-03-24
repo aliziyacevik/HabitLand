@@ -101,7 +101,7 @@ struct NotificationSettingsView: View {
         .animation(HLAnimation.standard, value: quietHoursEnabled)
         .onChange(of: weeklySummary) { _, enabled in
             if enabled {
-                NotificationManager.shared.scheduleWeeklySummary()
+                NotificationManager.shared.scheduleWeeklyRecap(completedThisWeek: 0, totalThisWeek: 0, bestStreak: 0)
             } else {
                 NotificationManager.shared.cancelWeeklySummary()
             }

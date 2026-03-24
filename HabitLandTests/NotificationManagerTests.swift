@@ -79,7 +79,7 @@ struct NotificationManagerTests {
 
     @Test @MainActor func scheduleAndCancelWeeklySummary() {
         let manager = NotificationManager.shared
-        manager.scheduleWeeklySummary()
+        manager.scheduleWeeklyRecap(completedThisWeek: 5, totalThisWeek: 7, bestStreak: 10)
         manager.cancelWeeklySummary()
     }
 
@@ -110,7 +110,7 @@ struct NotificationManagerTests {
 
     @Test @MainActor func weeklyRecapScheduling() {
         let manager = NotificationManager.shared
-        manager.scheduleWeeklyRecap(completedThisWeek: 15, bestStreak: 7)
+        manager.scheduleWeeklyRecap(completedThisWeek: 15, totalThisWeek: 21, bestStreak: 7)
     }
 
     // MARK: - Remove All

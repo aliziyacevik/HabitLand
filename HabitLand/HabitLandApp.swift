@@ -351,13 +351,7 @@ struct HabitLandApp: App {
             if !manager.isAuthorized {
                 _ = await manager.requestPermission()
             }
-            // Schedule weekly summary if enabled
-            let weeklySummaryEnabled = UserDefaults.standard.object(forKey: "notif_weeklySummary") == nil
-                || UserDefaults.standard.bool(forKey: "notif_weeklySummary")
-            if weeklySummaryEnabled {
-                manager.scheduleWeeklySummary()
-            }
-            // Schedule daily notifications (streak risk + morning motivation)
+            // Schedule daily notifications (includes weekly recap, streak risk, morning motivation)
             let context = sharedModelContainer.mainContext
             let habits: [Habit]
             do {

@@ -30,7 +30,47 @@ final class NotificationManager: ObservableObject {
         isAuthorized = settings.authorizationStatus == .authorized
     }
 
-    // MARK: - Habit Reminders
+    // MARK: - Habit Reminders (Grouped by Time)
+
+    func scheduleHabitReminders(habits: [(id: UUID, name: String, icon: String, reminderTime: Date)]) {
+        let reminderIds = habits.map { "habit-\($0.id.uuidString)" }
+        center.removePendingNotificationRequests(withIdentifiers: reminderIds + ["habit-group"])
+
+        let calendar = Calendar.current
+        var grouped: [String: [String]] = [:]
+        for habit in habits {
+            let key = "\(calendar.component(.hour, from: habit.reminderTime)):\(calendar.component(.minute, from: habit.reminderTime))"
+            grouped[key, default: []].append(habit.name)
+        }
+
+        for (timeKey, names) in grouped {
+            let parts = timeKey.split(separator: ":").compactMap { Int($0) }
+            guard parts.count == 2 else { continue }
+
+            let content = UNMutableNotificationContent()
+            if names.count == 1 {
+                content.title = "Time for \(names[0])"
+                content.body = "Don't break the chain! Complete your habit now."
+            } else {
+                content.title = "\(names.count) Habits Waiting"
+                let listed = names.prefix(3).joined(separator: ", ")
+                content.body = names.count <= 3
+                    ? "Time for \(listed)"
+                    : "Time for \(listed) and \(names.count - 3) more"
+            }
+            content.sound = .default
+            content.categoryIdentifier = "habitReminder"
+
+            var components = DateComponents()
+            components.hour = parts[0]
+            components.minute = parts[1]
+            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+
+            let identifier = names.count == 1 ? "habit-\(timeKey)" : "habit-group-\(timeKey)"
+            let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+            center.add(request)
+        }
+    }
 
     func scheduleHabitReminder(habitId: UUID, habitName: String, icon: String, at time: Date) {
         let content = UNMutableNotificationContent()
@@ -57,9 +97,7 @@ final class NotificationManager: ObservableObject {
 
     func rescheduleAll(habits: [(id: UUID, name: String, icon: String, reminderTime: Date)]) {
         center.removeAllPendingNotificationRequests()
-        for habit in habits {
-            scheduleHabitReminder(habitId: habit.id, habitName: habit.name, icon: habit.icon, at: habit.reminderTime)
-        }
+        scheduleHabitReminders(habits: habits)
     }
 
     // MARK: - Streak Alerts
@@ -71,7 +109,6 @@ final class NotificationManager: ObservableObject {
         content.sound = .default
         content.categoryIdentifier = "streakAlert"
 
-        // Fire at 8pm if not completed
         var components = DateComponents()
         components.hour = 20
         components.minute = 0
@@ -86,72 +123,32 @@ final class NotificationManager: ObservableObject {
         center.add(request)
     }
 
-    // MARK: - Weekly Summary
-
-    func scheduleWeeklySummary() {
-        let content = UNMutableNotificationContent()
-        content.title = "Your Weekly Recap is Ready!"
-        content.body = "See how you did this week — check your progress and keep the momentum going!"
-        content.sound = .default
-        content.categoryIdentifier = "weeklySummary"
-
-        // Every Sunday at 19:00
-        var components = DateComponents()
-        components.weekday = 1 // Sunday
-        components.hour = 19
-        components.minute = 0
-        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
-
-        let request = UNNotificationRequest(
-            identifier: "weekly-summary",
-            content: content,
-            trigger: trigger
-        )
-
-        center.add(request)
-    }
-
-    func cancelWeeklySummary() {
-        center.removePendingNotificationRequests(withIdentifiers: ["weekly-summary"])
-    }
-
     // MARK: - Streak At-Risk Evening Reminder
 
     func scheduleStreakAtRiskReminders(habits: [(id: UUID, name: String, streak: Int, completed: Bool)]) {
-        // Remove old streak risk notifications
         let ids = habits.map { "streak-risk-\($0.id.uuidString)" }
-        center.removePendingNotificationRequests(withIdentifiers: ids)
+        center.removePendingNotificationRequests(withIdentifiers: ids + ["streak-risk-batch"])
 
-        // Schedule for uncompleted habits with active streaks
         let atRisk = habits.filter { $0.streak > 0 && !$0.completed }
         guard !atRisk.isEmpty else { return }
 
+        let content = UNMutableNotificationContent()
         if atRisk.count == 1, let habit = atRisk.first {
-            let content = UNMutableNotificationContent()
             content.title = "\(habit.streak)-day streak at risk!"
             content.body = "Complete \(habit.name) before midnight to keep your streak alive."
-            content.sound = .default
-
-            var components = DateComponents()
-            components.hour = 21
-            components.minute = 0
-            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
-            let request = UNNotificationRequest(identifier: "streak-risk-\(habit.id.uuidString)", content: content, trigger: trigger)
-            center.add(request)
         } else {
-            let content = UNMutableNotificationContent()
             content.title = "\(atRisk.count) streaks at risk!"
             let names = atRisk.prefix(3).map(\.name).joined(separator: ", ")
             content.body = "Complete \(names) before midnight to protect your streaks."
-            content.sound = .default
-
-            var components = DateComponents()
-            components.hour = 21
-            components.minute = 0
-            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
-            let request = UNNotificationRequest(identifier: "streak-risk-batch", content: content, trigger: trigger)
-            center.add(request)
         }
+        content.sound = .default
+
+        var components = DateComponents()
+        components.hour = 21
+        components.minute = 0
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+        let request = UNNotificationRequest(identifier: "streak-risk-batch", content: content, trigger: trigger)
+        center.add(request)
     }
 
     // MARK: - Morning Motivation
@@ -183,11 +180,10 @@ final class NotificationManager: ObservableObject {
         center.removePendingNotificationRequests(withIdentifiers: ["morning-motivation"])
     }
 
-    // MARK: - Daily Scheduling (call from app lifecycle)
-
     // MARK: - Evening Reminder
 
     func scheduleEveningReminder(pendingCount: Int) {
+        center.removePendingNotificationRequests(withIdentifiers: ["evening-reminder"])
         guard pendingCount > 0 else { return }
 
         let content = UNMutableNotificationContent()
@@ -204,18 +200,78 @@ final class NotificationManager: ObservableObject {
         center.add(request)
     }
 
-    func scheduleDailyNotifications(habits: [(id: UUID, name: String, streak: Int, completed: Bool)]) {
-        scheduleStreakAtRiskReminders(habits: habits)
-        scheduleMorningMotivation()
-        let pending = habits.filter { !$0.completed }.count
-        scheduleEveningReminder(pendingCount: pending)
+    // MARK: - Daily Completion Summary (21:30)
 
-        // Schedule coaching for best streak
-        if let bestStreak = habits.map(\.streak).max() {
-            scheduleStreakCoaching(currentStreak: bestStreak)
-            let weekCompletions = habits.filter(\.completed).count
-            scheduleWeeklyRecap(completedThisWeek: weekCompletions, bestStreak: bestStreak)
+    func scheduleDailySummary(completedCount: Int, totalCount: Int, xpEarned: Int) {
+        center.removePendingNotificationRequests(withIdentifiers: ["daily-summary"])
+        guard completedCount > 0 else { return }
+        guard completedCount < totalCount else { return }
+
+        let content = UNMutableNotificationContent()
+        if completedCount == totalCount {
+            content.title = "Perfect Day!"
+            content.body = "All \(totalCount) habits done — you earned \(xpEarned) XP today!"
+        } else {
+            content.title = "Today's Progress: \(completedCount)/\(totalCount)"
+            content.body = "You earned \(xpEarned) XP today. Complete the rest before midnight!"
         }
+        content.sound = .default
+
+        var components = DateComponents()
+        components.hour = 21
+        components.minute = 30
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+
+        let request = UNNotificationRequest(identifier: "daily-summary", content: content, trigger: trigger)
+        center.add(request)
+    }
+
+    // MARK: - Sleep Reminder (22:00)
+
+    func scheduleSleepReminder() {
+        let content = UNMutableNotificationContent()
+        content.title = "Time to Wind Down"
+        content.body = "Log your sleep before bed — tracking helps you build better habits."
+        content.sound = .default
+
+        var components = DateComponents()
+        components.hour = 22
+        components.minute = 0
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+
+        center.removePendingNotificationRequests(withIdentifiers: ["sleep-reminder"])
+        let request = UNNotificationRequest(identifier: "sleep-reminder", content: content, trigger: trigger)
+        center.add(request)
+    }
+
+    func cancelSleepReminder() {
+        center.removePendingNotificationRequests(withIdentifiers: ["sleep-reminder"])
+    }
+
+    // MARK: - Weekly Recap (Sunday 19:00 — merged summary + recap)
+
+    func scheduleWeeklyRecap(completedThisWeek: Int, totalThisWeek: Int, bestStreak: Int) {
+        center.removePendingNotificationRequests(withIdentifiers: ["weekly-summary", "weekly-recap"])
+
+        let content = UNMutableNotificationContent()
+        let rate = totalThisWeek > 0 ? Int(Double(completedThisWeek) / Double(totalThisWeek) * 100) : 0
+        content.title = "Your Week in Review"
+        content.body = "You completed \(completedThisWeek) habits (\(rate)%) with a \(bestStreak)-day best streak. Tap to see your full recap!"
+        content.sound = .default
+        content.categoryIdentifier = "weeklySummary"
+
+        var components = DateComponents()
+        components.weekday = 1 // Sunday
+        components.hour = 19
+        components.minute = 0
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+
+        let request = UNNotificationRequest(identifier: "weekly-recap", content: content, trigger: trigger)
+        center.add(request)
+    }
+
+    func cancelWeeklySummary() {
+        center.removePendingNotificationRequests(withIdentifiers: ["weekly-summary", "weekly-recap"])
     }
 
     // MARK: - Streak Milestone Coaching
@@ -247,23 +303,22 @@ final class NotificationManager: ObservableObject {
         }
     }
 
-    // MARK: - Weekly Recap Notification (Sunday 8pm)
+    // MARK: - Daily Scheduling (call from app lifecycle)
 
-    func scheduleWeeklyRecap(completedThisWeek: Int, bestStreak: Int) {
-        let content = UNMutableNotificationContent()
-        content.title = "Your Week in Review"
-        content.body = "You completed \(completedThisWeek) habits this week with a \(bestStreak)-day best streak. Tap to see your full recap!"
-        content.sound = .default
+    func scheduleDailyNotifications(habits: [(id: UUID, name: String, streak: Int, completed: Bool)]) {
+        scheduleStreakAtRiskReminders(habits: habits)
+        scheduleMorningMotivation()
 
-        var components = DateComponents()
-        components.weekday = 1 // Sunday
-        components.hour = 20
-        components.minute = 0
-        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+        let completed = habits.filter(\.completed).count
+        let total = habits.count
+        let pending = total - completed
+        scheduleEveningReminder(pendingCount: pending)
+        scheduleDailySummary(completedCount: completed, totalCount: total, xpEarned: completed * 10)
 
-        center.removePendingNotificationRequests(withIdentifiers: ["weekly-recap"])
-        let request = UNNotificationRequest(identifier: "weekly-recap", content: content, trigger: trigger)
-        center.add(request)
+        if let bestStreak = habits.map(\.streak).max() {
+            scheduleStreakCoaching(currentStreak: bestStreak)
+            scheduleWeeklyRecap(completedThisWeek: completed, totalThisWeek: total, bestStreak: bestStreak)
+        }
     }
 
     // MARK: - Remove All
