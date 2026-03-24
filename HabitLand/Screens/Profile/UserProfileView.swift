@@ -110,8 +110,14 @@ struct UserProfileView: View {
         .hlCard()
     }
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     private var statsRow: some View {
-        HStack(spacing: HLSpacing.sm) {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: HLSpacing.sm))
+            : AnyLayout(HStackLayout(spacing: HLSpacing.sm))
+
+        return layout {
             statCard(value: "\(daysActive)", label: "Days Active", icon: HLIcon.calendar)
             statCard(value: "\(totalCompletions)", label: "Completions", icon: HLIcon.checkmark)
             statCard(value: "\(longestStreak)", label: "Streak", icon: HLIcon.flame)

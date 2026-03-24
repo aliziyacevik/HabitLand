@@ -222,9 +222,14 @@ struct SleepDashboardView: View {
 
     // MARK: - Average Stats Row
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     @ViewBuilder
     private var averageStatsRow: some View {
-        HStack(spacing: HLSpacing.sm) {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: HLSpacing.sm))
+            : AnyLayout(HStackLayout(spacing: HLSpacing.sm))
+        layout {
             statMini(
                 title: "Avg Duration",
                 value: String(format: "%.1fh", averageDuration),

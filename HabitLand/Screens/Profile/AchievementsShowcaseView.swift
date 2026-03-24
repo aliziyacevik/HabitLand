@@ -38,6 +38,9 @@ struct AchievementsShowcaseView: View {
             .padding(.horizontal, HLSpacing.md)
             .padding(.vertical, HLSpacing.md)
         }
+        .refreshable {
+            try? await Task.sleep(for: .milliseconds(300))
+        }
         .background(Color.hlBackground)
         .navigationTitle("Achievements")
         .navigationBarTitleDisplayMode(.large)
@@ -79,6 +82,7 @@ struct AchievementsShowcaseView: View {
                 Text("\(unlockedCount)")
                     .font(HLFont.largeTitle())
                     .foregroundColor(.hlPrimary)
+                    .minimumScaleFactor(0.75)
                 Text("Unlocked")
                     .font(HLFont.caption())
                     .foregroundColor(.hlTextSecondary)
@@ -103,6 +107,7 @@ struct AchievementsShowcaseView: View {
                 Text("\(achievements.count)")
                     .font(HLFont.largeTitle())
                     .foregroundColor(.hlTextPrimary)
+                    .minimumScaleFactor(0.75)
                 Text("Total")
                     .font(HLFont.caption())
                     .foregroundColor(.hlTextSecondary)

@@ -42,7 +42,7 @@ extension Color {
     })
     static let hlTextTertiary = Color(UIColor { traits in
         traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0.43, green: 0.43, blue: 0.45, alpha: 1)   // #6E6E73
+            ? UIColor(red: 0.56, green: 0.56, blue: 0.58, alpha: 1)   // #8E8E93 WCAG AA 4.5:1+
             : UIColor(red: 0.45, green: 0.45, blue: 0.50, alpha: 1)   // #737380
     })
     static let hlDivider = Color(UIColor { traits in

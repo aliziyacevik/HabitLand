@@ -606,8 +606,14 @@ struct HomeDashboardView: View {
 
     // MARK: - Compact Stats Row
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     private var compactStatsRow: some View {
-        HStack(spacing: HLSpacing.sm) {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: HLSpacing.sm))
+            : AnyLayout(HStackLayout(spacing: HLSpacing.sm))
+
+        return layout {
             compactStatPill(
                 icon: "flame.fill",
                 iconColor: .hlFlame,

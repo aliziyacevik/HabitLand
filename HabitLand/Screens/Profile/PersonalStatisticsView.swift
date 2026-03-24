@@ -168,6 +168,9 @@ struct PersonalStatisticsView: View {
             .padding(.horizontal, HLSpacing.md)
             .padding(.vertical, HLSpacing.md)
         }
+        .refreshable {
+            try? await Task.sleep(for: .milliseconds(300))
+        }
         .background(Color.hlBackground)
         .navigationTitle("Statistics")
         .navigationBarTitleDisplayMode(.large)

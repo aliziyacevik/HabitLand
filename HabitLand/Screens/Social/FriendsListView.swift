@@ -48,6 +48,9 @@ struct FriendsListView: View {
                     .padding(.top, HLSpacing.sm)
                     .padding(.bottom, HLSpacing.xxxl)
                 }
+                .refreshable {
+                    try? await Task.sleep(for: .milliseconds(300))
+                }
             }
         }
         .sheet(isPresented: $showAddFriends) {

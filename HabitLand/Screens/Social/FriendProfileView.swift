@@ -101,13 +101,25 @@ struct FriendProfileView: View {
 
     // MARK: - Stats Row
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     private var statsRow: some View {
-        HStack(spacing: 0) {
-            statItem(value: "\(friend.currentStreak)", label: "Day Streak", icon: HLIcon.flame, color: .hlFlame)
-            divider
-            statItem(value: "\(friend.totalCompletions)", label: "Completions", icon: HLIcon.checkmark, color: .hlSuccess)
-            divider
-            statItem(value: "Lvl \(friend.level)", label: "Level", icon: HLIcon.star, color: .hlPrimary)
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(spacing: HLSpacing.sm) {
+                    statItem(value: "\(friend.currentStreak)", label: "Day Streak", icon: HLIcon.flame, color: .hlFlame)
+                    statItem(value: "\(friend.totalCompletions)", label: "Completions", icon: HLIcon.checkmark, color: .hlSuccess)
+                    statItem(value: "Lvl \(friend.level)", label: "Level", icon: HLIcon.star, color: .hlPrimary)
+                }
+            } else {
+                HStack(spacing: 0) {
+                    statItem(value: "\(friend.currentStreak)", label: "Day Streak", icon: HLIcon.flame, color: .hlFlame)
+                    divider
+                    statItem(value: "\(friend.totalCompletions)", label: "Completions", icon: HLIcon.checkmark, color: .hlSuccess)
+                    divider
+                    statItem(value: "Lvl \(friend.level)", label: "Level", icon: HLIcon.star, color: .hlPrimary)
+                }
+            }
         }
         .hlCard()
     }
@@ -121,6 +133,7 @@ struct FriendProfileView: View {
             Text(value)
                 .font(HLFont.headline())
                 .foregroundColor(.hlTextPrimary)
+                .minimumScaleFactor(0.75)
             Text(label)
                 .font(HLFont.caption2())
                 .foregroundColor(.hlTextTertiary)
