@@ -26,15 +26,15 @@ struct HomeDashboardView: View {
     @State private var celebrationMessage = ""
     @State private var xpGainHabitID: String?
     @State private var showCreateHabit = false
+    @State private var navigationPath = NavigationPath()
     @State private var showPomodoro = false
     @State private var showChain = false
     @State private var showPaywall = false
     @State private var showUndoToast = false
     @State private var showInviteFriends = false
     @AppStorage("invite_card_dismissed") private var inviteCardDismissed = false
-    @AppStorage("coaching_dismissed") private var coachingDismissed = false
-    @State private var showCoaching = false
-    @State private var coachingStep: SpotlightCoachingView.CoachingStep = .createFirstHabit
+    @AppStorage("getting_started_dismissed") private var gettingStartedDismissedStorage = false
+    @State private var gettingStartedDismissed = false
     @State private var showHealthKitToast = false
     @State private var healthKitToastName = ""
     @AppStorage("healthkit_toast_count") private var healthKitToastShownCount = 0
@@ -54,6 +54,10 @@ struct HomeDashboardView: View {
     private var totalCount: Int { habits.count }
     private var streakDays: Int { habits.map(\.currentStreak).max() ?? 0 }
     private var bestStreak: Int { habits.map(\.bestStreak).max() ?? 0 }
+
+    private var gettingStartedComplete: Bool {
+        habits.count >= 1 && habits.contains(where: \.todayCompleted) && streakDays >= 3
+    }
 
     private var completionPercent: Double {
         guard totalCount > 0 else { return 0 }
@@ -172,16 +176,17 @@ struct HomeDashboardView: View {
     // MARK: - Body
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             ZStack(alignment: .bottomTrailing) {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: HLSpacing.lg) {
                         greetingHeader
                             .hlStaggeredAppear(index: 0)
 
-                        if bonusManager.showBonusBanner {
-                            dailyBonusBanner
+                        if !gettingStartedDismissed && !gettingStartedComplete {
+                            gettingStartedCard
                                 .transition(.move(edge: .top).combined(with: .opacity))
+                                .hlStaggeredAppear(index: 1)
                         }
 
                         if habits.isEmpty {
@@ -242,7 +247,15 @@ struct HomeDashboardView: View {
                 .accessibilityLabel("Add new habit")
             }
             .background(Color.hlBackground.ignoresSafeArea())
-            .onAppear { bonusManager.recordDailyOpen() }
+            .onAppear {
+                bonusManager.recordDailyOpen()
+                gettingStartedDismissed = gettingStartedDismissedStorage
+            }
+            .navigationDestination(for: UUID.self) { habitId in
+                if let habit = habits.first(where: { $0.id == habitId }) {
+                    HabitDetailView(habit: habit)
+                }
+            }
             .navigationTitle("HabitLand")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -350,55 +363,68 @@ struct HomeDashboardView: View {
             .overlay {
                 LevelUpCelebrationOverlay(levelUpData: $levelUpData)
             }
-            .overlay {
-                if showCoaching {
-                    SpotlightCoachingView(step: coachingStep) {
-                        // Action
-                        withAnimation(HLAnimation.standard) {
-                            showCoaching = false
-                        }
-                        switch coachingStep {
-                        case .createFirstHabit:
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                showCreateHabit = true
-                            }
-                        case .completeFirstHabit:
-                            break // just dismiss, user will tap the circle
-                        }
-                    } onDismiss: {
-                        withAnimation(HLAnimation.standard) {
-                            showCoaching = false
-                            coachingDismissed = true
-                        }
+        }
+    }
+
+    // MARK: - Getting Started
+
+    private var gettingStartedCard: some View {
+        VStack(alignment: .leading, spacing: HLSpacing.sm) {
+            HStack {
+                Image(systemName: "sparkles")
+                    .font(.system(size: min(labelIconSize, 20), weight: .semibold))
+                    .foregroundStyle(Color.hlGold)
+                Text("Getting Started")
+                    .font(HLFont.headline())
+                    .foregroundStyle(Color.hlTextPrimary)
+                Spacer()
+                Button {
+                    withAnimation(HLAnimation.standard) {
+                        gettingStartedDismissed = true
                     }
+                    gettingStartedDismissedStorage = true
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: min(smallIconSize, 16), weight: .semibold))
+                        .foregroundStyle(Color.hlTextTertiary)
                 }
             }
-            .onAppear {
-                // Show coaching for first-time users with 0 habits
-                if habits.isEmpty && !coachingDismissed {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                        coachingStep = .createFirstHabit
-                        withAnimation(HLAnimation.gentleSpring) {
-                            showCoaching = true
-                        }
-                    }
-                }
+
+            VStack(alignment: .leading, spacing: HLSpacing.xs) {
+                gettingStartedRow(
+                    done: habits.count >= 1,
+                    text: "Create your first habit",
+                    icon: "plus.circle"
+                )
+                gettingStartedRow(
+                    done: habits.contains(where: \.todayCompleted),
+                    text: "Complete a habit",
+                    icon: "checkmark.circle"
+                )
+                gettingStartedRow(
+                    done: streakDays >= 3,
+                    text: "Build a 3-day streak",
+                    icon: "flame"
+                )
             }
-            .onChange(of: habits.count) { oldCount, newCount in
-                // After first habit created, show step 2
-                if oldCount == 0 && newCount == 1 && !coachingDismissed {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        coachingStep = .completeFirstHabit(habitName: habits.first?.name ?? "your habit")
-                        withAnimation(HLAnimation.gentleSpring) {
-                            showCoaching = true
-                        }
-                    }
-                }
-                // After first completion, dismiss coaching permanently
-                if newCount > 0 && habits.contains(where: \.todayCompleted) {
-                    coachingDismissed = true
-                }
-            }
+
+            let doneCount = [habits.count >= 1, habits.contains(where: \.todayCompleted), streakDays >= 3].filter { $0 }.count
+            ProgressView(value: Double(doneCount), total: 3)
+                .tint(Color.hlPrimary)
+        }
+        .hlCard()
+    }
+
+    private func gettingStartedRow(done: Bool, text: String, icon: String) -> some View {
+        HStack(spacing: HLSpacing.sm) {
+            Image(systemName: done ? "checkmark.circle.fill" : icon)
+                .font(.system(size: min(labelIconSize, 20), weight: .medium))
+                .foregroundStyle(done ? Color.hlSuccess : Color.hlTextTertiary)
+                .frame(width: 20)
+            Text(text)
+                .font(HLFont.subheadline(done ? .regular : .medium))
+                .foregroundStyle(done ? Color.hlTextTertiary : Color.hlTextPrimary)
+                .strikethrough(done)
         }
     }
 
@@ -987,7 +1013,7 @@ struct HomeDashboardView: View {
                             .frame(width: 28, height: 28)
                             .rotationEffect(.degrees(-90))
                         Image(systemName: metric.icon)
-                            .font(.system(size: 11, weight: .bold))
+                            .font(.system(size: min(tinyIconSize, 14), weight: .bold))
                             .foregroundStyle(habit.color)
                     }
                     .accessibilityLabel("Syncs from Apple Health, \(Int(habit.todayProgress * 100))% complete")
@@ -1015,6 +1041,7 @@ struct HomeDashboardView: View {
                 : habit.todayCompleted ? "Mark \(habit.name) incomplete" : "Complete \(habit.name)")
         }
         .hlCard(padding: HLSpacing.sm)
+        .contentShape(Rectangle())
         .onTapGesture {
             if habit.healthKitMetric != nil && healthKitToastShownCount < 3 {
                 healthKitToastName = habit.name
@@ -1025,6 +1052,7 @@ struct HomeDashboardView: View {
                     withAnimation(HLAnimation.quick) { showHealthKitToast = false }
                 }
             }
+            navigationPath.append(habit.id)
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             if !habit.todayCompleted {
@@ -1462,7 +1490,7 @@ struct HomeDashboardView: View {
     private var dailyBonusBanner: some View {
         HStack(spacing: HLSpacing.sm) {
             Text(bonusManager.streakEmoji)
-                .font(.system(size: 20))
+                .font(.system(size: min(mediumIconSize, 28)))
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                 Text(bonusManager.streakMessage)
