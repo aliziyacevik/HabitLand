@@ -30,9 +30,11 @@ struct ThemeOnboardingView: View {
                             .font(HLFont.largeTitle())
                             .foregroundColor(.hlTextPrimary)
 
-                        Text("Make HabitLand yours.")
+                        Text("Make HabitLand yours. You can always change this in Settings.")
                             .font(HLFont.body())
                             .foregroundColor(.hlTextSecondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, HLSpacing.md)
                     }
                     .padding(.top, HLSpacing.xxl)
 

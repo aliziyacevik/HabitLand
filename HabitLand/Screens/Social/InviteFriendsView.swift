@@ -21,6 +21,9 @@ struct InviteFriendsView: View {
     @Environment(\.dismiss) private var dismiss
 
     private let appStoreURL = "https://apps.apple.com/app/habitland/id000000000"
+    // Safe fallback URL — guaranteed valid, avoids force unwrap
+    // swiftlint:disable:next force_unwrapping
+    private static let fallbackURL = URL(string: "https://apps.apple.com")!
 
     var body: some View {
         NavigationStack {
@@ -123,7 +126,7 @@ struct InviteFriendsView: View {
 
             // ShareLink with localized message
             ShareLink(
-                item: URL(string: appStoreURL) ?? URL(string: "https://apps.apple.com")!,
+                item: URL(string: appStoreURL) ?? Self.fallbackURL,
                 subject: Text(isTurkish ? "HabitLand'e Katil!" : "Join HabitLand!"),
                 message: Text(shareMessage)
             ) {

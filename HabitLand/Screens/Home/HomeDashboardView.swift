@@ -945,7 +945,11 @@ struct HomeDashboardView: View {
                     }
                 }
                 try? modelContext.save()
-                if !wasCompleted {
+                let justCompleted = !wasCompleted && habit.todayCompleted
+                if !wasCompleted && !habit.todayCompleted {
+                    // Progressive increment — not yet complete
+                    HLHaptics.light()
+                } else if justCompleted {
                     HLHaptics.completionSuccess()
                     ReviewManager.trackCompletion()
                     // Show undo toast

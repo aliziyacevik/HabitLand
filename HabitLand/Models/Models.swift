@@ -106,9 +106,10 @@ final class Habit {
 
     var todayCompleted: Bool {
         let today = Calendar.current.startOfDay(for: Date())
-        return safeCompletions.contains { completion in
+        let todayCount = safeCompletions.filter { completion in
             Calendar.current.startOfDay(for: completion.date) == today && completion.isCompleted
-        }
+        }.count
+        return todayCount >= goalCount
     }
 
     var todayProgress: Double {
