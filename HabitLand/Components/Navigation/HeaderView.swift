@@ -63,6 +63,19 @@ struct HeaderActionButton: View {
                 .clipShape(Circle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityText)
+    }
+
+    private var accessibilityText: String {
+        switch icon {
+        case HLIcon.back: return "Back"
+        case HLIcon.close: return "Close"
+        case HLIcon.search: return "Search"
+        case HLIcon.notification: return "Notifications"
+        case HLIcon.settings: return "Settings"
+        case HLIcon.add: return "Add"
+        default: return icon
+        }
     }
 }
 

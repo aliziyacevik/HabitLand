@@ -211,6 +211,7 @@ struct MonthlyAnalyticsView: View {
                         .font(.system(size: min(sectionIconSize, 20)))
                         .foregroundStyle(Color.hlPrimary)
                 }
+                .accessibilityLabel("Share report")
             }
         }
         .onAppear {

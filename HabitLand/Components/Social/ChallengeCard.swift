@@ -91,6 +91,7 @@ struct ChallengeCard: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(isJoined)
+                .accessibilityLabel(isJoined ? "Already joined challenge" : "Join challenge")
             }
         }
         .hlCard()

@@ -48,6 +48,7 @@ struct NotificationDetailView: View {
                             .background(Color.hlDivider)
                             .clipShape(Circle())
                     }
+                    .accessibilityLabel("Close")
                 }
             }
         }

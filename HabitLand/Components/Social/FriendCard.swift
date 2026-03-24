@@ -88,6 +88,7 @@ struct FriendCard: View {
                     .cornerRadius(HLRadius.full)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Add friend")
             }
         }
         .hlCard()
