@@ -2,7 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSHealthShareUsageDescription</key>
+	<string>HabitLand reads your health data to automatically track habits like steps, exercise minutes, and sleep hours.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>HabitLand saves your habit completion data to Apple Health for a complete health picture.</string>
 	<key>UIBackgroundModes</key>
-	<array/>
+	<array>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

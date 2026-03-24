@@ -11,7 +11,7 @@ HabitLand, gamification odaklı bir iOS habit tracker uygulamasıdır. Kullanıc
 
 - **Platform**: iOS 17+ only, SwiftUI + SwiftData
 - **Backend**: CloudKit only — no custom server
-- **Developer Account**: Pending approval — iCloud/HealthKit/Push disabled until then
+- **Developer Account**: Active — iCloud/HealthKit/Push enabled
 - **Monetization**: Apple IAP only (StoreKit 2)
 - **Language**: Swift 5.0, no third-party dependencies (pure Apple stack)
 <!-- GSD:project-end -->
