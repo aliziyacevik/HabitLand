@@ -258,17 +258,22 @@ final class HealthKitManager: ObservableObject {
             guard let metricRaw = habit.healthKitMetric,
                   let metric = HealthKitMetric(rawValue: metricRaw) else { continue }
 
-            // Skip if already completed today
-            let alreadyDone = habit.safeCompletions.contains { c in
-                calendar.startOfDay(for: c.date) == today && c.isCompleted
-            }
-            if alreadyDone { continue }
-
             let value = await todayValue(for: metric)
-            let goal = Double(habit.goalCount)
+            guard value > 0 else { continue }
 
-            if value >= goal {
-                let completion = HabitCompletion(date: Date(), isCompleted: true, count: Int(value))
+            let goal = Double(habit.goalCount)
+            let isComplete = value >= goal
+
+            // Find existing today's completion to update
+            let existingCompletion = habit.safeCompletions.first { c in
+                calendar.startOfDay(for: c.date) == today
+            }
+
+            if let existing = existingCompletion {
+                existing.count = Int(value)
+                existing.isCompleted = isComplete
+            } else {
+                let completion = HabitCompletion(date: Date(), isCompleted: isComplete, count: Int(value))
                 completion.habit = habit
                 context.insert(completion)
             }
@@ -277,7 +282,7 @@ final class HealthKitManager: ObservableObject {
         do {
             try context.save()
         } catch {
-            HLLogger.healthkit.error("Failed to save HealthKit auto-completions: \(error.localizedDescription, privacy: .public)")
+            HLLogger.healthkit.error("Failed to save HealthKit sync: \(error.localizedDescription, privacy: .public)")
         }
     }
 }

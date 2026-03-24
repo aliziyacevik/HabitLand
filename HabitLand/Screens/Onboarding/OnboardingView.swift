@@ -173,7 +173,6 @@ struct OnboardingView: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-            .animation(HLAnimation.gentleSpring, value: currentPage)
 
             // Next / Choose My Habits button
             HLButton(
