@@ -475,6 +475,7 @@ struct OnboardingView: View {
             Spacer()
         }
         .padding(.horizontal, HLSpacing.lg)
+        .onTapGesture { nameFieldFocused = false }
     }
 
     // MARK: - Save Name & Avatar
