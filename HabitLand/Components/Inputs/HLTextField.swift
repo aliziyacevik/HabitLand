@@ -32,6 +32,7 @@ struct HLTextField: View {
                         .font(.system(size: min(clearIconSize, 20), weight: .medium))
                         .foregroundStyle(isFocused ? Color.hlPrimary : Color.hlTextTertiary)
                         .frame(width: 20)
+                        .accessibilityHidden(true)
                 }
 
                 TextField(placeholder, text: $text)

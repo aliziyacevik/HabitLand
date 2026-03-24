@@ -35,6 +35,7 @@ struct ReferralCodeEntryView: View {
             HStack(spacing: HLSpacing.xs) {
                 Image(systemName: "gift.fill")
                     .foregroundStyle(Color.hlPrimary)
+                    .accessibilityHidden(true)
                 Text("Enter Referral Code")
                     .font(HLFont.headline())
             }
@@ -92,6 +93,7 @@ struct ReferralCodeEntryView: View {
             Image(systemName: "party.popper.fill")
                 .font(.system(size: min(celebrationIconSize, 56)))
                 .foregroundStyle(Color.hlPrimary)
+                .accessibilityHidden(true)
 
             Text("Tebrikler!") // Congratulations!
                 .font(HLFont.title2())

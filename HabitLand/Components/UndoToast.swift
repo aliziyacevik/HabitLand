@@ -12,6 +12,7 @@ struct UndoToast: View {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: min(toastIconSize, 22)))
                     .foregroundStyle(Color.hlPrimary)
+                    .accessibilityHidden(true)
 
                 Text(message)
                     .font(HLFont.subheadline(.medium))

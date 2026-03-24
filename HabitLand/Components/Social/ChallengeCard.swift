@@ -56,6 +56,7 @@ struct ChallengeCard: View {
                     Image(systemName: HLIcon.social)
                         .font(.system(size: min(participantsIconSize, 16)))
                         .foregroundColor(.hlTextTertiary)
+                        .accessibilityHidden(true)
 
                     Text("\(challenge.participantCount) joined")
                         .font(HLFont.caption2())
@@ -67,6 +68,7 @@ struct ChallengeCard: View {
                     Image(systemName: HLIcon.clock)
                         .font(.system(size: min(participantsIconSize, 16)))
                         .foregroundColor(.hlTextTertiary)
+                        .accessibilityHidden(true)
 
                     Text("\(challenge.daysRemaining)d left")
                         .font(HLFont.caption2())

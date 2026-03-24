@@ -12,6 +12,7 @@ struct AmbientSoundPicker: View {
                 Image(systemName: "speaker.wave.2.fill")
                     .font(.system(size: min(labelIconSize, 18), weight: .semibold))
                     .foregroundStyle(Color.hlTextSecondary)
+                    .accessibilityHidden(true)
                 Text("Ambient Sound")
                     .font(HLFont.caption(.semibold))
                     .foregroundStyle(Color.hlTextSecondary)
@@ -66,6 +67,7 @@ struct AmbientSoundPicker: View {
                     Image(systemName: "speaker.fill")
                         .font(.system(size: min(tinyIconSize, 14)))
                         .foregroundStyle(Color.hlTextTertiary)
+                        .accessibilityHidden(true)
                     Slider(value: Binding(
                         get: { Double(soundManager.volume) },
                         set: { soundManager.setVolume(Float($0)) }
@@ -74,6 +76,7 @@ struct AmbientSoundPicker: View {
                     Image(systemName: "speaker.wave.3.fill")
                         .font(.system(size: min(tinyIconSize, 14)))
                         .foregroundStyle(Color.hlTextTertiary)
+                        .accessibilityHidden(true)
                 }
             }
         }

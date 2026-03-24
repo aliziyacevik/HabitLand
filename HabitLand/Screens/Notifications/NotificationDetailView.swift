@@ -93,6 +93,7 @@ struct NotificationDetailView: View {
             HStack {
                 Image(systemName: HLIcon.clock)
                     .font(.system(size: min(smallIconSize, 16)))
+                    .accessibilityHidden(true)
                 Text(notification.createdAt, style: .relative)
                     .font(HLFont.caption())
                 Text("ago")
@@ -148,6 +149,7 @@ struct NotificationDetailView: View {
             Image(systemName: "chevron.right")
                 .font(.system(size: min(smallIconSize, 16), weight: .semibold))
                 .foregroundColor(.hlTextTertiary)
+                .accessibilityHidden(true)
         }
     }
 
