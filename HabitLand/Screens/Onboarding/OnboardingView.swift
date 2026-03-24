@@ -68,9 +68,8 @@ struct OnboardingView: View {
             systemImage: "",
             emoji: "🔥",
             title: "Building habits\nmade fun",
-            subtitle: "Streaks keep you accountable. XP makes it fun. Friends make it social. You're not lazy — you just didn't have the right system.",
-            accentColor: .hlFlame,
-            isStreakPreview: true
+            subtitle: "Streaks, XP, and friends — the system that actually works.",
+            accentColor: .hlFlame
         ),
         OnboardingPage(
             systemImage: "person.crop.circle.badge.plus",

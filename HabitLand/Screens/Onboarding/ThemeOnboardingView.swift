@@ -10,151 +10,80 @@ struct ThemeOnboardingView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ScrollView {
-                VStack(spacing: HLSpacing.xxxl) {
-                    // Header
-                    VStack(spacing: HLSpacing.xs) {
-                        ZStack {
-                            Circle()
-                                .fill(themeManager.accentTheme.primary.opacity(0.12))
-                                .frame(width: min(themeCircleSize, 110), height: min(themeCircleSize, 110))
+            Spacer()
 
-                            Image(systemName: "paintpalette.fill")
-                                .font(.system(size: min(themeIconSize, 50), weight: .medium))
-                                .foregroundStyle(themeManager.accentTheme.primary)
-                        }
-                        .animation(HLAnimation.standard, value: themeManager.accentTheme)
-                        .padding(.bottom, HLSpacing.sm)
+            VStack(spacing: HLSpacing.xl) {
+                // Header
+                ZStack {
+                    Circle()
+                        .fill(themeManager.accentTheme.primary.opacity(0.12))
+                        .frame(width: min(themeCircleSize, 110), height: min(themeCircleSize, 110))
 
-                        Text("Choose Your Theme")
-                            .font(HLFont.largeTitle())
-                            .foregroundColor(.hlTextPrimary)
+                    Image(systemName: "paintpalette.fill")
+                        .font(.system(size: min(themeIconSize, 50), weight: .medium))
+                        .foregroundStyle(themeManager.accentTheme.primary)
+                }
+                .animation(HLAnimation.standard, value: themeManager.accentTheme)
 
-                        Text("Make HabitLand yours. You can always change this in Settings.")
-                            .font(HLFont.body())
-                            .foregroundColor(.hlTextSecondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, HLSpacing.md)
-                    }
-                    .padding(.top, HLSpacing.xxl)
+                VStack(spacing: HLSpacing.xs) {
+                    Text("Pick a Color")
+                        .font(HLFont.largeTitle())
+                        .foregroundColor(.hlTextPrimary)
 
-                    // Appearance Mode
-                    VStack(alignment: .leading, spacing: HLSpacing.sm) {
-                        Text("Appearance")
-                            .font(HLFont.headline())
-                            .foregroundStyle(Color.hlTextPrimary)
-                            .padding(.horizontal, HLSpacing.xs)
+                    Text("You can always change this in Settings.")
+                        .font(HLFont.body())
+                        .foregroundColor(.hlTextSecondary)
+                }
 
-                        HStack(spacing: HLSpacing.sm) {
-                            ForEach(AppearanceMode.allCases) { mode in
-                                Button {
-                                    withAnimation(HLAnimation.quick) {
-                                        themeManager.appearanceMode = mode
-                                    }
-                                    HLHaptics.selection()
-                                } label: {
-                                    VStack(spacing: HLSpacing.xs) {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: HLRadius.md)
-                                                .fill(modeBackground(mode))
-                                                .frame(height: 56)
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: HLRadius.md)
-                                                        .stroke(
-                                                            themeManager.appearanceMode == mode
-                                                                ? themeManager.accentTheme.primary
-                                                                : Color.hlDivider,
-                                                            lineWidth: themeManager.appearanceMode == mode ? 2.5 : 1
-                                                        )
-                                                )
-
-                                            Image(systemName: mode.icon)
-                                                .font(.system(size: min(previewIconSize, 24)))
-                                                .foregroundStyle(modeForeground(mode))
-                                        }
-
-                                        Text(mode.title)
-                                            .font(HLFont.caption(.medium))
-                                            .foregroundStyle(
-                                                themeManager.appearanceMode == mode
-                                                    ? themeManager.accentTheme.primary
-                                                    : Color.hlTextSecondary
+                // Color palette — 2 rows grid
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: AccentTheme.allCases.count / 2), spacing: HLSpacing.md) {
+                    ForEach(AccentTheme.allCases) { theme in
+                        Button {
+                            withAnimation(HLAnimation.quick) {
+                                themeManager.accentTheme = theme
+                            }
+                            HLHaptics.selection()
+                        } label: {
+                            VStack(spacing: HLSpacing.xs) {
+                                ZStack {
+                                    Circle()
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [theme.primary, theme.primaryDark],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
                                             )
+                                        )
+                                        .frame(width: 48, height: 48)
+
+                                    Image(systemName: theme.icon)
+                                        .font(.system(size: min(smallThemeIconSize, 22), weight: .semibold))
+                                        .foregroundStyle(.white)
+                                }
+                                .overlay {
+                                    if themeManager.accentTheme == theme {
+                                        Circle()
+                                            .stroke(theme.primary, lineWidth: 3)
+                                            .frame(width: 58, height: 58)
                                     }
                                 }
-                                .buttonStyle(.plain)
+
+                                Text(theme.rawValue)
+                                    .font(HLFont.caption(.medium))
+                                    .foregroundStyle(
+                                        themeManager.accentTheme == theme
+                                            ? theme.primary
+                                            : Color.hlTextSecondary
+                                    )
                             }
                         }
+                        .buttonStyle(.plain)
                     }
-                    .padding(HLSpacing.md)
-                    .background(Color.hlSurface)
-                    .cornerRadius(HLRadius.xl)
-                    .hlShadow(HLShadow.sm)
-
-                    // Accent Color
-                    VStack(alignment: .leading, spacing: HLSpacing.sm) {
-                        Text("Accent Color")
-                            .font(HLFont.headline())
-                            .foregroundStyle(Color.hlTextPrimary)
-                            .padding(.horizontal, HLSpacing.xs)
-
-                        LazyVGrid(columns: [
-                            GridItem(.flexible()),
-                            GridItem(.flexible()),
-                            GridItem(.flexible())
-                        ], spacing: HLSpacing.md) {
-                            ForEach(AccentTheme.allCases) { theme in
-                                Button {
-                                    withAnimation(HLAnimation.quick) {
-                                        themeManager.accentTheme = theme
-                                    }
-                                    HLHaptics.selection()
-                                } label: {
-                                    VStack(spacing: HLSpacing.xs) {
-                                        ZStack {
-                                            Circle()
-                                                .fill(
-                                                    LinearGradient(
-                                                        colors: [theme.primary, theme.primaryDark],
-                                                        startPoint: .topLeading,
-                                                        endPoint: .bottomTrailing
-                                                    )
-                                                )
-                                                .frame(width: 48, height: 48)
-
-                                            Image(systemName: theme.icon)
-                                                .font(.system(size: min(smallThemeIconSize, 22), weight: .semibold))
-                                                .foregroundStyle(.white)
-                                        }
-                                        .overlay {
-                                            if themeManager.accentTheme == theme {
-                                                Circle()
-                                                    .stroke(theme.primary, lineWidth: 3)
-                                                    .frame(width: 58, height: 58)
-                                            }
-                                        }
-
-                                        Text(theme.rawValue)
-                                            .font(HLFont.caption(.medium))
-                                            .foregroundStyle(
-                                                themeManager.accentTheme == theme
-                                                    ? theme.primary
-                                                    : Color.hlTextSecondary
-                                            )
-                                    }
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    }
-                    .padding(HLSpacing.md)
-                    .background(Color.hlSurface)
-                    .cornerRadius(HLRadius.xl)
-                    .hlShadow(HLShadow.sm)
                 }
                 .padding(.horizontal, HLSpacing.lg)
-                .padding(.bottom, HLSpacing.xl)
             }
+
+            Spacer()
 
             // Continue button
             HLButton(

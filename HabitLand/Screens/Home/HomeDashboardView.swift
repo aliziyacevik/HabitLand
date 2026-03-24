@@ -203,12 +203,8 @@ struct HomeDashboardView: View {
                                 .hlStaggeredAppear(index: 2)
                             compactStatsRow
                                 .hlStaggeredAppear(index: 3)
-                            quickInsightsCard
-                                .hlStaggeredAppear(index: 4)
                             focusTimerCard
-                                .hlStaggeredAppear(index: 5)
-                            dailyWisdomCard
-                                .hlStaggeredAppear(index: 6)
+                                .hlStaggeredAppear(index: 4)
                         }
                     }
                     .padding(.horizontal, HLSpacing.md)
@@ -610,27 +606,22 @@ struct HomeDashboardView: View {
     // MARK: - Compact Stats Row
 
     private var compactStatsRow: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: HLSpacing.sm) {
-                // Streak pill
-                compactStatPill(
-                    icon: "flame.fill",
-                    iconColor: .hlFlame,
-                    value: "\(streakDays)d",
-                    label: "Streak",
-                    detail: streakDays > 0 ? "Best: \(bestStreak)d" : nil
-                )
+        HStack(spacing: HLSpacing.sm) {
+            compactStatPill(
+                icon: "flame.fill",
+                iconColor: .hlFlame,
+                value: "\(streakDays)d",
+                label: "Streak",
+                detail: streakDays > 0 ? "Best: \(bestStreak)d" : nil
+            )
 
-                // Weekly average pill
-                compactStatPill(
-                    icon: "chart.bar.fill",
-                    iconColor: .hlPrimary,
-                    value: "\(weeklyAverage)%",
-                    label: "This Week",
-                    detail: "Best: \(weeklyBest)%"
-                )
-            }
-            .padding(.horizontal, HLSpacing.xxs)
+            compactStatPill(
+                icon: "chart.bar.fill",
+                iconColor: .hlPrimary,
+                value: "\(weeklyAverage)%",
+                label: "This Week",
+                detail: "Best: \(weeklyBest)%"
+            )
         }
     }
 
@@ -656,7 +647,7 @@ struct HomeDashboardView: View {
             }
         }
         .padding(HLSpacing.sm)
-        .frame(minWidth: 110)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.hlSurface)
         .cornerRadius(HLRadius.lg)
     }
