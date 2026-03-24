@@ -172,7 +172,7 @@ struct HabitDetailView: View {
                 .foregroundStyle(Color.hlTextPrimary)
 
             HStack(alignment: .bottom, spacing: HLSpacing.xs) {
-                ForEach(weekDayData(), id: \.day) { item in
+                ForEach(Array(weekDayData().enumerated()), id: \.offset) { _, item in
                     VStack(spacing: HLSpacing.xxs) {
                         RoundedRectangle(cornerRadius: HLRadius.xs)
                             .fill(item.completed ? habit.color : habit.color.opacity(0.15))
