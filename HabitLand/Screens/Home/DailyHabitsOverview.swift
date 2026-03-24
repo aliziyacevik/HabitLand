@@ -121,7 +121,7 @@ struct DailyHabitsOverview: View {
                 if showHealthKitToast {
                     HStack(spacing: HLSpacing.xs) {
                         Image(systemName: "heart.fill")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.system(size: min(badgeIconSize, 18), weight: .semibold))
                             .foregroundStyle(.red)
                         Text("\(healthKitToastName) syncs from Apple Health automatically")
                             .font(HLFont.caption(.medium))
@@ -428,7 +428,7 @@ struct DailyHabitsOverview: View {
                             .frame(width: 28, height: 28)
                             .rotationEffect(.degrees(-90))
                         Image(systemName: metric.icon)
-                            .font(.system(size: 11, weight: .bold))
+                            .font(.system(size: min(tinyIconSize, 13), weight: .bold))
                             .foregroundStyle(habit.color)
                     }
                 } else {
