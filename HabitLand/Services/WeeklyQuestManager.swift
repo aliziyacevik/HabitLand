@@ -1,4 +1,5 @@
 import Foundation
+import os
 import SwiftData
 
 // MARK: - Weekly Quest Model
@@ -61,8 +62,15 @@ final class WeeklyQuestManager: ObservableObject {
     }
 
     func updateProgress(context: ModelContext) {
-        let habits = (try? context.fetch(FetchDescriptor<Habit>())) ?? []
-        let sleepLogs = (try? context.fetch(FetchDescriptor<SleepLog>())) ?? []
+        let habits: [Habit]
+        let sleepLogs: [SleepLog]
+        do {
+            habits = try context.fetch(FetchDescriptor<Habit>())
+            sleepLogs = try context.fetch(FetchDescriptor<SleepLog>())
+        } catch {
+            HLLogger.quests.warning("Failed to fetch data for quest progress: \(error.localizedDescription, privacy: .public)")
+            return
+        }
         let calendar = Calendar.current
 
         guard let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: Date())) else { return }
@@ -114,7 +122,13 @@ final class WeeklyQuestManager: ObservableObject {
 
     func claimReward(quest: WeeklyQuest, context: ModelContext) -> Int {
         guard quest.isCompleted else { return 0 }
-        let profile = (try? context.fetch(FetchDescriptor<UserProfile>()))?.first
+        let profile: UserProfile?
+        do {
+            profile = try context.fetch(FetchDescriptor<UserProfile>()).first
+        } catch {
+            HLLogger.quests.warning("Failed to fetch profile for quest reward: \(error.localizedDescription, privacy: .public)")
+            return 0
+        }
         profile?.xp += quest.xpReward
         // Level up check
         if let profile {
@@ -123,7 +137,11 @@ final class WeeklyQuestManager: ObservableObject {
                 profile.level += 1
             }
         }
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            HLLogger.quests.error("Failed to save quest reward: \(error.localizedDescription, privacy: .public)")
+        }
         return quest.xpReward
     }
 

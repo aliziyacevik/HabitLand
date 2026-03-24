@@ -127,14 +127,26 @@ struct HabitLandApp: App {
 
         // Create default UserProfile if none exists
         let profileDescriptor = FetchDescriptor<UserProfile>()
-        let profileCount = (try? context.fetchCount(profileDescriptor)) ?? 0
+        let profileCount: Int
+        do {
+            profileCount = try context.fetchCount(profileDescriptor)
+        } catch {
+            HLLogger.data.error("Failed to fetch profile count: \(error.localizedDescription, privacy: .public)")
+            return
+        }
         if profileCount == 0 {
             let profile = UserProfile(name: "User", username: "@user", avatarEmoji: "🌱")
             context.insert(profile)
         }
 
         // Seed achievements — adds any missing ones (supports adding new achievements to existing users)
-        let existingAchievements = (try? context.fetch(FetchDescriptor<Achievement>())) ?? []
+        let existingAchievements: [Achievement]
+        do {
+            existingAchievements = try context.fetch(FetchDescriptor<Achievement>())
+        } catch {
+            HLLogger.data.error("Failed to fetch achievements for seeding: \(error.localizedDescription, privacy: .public)")
+            existingAchievements = []
+        }
         let existingNames = Set(existingAchievements.map(\.name))
         for a in SampleData.achievements where !existingNames.contains(a.name) {
             let achievement = Achievement(
@@ -146,7 +158,11 @@ struct HabitLandApp: App {
             context.insert(achievement)
         }
 
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            HLLogger.data.error("Failed to save seeded data: \(error.localizedDescription, privacy: .public)")
+        }
 
         // Check achievements on launch
         AchievementManager.checkAll(context: context)
@@ -160,12 +176,16 @@ struct HabitLandApp: App {
         UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
 
         // Clear existing data
-        try? context.delete(model: Habit.self)
-        try? context.delete(model: HabitCompletion.self)
-        try? context.delete(model: SleepLog.self)
-        try? context.delete(model: UserProfile.self)
-        try? context.delete(model: Achievement.self)
-        try? context.delete(model: Friend.self)
+        do {
+            try context.delete(model: Habit.self)
+            try context.delete(model: HabitCompletion.self)
+            try context.delete(model: SleepLog.self)
+            try context.delete(model: UserProfile.self)
+            try context.delete(model: Achievement.self)
+            try context.delete(model: Friend.self)
+        } catch {
+            HLLogger.data.error("Failed to clear screenshot data: \(error.localizedDescription, privacy: .public)")
+        }
 
         // Create profile with good XP/level
         let profile = UserProfile(name: "Alex", username: "alexj", avatarEmoji: "🌿", bio: "Building better habits daily")
@@ -278,7 +298,11 @@ struct HabitLandApp: App {
             context.insert(friend)
         }
 
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            HLLogger.data.error("Failed to save screenshot data: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     private func checkReferralRewards() async {
@@ -308,7 +332,11 @@ struct HabitLandApp: App {
 
         // Update local count to match cloud (even if capped, so we don't re-process)
         profile.referralCount = cloudCount
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            HLLogger.data.error("Failed to save referral count: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     private func syncHealthKitHabits() {
@@ -331,7 +359,13 @@ struct HabitLandApp: App {
             }
             // Schedule daily notifications (streak risk + morning motivation)
             let context = sharedModelContainer.mainContext
-            let habits = (try? context.fetch(FetchDescriptor<Habit>())) ?? []
+            let habits: [Habit]
+            do {
+                habits = try context.fetch(FetchDescriptor<Habit>())
+            } catch {
+                HLLogger.data.warning("Failed to fetch habits for notifications: \(error.localizedDescription, privacy: .public)")
+                habits = []
+            }
             let habitData = habits.filter { !$0.isArchived }.map {
                 (id: $0.id, name: $0.name, streak: $0.currentStreak, completed: $0.todayCompleted)
             }

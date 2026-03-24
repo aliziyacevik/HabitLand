@@ -1,3 +1,4 @@
+import os
 import SwiftUI
 import SwiftData
 
@@ -127,7 +128,13 @@ struct DataExportView: View {
     }()
 
     private func exportHabits() {
-        let habits = (try? modelContext.fetch(FetchDescriptor<Habit>())) ?? []
+        let habits: [Habit]
+        do {
+            habits = try modelContext.fetch(FetchDescriptor<Habit>())
+        } catch {
+            HLLogger.export.error("Failed to fetch habits for export: \(error.localizedDescription, privacy: .public)")
+            return
+        }
         let filtered = habits.filter { habit in
             habit.createdAt >= startDate && habit.createdAt <= endDate
         }
@@ -161,7 +168,13 @@ struct DataExportView: View {
     }
 
     private func exportSleepData() {
-        let logs = (try? modelContext.fetch(FetchDescriptor<SleepLog>())) ?? []
+        let logs: [SleepLog]
+        do {
+            logs = try modelContext.fetch(FetchDescriptor<SleepLog>())
+        } catch {
+            HLLogger.export.error("Failed to fetch sleep logs for export: \(error.localizedDescription, privacy: .public)")
+            return
+        }
         let filtered = logs.filter { $0.createdAt >= startDate && $0.createdAt <= endDate }
 
         let content: String
@@ -188,8 +201,15 @@ struct DataExportView: View {
     }
 
     private func exportProfile() {
-        let profiles = (try? modelContext.fetch(FetchDescriptor<UserProfile>())) ?? []
-        let achievements = (try? modelContext.fetch(FetchDescriptor<Achievement>())) ?? []
+        let profiles: [UserProfile]
+        let achievements: [Achievement]
+        do {
+            profiles = try modelContext.fetch(FetchDescriptor<UserProfile>())
+            achievements = try modelContext.fetch(FetchDescriptor<Achievement>())
+        } catch {
+            HLLogger.export.error("Failed to fetch profile data for export: \(error.localizedDescription, privacy: .public)")
+            return
+        }
 
         let content: String
         if isJSON {
@@ -219,10 +239,19 @@ struct DataExportView: View {
 
     private func exportAllData() {
         // Export all as a combined JSON/CSV
-        let habits = (try? modelContext.fetch(FetchDescriptor<Habit>())) ?? []
-        let logs = (try? modelContext.fetch(FetchDescriptor<SleepLog>())) ?? []
-        let profiles = (try? modelContext.fetch(FetchDescriptor<UserProfile>())) ?? []
-        let achievements = (try? modelContext.fetch(FetchDescriptor<Achievement>())) ?? []
+        let habits: [Habit]
+        let logs: [SleepLog]
+        let profiles: [UserProfile]
+        let achievements: [Achievement]
+        do {
+            habits = try modelContext.fetch(FetchDescriptor<Habit>())
+            logs = try modelContext.fetch(FetchDescriptor<SleepLog>())
+            profiles = try modelContext.fetch(FetchDescriptor<UserProfile>())
+            achievements = try modelContext.fetch(FetchDescriptor<Achievement>())
+        } catch {
+            HLLogger.export.error("Failed to fetch data for full export: \(error.localizedDescription, privacy: .public)")
+            return
+        }
 
         if isJSON {
             let profile = profiles.first
@@ -262,15 +291,19 @@ struct DataExportView: View {
     }
 
     private func deleteAllData() {
-        try? modelContext.delete(model: HabitCompletion.self)
-        try? modelContext.delete(model: Habit.self)
-        try? modelContext.delete(model: SleepLog.self)
-        try? modelContext.delete(model: Achievement.self)
-        try? modelContext.delete(model: UserProfile.self)
-        try? modelContext.delete(model: Friend.self)
-        try? modelContext.delete(model: Challenge.self)
-        try? modelContext.delete(model: AppNotification.self)
-        try? modelContext.save()
+        do {
+            try modelContext.delete(model: HabitCompletion.self)
+            try modelContext.delete(model: Habit.self)
+            try modelContext.delete(model: SleepLog.self)
+            try modelContext.delete(model: Achievement.self)
+            try modelContext.delete(model: UserProfile.self)
+            try modelContext.delete(model: Friend.self)
+            try modelContext.delete(model: Challenge.self)
+            try modelContext.delete(model: AppNotification.self)
+            try modelContext.save()
+        } catch {
+            HLLogger.export.error("Failed to delete all data: \(error.localizedDescription, privacy: .public)")
+        }
         UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
     }
 
@@ -278,7 +311,12 @@ struct DataExportView: View {
 
     private func shareFile(content: String, name: String) {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(name)
-        try? content.write(to: url, atomically: true, encoding: .utf8)
+        do {
+            try content.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            HLLogger.export.error("Failed to write export file \(name, privacy: .public): \(error.localizedDescription, privacy: .public)")
+            return
+        }
         shareItem = ExportShareItem(url: url)
         HLHaptics.success()
     }

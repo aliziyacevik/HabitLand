@@ -1,4 +1,5 @@
 import AVFoundation
+import os
 import SwiftUI
 
 @MainActor
@@ -74,7 +75,11 @@ final class AmbientSoundManager: ObservableObject {
         noiseNode = nil
         isPlaying = false
         currentSound = nil
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        do {
+            try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        } catch {
+            HLLogger.audio.warning("Failed to deactivate audio session: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     func setVolume(_ vol: Float) {

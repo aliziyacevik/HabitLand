@@ -8,11 +8,21 @@ struct AchievementManager {
 
     @discardableResult
     static func checkAll(context: ModelContext) -> [Achievement] {
-        let achievements = (try? context.fetch(FetchDescriptor<Achievement>())) ?? []
-        let habits = (try? context.fetch(FetchDescriptor<Habit>())) ?? []
-        let sleepLogs = (try? context.fetch(FetchDescriptor<SleepLog>())) ?? []
-        let friends = (try? context.fetch(FetchDescriptor<Friend>())) ?? []
-        let challenges = (try? context.fetch(FetchDescriptor<Challenge>())) ?? []
+        let achievements: [Achievement]
+        let habits: [Habit]
+        let sleepLogs: [SleepLog]
+        let friends: [Friend]
+        let challenges: [Challenge]
+        do {
+            achievements = try context.fetch(FetchDescriptor<Achievement>())
+            habits = try context.fetch(FetchDescriptor<Habit>())
+            sleepLogs = try context.fetch(FetchDescriptor<SleepLog>())
+            friends = try context.fetch(FetchDescriptor<Friend>())
+            challenges = try context.fetch(FetchDescriptor<Challenge>())
+        } catch {
+            HLLogger.data.error("Failed to fetch data for achievement check: \(error.localizedDescription, privacy: .public)")
+            return []
+        }
 
         let calendar = Calendar.current
         let totalCompletions = habits.reduce(0) { $0 + $1.totalCompletions }
