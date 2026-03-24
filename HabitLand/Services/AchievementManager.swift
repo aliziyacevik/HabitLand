@@ -335,16 +335,19 @@ struct AchievementManager {
             let sunday = calendar.date(byAdding: .day, value: 1, to: saturday) ?? saturday
 
             var bothPerfect = true
+            var hadAnyHabits = false
             for day in [saturday, sunday] {
                 let dayStart = calendar.startOfDay(for: day)
                 guard dayStart <= today else { bothPerfect = false; break }
                 let activeHabits = habits.filter { !$0.isArchived && $0.targetDays.contains(calendar.component(.weekday, from: day) - 1) && $0.createdAt <= day }
                 guard !activeHabits.isEmpty else { continue }
+                hadAnyHabits = true
                 let allDone = activeHabits.allSatisfy { h in
                     h.safeCompletions.contains { calendar.startOfDay(for: $0.date) == dayStart && $0.isCompleted }
                 }
                 if !allDone { bothPerfect = false; break }
             }
+            if !hadAnyHabits { bothPerfect = false }
             if bothPerfect { perfectWeekends += 1 }
         }
         return perfectWeekends

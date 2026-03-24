@@ -4,6 +4,10 @@ import SwiftData
 // MARK: - FriendProfileView
 
 struct FriendProfileView: View {
+    @ScaledMetric(relativeTo: .caption) private var starIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var actionIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .footnote) private var statIconSize: CGFloat = 16
+    @ScaledMetric(relativeTo: .body) private var challengeIconSize: CGFloat = 18
     let friend: Friend
 
     @Query(sort: \Challenge.name) private var challenges: [Challenge]
@@ -73,7 +77,7 @@ struct FriendProfileView: View {
     private var levelBadge: some View {
         HStack(spacing: HLSpacing.xxs) {
             Image(systemName: HLIcon.star)
-                .font(.system(size: 12))
+                .font(.system(size: min(starIconSize, 16)))
             Text("Level \(friend.level) \(levelTitle)")
                 .font(HLFont.caption(.bold))
         }
@@ -111,7 +115,7 @@ struct FriendProfileView: View {
     private func statItem(value: String, label: String, icon: String, color: Color) -> some View {
         VStack(spacing: HLSpacing.xxs) {
             Image(systemName: icon)
-                .font(.system(size: 16, weight: .semibold))
+                .font(.system(size: min(statIconSize, 20), weight: .semibold))
                 .foregroundColor(color)
                 .accessibilityHidden(true)
             Text(value)
@@ -177,7 +181,7 @@ struct FriendProfileView: View {
             } label: {
                 HStack(spacing: HLSpacing.xs) {
                     Image(systemName: "hand.wave.fill")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.system(size: min(actionIconSize, 18), weight: .semibold))
                     Text("Nudge")
                         .font(HLFont.headline())
                 }
@@ -194,7 +198,7 @@ struct FriendProfileView: View {
             } label: {
                 HStack(spacing: HLSpacing.xs) {
                     Image(systemName: HLIcon.challenge)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.system(size: min(actionIconSize, 18), weight: .semibold))
                     Text("Challenge")
                         .font(HLFont.headline())
                 }
@@ -222,7 +226,7 @@ struct FriendProfileView: View {
             ForEach(sharedChallenges) { challenge in
                 HStack(spacing: HLSpacing.sm) {
                     Image(systemName: challenge.icon)
-                        .font(.system(size: 18))
+                        .font(.system(size: min(challengeIconSize, 22)))
                         .foregroundColor(.hlPrimary)
                         .frame(width: 36, height: 36)
                         .background(Color.hlPrimaryLight)

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct HLTextField: View {
+    @ScaledMetric(relativeTo: .footnote) private var clearIconSize: CGFloat = 16
     let label: String
     let placeholder: String
     var icon: String?
@@ -28,7 +29,7 @@ struct HLTextField: View {
             HStack(spacing: HLSpacing.xs) {
                 if let icon {
                     Image(systemName: icon)
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.system(size: min(clearIconSize, 20), weight: .medium))
                         .foregroundStyle(isFocused ? Color.hlPrimary : Color.hlTextTertiary)
                         .frame(width: 20)
                 }

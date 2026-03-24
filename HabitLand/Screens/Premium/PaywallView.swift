@@ -2,6 +2,10 @@ import SwiftUI
 import StoreKit
 
 struct PaywallView: View {
+    @ScaledMetric(relativeTo: .body) private var featureIconSize: CGFloat = 18
+    @ScaledMetric(relativeTo: .body) private var checkIconSize: CGFloat = 18
+    @ScaledMetric(relativeTo: .body) private var giftIconSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .title) private var headerIconSize: CGFloat = 36
     var context: PaywallContext? = nil
     @Environment(\.dismiss) private var dismiss
     @StateObject private var proManager = ProManager.shared
@@ -65,7 +69,7 @@ struct PaywallView: View {
                         .fill(Color.hlPrimary.opacity(0.12))
                         .frame(width: 80, height: 80)
                     Image(systemName: context.icon)
-                        .font(.system(size: 36))
+                        .font(.system(size: min(headerIconSize, 40)))
                         .foregroundStyle(Color.hlPrimary)
                 }
                 .padding(.top, HLSpacing.xl)
@@ -92,7 +96,7 @@ struct PaywallView: View {
                         .frame(width: 80, height: 80)
 
                     Image(systemName: "crown.fill")
-                        .font(.system(size: 36))
+                        .font(.system(size: min(headerIconSize, 40)))
                         .foregroundStyle(.white)
                 }
                 .padding(.top, HLSpacing.xl)
@@ -128,7 +132,7 @@ struct PaywallView: View {
     private func featureRow(icon: String, color: Color, title: String, subtitle: String) -> some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: icon)
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: min(featureIconSize, 22), weight: .semibold))
                 .foregroundStyle(color)
                 .frame(width: 36, height: 36)
                 .background(color.opacity(0.12))
@@ -147,7 +151,7 @@ struct PaywallView: View {
 
             Image(systemName: "checkmark.circle.fill")
                 .foregroundStyle(Color.hlPrimary)
-                .font(.system(size: 18))
+                .font(.system(size: min(checkIconSize, 22)))
         }
         .padding(.vertical, HLSpacing.sm)
         .padding(.horizontal, HLSpacing.md)
@@ -158,7 +162,7 @@ struct PaywallView: View {
     private var trialBanner: some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: "gift.fill")
-                .font(.system(size: 20))
+                .font(.system(size: min(giftIconSize, 24)))
                 .foregroundStyle(Color.hlPrimary)
 
             VStack(alignment: .leading, spacing: 2) {

@@ -4,6 +4,13 @@ import SwiftData
 // MARK: - SharedChallengesView
 
 struct SharedChallengesView: View {
+    @ScaledMetric(relativeTo: .title) private var emptyIconSize: CGFloat = 40
+    @ScaledMetric(relativeTo: .caption) private var clockIconSize: CGFloat = 11
+    @ScaledMetric(relativeTo: .caption) private var participantsIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var chevronSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .footnote) private var toolbarIconSize: CGFloat = 16
+    @ScaledMetric(relativeTo: .body) private var cardIconSize: CGFloat = 18
+    @ScaledMetric(relativeTo: .body) private var challengeIconSize: CGFloat = 20
     @Query private var challenges: [Challenge]
     @Query private var profiles: [UserProfile]
     private var profile: UserProfile? { profiles.first }
@@ -47,7 +54,7 @@ struct SharedChallengesView: View {
                     showCreateChallenge = true
                 } label: {
                     Image(systemName: HLIcon.add)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: min(toolbarIconSize, 20), weight: .semibold))
                         .foregroundStyle(Color.hlPrimary)
                 }
             }
@@ -69,7 +76,7 @@ struct SharedChallengesView: View {
                     .fill(Color.hlPrimary.opacity(0.08))
                     .frame(width: 100, height: 100)
                 Image(systemName: HLIcon.challenge)
-                    .font(.system(size: 40))
+                    .font(.system(size: min(emptyIconSize, 48)))
                     .foregroundStyle(Color.hlPrimary.opacity(0.5))
             }
 
@@ -110,7 +117,7 @@ struct SharedChallengesView: View {
         } label: {
             HStack(spacing: HLSpacing.sm) {
                 Image(systemName: HLIcon.add)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.system(size: min(cardIconSize, 22), weight: .bold))
                     .foregroundColor(.white)
                     .frame(width: 36, height: 36)
                     .background(Color.hlPrimary)
@@ -128,7 +135,7 @@ struct SharedChallengesView: View {
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: min(chevronSize, 18), weight: .semibold))
                     .foregroundColor(.hlTextTertiary)
             }
             .hlCard()
@@ -183,7 +190,7 @@ struct SharedChallengesView: View {
             // Header
             HStack(spacing: HLSpacing.sm) {
                 Image(systemName: challenge.icon)
-                    .font(.system(size: 20))
+                    .font(.system(size: min(challengeIconSize, 24)))
                     .foregroundColor(.hlPrimary)
                     .frame(width: 40, height: 40)
                     .background(Color.hlPrimaryLight)
@@ -202,21 +209,23 @@ struct SharedChallengesView: View {
 
                 Spacer()
 
-                ShareLink(
-                    item: URL(string: challengeShareURL)!,
-                    subject: Text(challenge.name),
-                    message: Text(challengeShareMessage(for: challenge))
-                ) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 14))
-                        .foregroundColor(.hlTextSecondary)
+                if let shareURL = URL(string: challengeShareURL) {
+                    ShareLink(
+                        item: shareURL,
+                        subject: Text(challenge.name),
+                        message: Text(challengeShareMessage(for: challenge))
+                    ) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: min(chevronSize, 18)))
+                            .foregroundColor(.hlTextSecondary)
+                    }
                 }
             }
 
             // Participants
             HStack(spacing: HLSpacing.xs) {
                 Image(systemName: "person.2.fill")
-                    .font(.system(size: 12))
+                    .font(.system(size: min(participantsIconSize, 16)))
                     .foregroundColor(.hlTextTertiary)
                 Text("\(challenge.participantCount) participants")
                     .font(HLFont.caption())
@@ -232,7 +241,7 @@ struct SharedChallengesView: View {
                     Spacer()
                     HStack(spacing: HLSpacing.xxs) {
                         Image(systemName: HLIcon.clock)
-                            .font(.system(size: 11))
+                            .font(.system(size: min(clockIconSize, 15)))
                         Text("\(challenge.daysRemaining)d left")
                             .font(HLFont.caption(.medium))
                     }
@@ -251,7 +260,7 @@ struct SharedChallengesView: View {
     private func completedCard(_ challenge: Challenge) -> some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: challenge.icon)
-                .font(.system(size: 18))
+                .font(.system(size: min(cardIconSize, 22)))
                 .foregroundColor(.hlPrimary)
                 .frame(width: 36, height: 36)
                 .background(Color.hlPrimaryLight)
@@ -270,7 +279,7 @@ struct SharedChallengesView: View {
             Spacer()
 
             Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 20))
+                .font(.system(size: min(challengeIconSize, 24)))
                 .foregroundColor(.hlSuccess)
         }
         .hlCard()

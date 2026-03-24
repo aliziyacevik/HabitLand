@@ -2,6 +2,9 @@ import SwiftUI
 import SwiftData
 
 struct HabitChainView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var habitIconSize: CGFloat = 48
+    @ScaledMetric(relativeTo: .largeTitle) private var completeIconSize: CGFloat = 56
+    @ScaledMetric(relativeTo: .footnote) private var chainStepIconSize: CGFloat = 16
     let habits: [Habit]
     let chainName: String
     @Environment(\.modelContext) private var modelContext
@@ -36,7 +39,7 @@ struct HabitChainView: View {
                             dismiss()
                         } label: {
                             Image(systemName: "xmark")
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.system(size: min(chainStepIconSize, 20), weight: .semibold))
                                 .foregroundStyle(Color.hlTextSecondary)
                                 .frame(width: 40, height: 40)
                                 .background(Color.hlSurface)
@@ -82,7 +85,7 @@ struct HabitChainView: View {
                                 .frame(width: 120, height: 120)
 
                             Image(systemName: habit.icon)
-                                .font(.system(size: 48, weight: .medium))
+                                .font(.system(size: min(habitIconSize, 56), weight: .medium))
                                 .foregroundStyle(habit.color)
                         }
 
@@ -181,7 +184,7 @@ struct HabitChainView: View {
                     .frame(width: 140, height: 140)
 
                 Image(systemName: "checkmark.seal.fill")
-                    .font(.system(size: 56, weight: .medium))
+                    .font(.system(size: min(completeIconSize, 64), weight: .medium))
                     .foregroundStyle(Color.hlPrimary)
             }
 

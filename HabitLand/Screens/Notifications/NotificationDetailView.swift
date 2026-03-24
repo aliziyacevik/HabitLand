@@ -4,6 +4,10 @@ import SwiftData
 // MARK: - Notification Detail View
 
 struct NotificationDetailView: View {
+    @ScaledMetric(relativeTo: .caption) private var smallIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var actionIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .footnote) private var statusIconSize: CGFloat = 16
+    @ScaledMetric(relativeTo: .title) private var headerIconSize: CGFloat = 30
     let notification: AppNotification
     @Environment(\.dismiss) private var dismiss
 
@@ -38,7 +42,7 @@ struct NotificationDetailView: View {
                         dismiss()
                     } label: {
                         Image(systemName: HLIcon.close)
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.system(size: min(actionIconSize, 18), weight: .semibold))
                             .foregroundColor(.hlTextSecondary)
                             .frame(width: 30, height: 30)
                             .background(Color.hlDivider)
@@ -59,7 +63,7 @@ struct NotificationDetailView: View {
                     .frame(width: 72, height: 72)
 
                 Image(systemName: notification.icon)
-                    .font(.system(size: 30, weight: .semibold))
+                    .font(.system(size: min(headerIconSize, 34), weight: .semibold))
                     .foregroundColor(notification.type.color)
             }
 
@@ -88,7 +92,7 @@ struct NotificationDetailView: View {
 
             HStack {
                 Image(systemName: HLIcon.clock)
-                    .font(.system(size: 12))
+                    .font(.system(size: min(smallIconSize, 16)))
                 Text(notification.createdAt, style: .relative)
                     .font(HLFont.caption())
                 Text("ago")
@@ -124,7 +128,7 @@ struct NotificationDetailView: View {
     private func relatedInfoItem(icon: String, title: String, subtitle: String) -> some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: icon)
-                .font(.system(size: 16, weight: .medium))
+                .font(.system(size: min(statusIconSize, 20), weight: .medium))
                 .foregroundColor(notification.type.color)
                 .frame(width: 36, height: 36)
                 .background(notification.type.color.opacity(0.12))
@@ -142,7 +146,7 @@ struct NotificationDetailView: View {
             Spacer()
 
             Image(systemName: "chevron.right")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.system(size: min(smallIconSize, 16), weight: .semibold))
                 .foregroundColor(.hlTextTertiary)
         }
     }

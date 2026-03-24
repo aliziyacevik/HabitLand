@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct EditProfileView: View {
+    @ScaledMetric(relativeTo: .title3) private var cameraIconSize: CGFloat = 24
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Query private var profiles: [UserProfile]
@@ -54,7 +55,7 @@ struct EditProfileView: View {
                     AvatarView(name: name.isEmpty ? "U" : name, size: 96, avatarType: selectedAvatarType)
 
                     Image(systemName: "pencil.circle.fill")
-                        .font(.system(size: 24))
+                        .font(.system(size: min(cameraIconSize, 28)))
                         .foregroundColor(.hlPrimary)
                         .background(Color.white.clipShape(Circle()))
                 }

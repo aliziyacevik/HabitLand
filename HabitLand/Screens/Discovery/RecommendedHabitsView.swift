@@ -4,6 +4,10 @@ import SwiftData
 // MARK: - Recommended Habits View
 
 struct RecommendedHabitsView: View {
+    @ScaledMetric(relativeTo: .caption) private var smallIconSize: CGFloat = 11
+    @ScaledMetric(relativeTo: .caption) private var chipIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .title3) private var headerIconSize: CGFloat = 22
+    @ScaledMetric(relativeTo: .title) private var heroIconSize: CGFloat = 36
     @Environment(\.modelContext) private var modelContext
     @Query private var existingHabits: [Habit]
     @State private var addedTemplates: Set<String> = []
@@ -39,7 +43,7 @@ struct RecommendedHabitsView: View {
     private var header: some View {
         VStack(spacing: HLSpacing.sm) {
             Image(systemName: HLIcon.sparkles)
-                .font(.system(size: 36))
+                .font(.system(size: min(heroIconSize, 40)))
                 .foregroundColor(.hlGold)
 
             Text("Recommended for You")
@@ -73,6 +77,7 @@ struct RecommendedHabitsView: View {
     private func addTemplate(_ template: HabitTemplate) {
         let habit = template.toHabit()
         modelContext.insert(habit)
+        try? modelContext.save()
         AchievementManager.checkAll(context: modelContext)
         HLHaptics.success()
         withAnimation(HLAnimation.celebration) {
@@ -84,6 +89,9 @@ struct RecommendedHabitsView: View {
 // MARK: - Recommended Template Card
 
 struct RecommendedTemplateCard: View {
+    @ScaledMetric(relativeTo: .caption) private var smallIconSize: CGFloat = 11
+    @ScaledMetric(relativeTo: .caption) private var chipIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .title3) private var headerIconSize: CGFloat = 22
     let template: HabitTemplate
     let isAdded: Bool
     let onAdd: () -> Void
@@ -92,7 +100,7 @@ struct RecommendedTemplateCard: View {
         VStack(alignment: .leading, spacing: HLSpacing.sm) {
             HStack {
                 Image(systemName: template.icon)
-                    .font(.system(size: 22, weight: .semibold))
+                    .font(.system(size: min(headerIconSize, 26), weight: .semibold))
                     .foregroundColor(template.color)
                     .frame(width: 44, height: 44)
                     .background(template.color.opacity(0.12))
@@ -125,7 +133,7 @@ struct RecommendedTemplateCard: View {
             VStack(alignment: .leading, spacing: HLSpacing.xxs) {
                 HStack(spacing: HLSpacing.xxs) {
                     Image(systemName: "lightbulb.fill")
-                        .font(.system(size: 11))
+                        .font(.system(size: min(smallIconSize, 15)))
                         .foregroundColor(.hlWarning)
                     Text("Why this habit?")
                         .font(HLFont.caption(.semibold))
@@ -145,7 +153,7 @@ struct RecommendedTemplateCard: View {
             if template.goalCount > 1 {
                 HStack(spacing: HLSpacing.xs) {
                     Image(systemName: "target")
-                        .font(.system(size: 12))
+                        .font(.system(size: min(chipIconSize, 16)))
                         .foregroundColor(.hlTextTertiary)
                     Text("Goal: \(template.goalCount) \(template.unit) per day")
                         .font(HLFont.caption())

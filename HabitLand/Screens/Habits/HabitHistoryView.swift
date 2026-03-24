@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct HabitHistoryView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var emptyIconSize: CGFloat = 48
     let habit: Habit
 
     @State private var filterOption: HistoryFilter = .all
@@ -128,7 +129,7 @@ struct HabitHistoryView: View {
         VStack(spacing: HLSpacing.md) {
             Spacer()
             Image(systemName: HLIcon.calendar)
-                .font(.system(size: 48))
+                .font(.system(size: min(emptyIconSize, 56)))
                 .foregroundStyle(Color.hlTextTertiary)
             Text("No history yet")
                 .font(HLFont.title3())
@@ -188,7 +189,7 @@ enum HistoryFilter: String, CaseIterable {
             let h = Habit(name: "Morning Meditation", icon: "brain.head.profile", colorHex: "#9966E6", category: .mindfulness)
             h.completions = (0..<30).map { i in
                 HabitCompletion(
-                    date: Calendar.current.date(byAdding: .day, value: -i, to: Date())!,
+                    date: Calendar.current.date(byAdding: .day, value: -i, to: Date()) ?? Date(),
                     isCompleted: i % 3 != 0,
                     count: Int.random(in: 1...3),
                     note: i % 5 == 0 ? "Felt great today" : nil

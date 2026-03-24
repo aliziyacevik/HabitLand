@@ -24,6 +24,12 @@ enum HabitSortOption: String, CaseIterable {
 // MARK: - Habit List View
 
 struct HabitListView: View {
+    @ScaledMetric(relativeTo: .title) private var emptyIconSize: CGFloat = 40
+    @ScaledMetric(relativeTo: .caption) private var categoryIconSize: CGFloat = 10
+    @ScaledMetric(relativeTo: .caption) private var sortIconSize: CGFloat = 11
+    @ScaledMetric(relativeTo: .caption) private var streakIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var badgeIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .body) private var habitIconSize: CGFloat = 20
     @Query private var habits: [Habit]
     @Environment(\.modelContext) private var modelContext
 
@@ -115,6 +121,9 @@ struct HabitListView: View {
                     }
                     .padding(.bottom, HLSpacing.xxxl + HLSpacing.xl)
                 }
+                .refreshable {
+                    try? await Task.sleep(for: .milliseconds(300))
+                }
 
                 // FAB
                 if selectedFilter == 0 {
@@ -187,7 +196,7 @@ struct HabitListView: View {
                 VStack(spacing: HLSpacing.xxxs) {
                     HStack(spacing: 3) {
                         Image(systemName: HLIcon.flame)
-                            .font(.system(size: 14))
+                            .font(.system(size: min(badgeIconSize, 18)))
                             .foregroundStyle(Color.hlFlame)
                         Text("\(bestStreak)")
                             .font(HLFont.headline())
@@ -284,7 +293,7 @@ struct HabitListView: View {
             } label: {
                 HStack(spacing: HLSpacing.xxs) {
                     Image(systemName: "arrow.up.arrow.down")
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.system(size: min(sortIconSize, 15), weight: .semibold))
                     Text(sortOption.rawValue)
                         .font(HLFont.caption(.medium))
                 }
@@ -316,7 +325,7 @@ struct HabitListView: View {
                     .fill(atLimit ? Color.hlWarning.opacity(0.15) : Color.hlPrimary.opacity(0.1))
                     .frame(width: 32, height: 32)
                 Image(systemName: atLimit ? "exclamationmark.triangle.fill" : "sparkles")
-                    .font(.system(size: 14))
+                    .font(.system(size: min(badgeIconSize, 18)))
                     .foregroundStyle(atLimit ? Color.hlWarning : Color.hlPrimary)
             }
 
@@ -455,7 +464,7 @@ struct HabitListView: View {
                     .fill(selectedFilter == 0 ? Color.hlPrimary.opacity(0.08) : Color.hlTextTertiary.opacity(0.08))
                     .frame(width: 100, height: 100)
                 Image(systemName: selectedFilter == 0 ? "leaf.fill" : HLIcon.archive)
-                    .font(.system(size: 40))
+                    .font(.system(size: min(emptyIconSize, 48)))
                     .foregroundStyle(selectedFilter == 0 ? Color.hlPrimary.opacity(0.6) : Color.hlTextTertiary)
             }
 
@@ -506,6 +515,9 @@ struct HabitListView: View {
 // MARK: - Habit Card
 
 struct HabitCardView: View {
+    @ScaledMetric(relativeTo: .caption) private var categoryIconSize: CGFloat = 10
+    @ScaledMetric(relativeTo: .caption) private var streakIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .body) private var habitIconSize: CGFloat = 20
     let habit: Habit
 
     var body: some View {
@@ -516,7 +528,7 @@ struct HabitCardView: View {
                     .fill(habit.color.opacity(0.12))
                     .frame(width: 48, height: 48)
                 Image(systemName: habit.icon)
-                    .font(.system(size: 20, weight: .medium))
+                    .font(.system(size: min(habitIconSize, 24), weight: .medium))
                     .foregroundStyle(habit.color)
             }
 
@@ -529,7 +541,7 @@ struct HabitCardView: View {
                     .truncationMode(.tail)
                 HStack(spacing: HLSpacing.xxs) {
                     Image(systemName: habit.category.icon)
-                        .font(.system(size: 10))
+                        .font(.system(size: min(categoryIconSize, 14)))
                     Text(habit.category.rawValue)
                         .font(HLFont.caption(.medium))
                 }
@@ -554,7 +566,7 @@ struct HabitCardView: View {
     private var streakBadge: some View {
         HStack(spacing: 3) {
             Image(systemName: HLIcon.flame)
-                .font(.system(size: 12, weight: .semibold))
+                .font(.system(size: min(streakIconSize, 16), weight: .semibold))
                 .foregroundStyle(streakColor)
             Text("\(habit.currentStreak)")
                 .font(HLFont.subheadline(.semibold))

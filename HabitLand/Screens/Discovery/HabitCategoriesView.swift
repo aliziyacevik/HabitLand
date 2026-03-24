@@ -4,6 +4,7 @@ import SwiftData
 // MARK: - Habit Categories View
 
 struct HabitCategoriesView: View {
+    @ScaledMetric(relativeTo: .title) private var heroIconSize: CGFloat = 36
     let category: HabitCategory
     @Environment(\.modelContext) private var modelContext
     @State private var addedTemplates: Set<String> = []
@@ -44,7 +45,7 @@ struct HabitCategoriesView: View {
     private var categoryHeader: some View {
         VStack(spacing: HLSpacing.sm) {
             Image(systemName: category.icon)
-                .font(.system(size: 36, weight: .semibold))
+                .font(.system(size: min(heroIconSize, 40), weight: .semibold))
                 .foregroundColor(category.color)
                 .frame(width: 72, height: 72)
                 .background(category.color.opacity(0.15))
@@ -65,6 +66,7 @@ struct HabitCategoriesView: View {
     private func addTemplate(_ template: HabitTemplate) {
         let habit = template.toHabit()
         modelContext.insert(habit)
+        try? modelContext.save()
         AchievementManager.checkAll(context: modelContext)
         HLHaptics.completionSuccess()
         withAnimation(HLAnimation.celebration) {
@@ -76,6 +78,8 @@ struct HabitCategoriesView: View {
 // MARK: - Category Template Row
 
 struct CategoryTemplateRow: View {
+    @ScaledMetric(relativeTo: .footnote) private var chipIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .body) private var cardIconSize: CGFloat = 18
     let template: HabitTemplate
     let isAdded: Bool
     let onAdd: () -> Void
@@ -83,7 +87,7 @@ struct CategoryTemplateRow: View {
     var body: some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: template.icon)
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: min(cardIconSize, 22), weight: .semibold))
                 .foregroundColor(template.color)
                 .frame(width: 40, height: 40)
                 .background(template.color.opacity(0.12))
@@ -120,7 +124,7 @@ struct CategoryTemplateRow: View {
                 onAdd()
             } label: {
                 Image(systemName: isAdded ? "checkmark" : "plus")
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.system(size: min(chipIconSize, 18), weight: .bold))
                     .foregroundColor(isAdded ? .white : .hlPrimary)
                     .frame(width: 32, height: 32)
                     .background(isAdded ? Color.hlPrimary : Color.hlPrimaryLight)

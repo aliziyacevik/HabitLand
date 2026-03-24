@@ -198,10 +198,14 @@ struct HabitLandApp: App {
             // Create completions for streak
             let totalDays = hd.streakDays + 5 // some extra history
             for dayOffset in 0..<totalDays {
-                let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) ?? today
+                let baseDate = calendar.date(byAdding: .day, value: -dayOffset, to: today) ?? today
                 if dayOffset == 0 && !hd.completedToday { continue }
                 // Skip a few random days beyond the streak for realism
                 if dayOffset > hd.streakDays && dayOffset % 3 == 0 { continue }
+                // Add realistic time (7-21h range) so detail view shows proper timestamps
+                let realisticHour = (hd.sortOrder * 3 + 7) % 14 + 7 // 7am-9pm spread
+                let realisticMinute = (dayOffset * 17 + hd.sortOrder * 11) % 60
+                let date = calendar.date(bySettingHour: realisticHour, minute: realisticMinute, second: 0, of: baseDate) ?? baseDate
                 let completion = HabitCompletion(date: date, isCompleted: true)
                 completion.habit = habit
                 context.insert(completion)

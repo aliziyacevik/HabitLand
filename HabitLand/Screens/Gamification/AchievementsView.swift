@@ -2,6 +2,9 @@ import SwiftUI
 import SwiftData
 
 struct AchievementsView: View {
+    @ScaledMetric(relativeTo: .title) private var emptyIconSize: CGFloat = 44
+    @ScaledMetric(relativeTo: .caption) private var progressDotSize: CGFloat = 8
+    @ScaledMetric(relativeTo: .title3) private var badgeIconSize: CGFloat = 26
     @Query(sort: \Achievement.name) private var achievements: [Achievement]
     @ObservedObject private var proManager = ProManager.shared
     @State private var selectedCategory: AchievementCategory?
@@ -158,7 +161,7 @@ struct AchievementsView: View {
                     .frame(width: 64, height: 64)
 
                 Image(systemName: achievement.icon)
-                    .font(.system(size: 26))
+                    .font(.system(size: min(badgeIconSize, 30)))
                     .foregroundStyle(isLocked ? Color.hlTextTertiary : rarity.color)
             }
             .overlay {
@@ -190,7 +193,8 @@ struct AchievementsView: View {
                 // Rarity label
                 HStack(spacing: 2) {
                     Image(systemName: rarity.icon)
-                        .font(.system(size: 8))
+                        .font(.system(size: min(progressDotSize, 12)))
+                        .accessibilityHidden(true)
                     Text(rarity.rawValue)
                         .font(HLFont.caption2(.medium))
                 }
@@ -213,7 +217,7 @@ struct AchievementsView: View {
     private var emptyState: some View {
         VStack(spacing: HLSpacing.md) {
             Image(systemName: HLIcon.trophy)
-                .font(.system(size: 44))
+                .font(.system(size: min(emptyIconSize, 52)))
                 .foregroundStyle(Color.hlTextTertiary)
             Text("No achievements yet")
                 .font(HLFont.headline())

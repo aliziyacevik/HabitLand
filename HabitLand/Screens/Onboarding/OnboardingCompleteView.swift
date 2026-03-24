@@ -1,11 +1,14 @@
 import SwiftUI
 
 struct OnboardingCompleteView: View {
+    @ScaledMetric(relativeTo: .body) private var celebrationIconSize: CGFloat = 18
     let habitsCreated: Int
     var onGetStarted: () -> Void = {}
 
     @State private var showContent = false
     @State private var confettiItems: [ConfettiItem] = []
+    @ScaledMetric(relativeTo: .largeTitle) private var circleSize: CGFloat = 160
+    @ScaledMetric(relativeTo: .largeTitle) private var iconSize: CGFloat = 64
 
     var body: some View {
         ZStack {
@@ -28,11 +31,11 @@ struct OnboardingCompleteView: View {
                 ZStack {
                     Circle()
                         .fill(Color.hlPrimary.opacity(0.12))
-                        .frame(width: 160, height: 160)
+                        .frame(width: min(circleSize, 180), height: min(circleSize, 180))
                         .scaleEffect(showContent ? 1.0 : 0.5)
 
                     Image(systemName: HLIcon.sparkles)
-                        .font(.system(size: 64, weight: .medium))
+                        .font(.system(size: min(iconSize, 72), weight: .medium))
                         .foregroundColor(.hlPrimary)
                         .scaleEffect(showContent ? 1.0 : 0.0)
                 }
@@ -117,7 +120,7 @@ struct OnboardingCompleteView: View {
                     .frame(width: 40, height: 40)
 
                 Image(systemName: icon)
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.system(size: min(celebrationIconSize, 22), weight: .semibold))
                     .foregroundColor(color)
             }
 

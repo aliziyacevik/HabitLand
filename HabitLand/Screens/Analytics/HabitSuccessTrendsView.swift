@@ -121,23 +121,13 @@ struct HabitSuccessTrendsView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: HLSpacing.md) {
-            Spacer().frame(height: 80)
-            ZStack {
-                Circle()
-                    .fill(Color.hlPrimary.opacity(0.08))
-                    .frame(width: 100, height: 100)
-                Image(systemName: HLIcon.lineChart)
-                    .font(.system(size: 40))
-                    .foregroundStyle(Color.hlPrimary.opacity(0.5))
-            }
-            Text("No trends yet")
-                .font(HLFont.title3(.semibold))
-                .foregroundStyle(Color.hlTextPrimary)
-            Text("Complete habits over time\nto see success trends.")
-                .font(HLFont.subheadline())
-                .foregroundStyle(Color.hlTextSecondary)
-                .multilineTextAlignment(.center)
+        VStack {
+            Spacer()
+            EmptyStateView(
+                icon: HLIcon.lineChart,
+                title: "No Trends Yet",
+                subtitle: "Complete habits over time to see your success trends here."
+            )
             Spacer()
         }
     }
@@ -440,7 +430,7 @@ struct HabitSuccessTrendsView: View {
     }
 
     private func computeMovingAverage(points: [TrendPoint], window: Int) -> [TrendPoint] {
-        guard points.count >= window else { return points }
+        guard window > 0, points.count >= window else { return points }
         var result: [TrendPoint] = []
         for i in (window - 1)..<points.count {
             let slice = points[(i - window + 1)...i]

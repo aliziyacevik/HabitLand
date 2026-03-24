@@ -257,7 +257,7 @@ struct HabitScheduleView: View {
         HabitScheduleView(habit: {
             let h = Habit(name: "Exercise", icon: "figure.run", colorHex: "#338FFF", category: .fitness, frequency: .weekdays, targetDays: [1, 2, 3, 4, 5])
             h.completions = (0..<10).map { i in
-                HabitCompletion(date: Calendar.current.date(byAdding: .day, value: -i * 2, to: Date())!)
+                HabitCompletion(date: Calendar.current.date(byAdding: .day, value: -i * 2, to: Date()) ?? Date())
             }
             return h
         }())

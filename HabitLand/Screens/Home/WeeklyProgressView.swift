@@ -33,6 +33,11 @@ private struct WeekDay: Identifiable, Equatable {
 // MARK: - Weekly Progress View
 
 struct WeeklyProgressView: View {
+    @ScaledMetric(relativeTo: .caption) private var trendArrowSize: CGFloat = 10
+    @ScaledMetric(relativeTo: .caption) private var chevronSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var trophyIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .footnote) private var detailIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .footnote) private var statusIconSize: CGFloat = 16
     @Query(filter: #Predicate<Habit> { !$0.isArchived }, sort: \Habit.name)
     private var habits: [Habit]
 
@@ -247,8 +252,9 @@ struct WeeklyProgressView: View {
             if let best = bestDay {
                 HStack(spacing: HLSpacing.xs) {
                     Image(systemName: HLIcon.trophy)
-                        .font(.system(size: 14))
+                        .font(.system(size: min(trophyIconSize, 18)))
                         .foregroundStyle(Color.hlGold)
+                        .accessibilityHidden(true)
                     Text("Best day: \(best.fullLabel) with \(Int(best.completionPercent))% completion")
                         .font(HLFont.caption(.medium))
                         .foregroundStyle(Color.hlTextSecondary)
@@ -294,7 +300,8 @@ struct WeeklyProgressView: View {
                 VStack(spacing: HLSpacing.xxxs) {
                     HStack(spacing: HLSpacing.xxxs) {
                         Image(systemName: weekOverWeekChange >= 0 ? HLIcon.trendUp : HLIcon.trendDown)
-                            .font(.system(size: 14, weight: .bold))
+                            .font(.system(size: min(trophyIconSize, 18), weight: .bold))
+                            .accessibilityHidden(true)
                         Text("\(abs(Int(weekOverWeekChange)))%")
                             .font(HLFont.title3())
                     }
@@ -375,7 +382,8 @@ struct WeeklyProgressView: View {
                         let diff = day.completionPercent - prev.completionPercent
                         HStack(spacing: HLSpacing.xxxs) {
                             Image(systemName: diff >= 0 ? HLIcon.trendUp : HLIcon.trendDown)
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.system(size: min(trendArrowSize, 14), weight: .bold))
+                                .accessibilityHidden(true)
                             Text("\(abs(Int(diff)))%")
                                 .font(HLFont.caption2(.medium))
                         }
@@ -388,7 +396,7 @@ struct WeeklyProgressView: View {
                         .frame(width: 50, alignment: .trailing)
 
                     Image(systemName: expandedDay == day.fullLabel ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: min(chevronSize, 16), weight: .medium))
                         .foregroundStyle(Color.hlTextTertiary)
                 }
             }
@@ -401,7 +409,7 @@ struct WeeklyProgressView: View {
                     ForEach(day.habitDetails) { detail in
                         HStack(spacing: HLSpacing.xs) {
                             Image(systemName: detail.icon)
-                                .font(.system(size: 14))
+                                .font(.system(size: min(detailIconSize, 18)))
                                 .foregroundStyle(detail.color)
                                 .frame(width: 24)
                             Text(detail.name)
@@ -409,7 +417,7 @@ struct WeeklyProgressView: View {
                                 .foregroundStyle(Color.hlTextPrimary)
                             Spacer()
                             Image(systemName: detail.completed ? "checkmark.circle.fill" : "xmark.circle")
-                                .font(.system(size: 16))
+                                .font(.system(size: min(statusIconSize, 20)))
                                 .foregroundStyle(detail.completed ? Color.hlSuccess : Color.hlTextTertiary)
                         }
                     }

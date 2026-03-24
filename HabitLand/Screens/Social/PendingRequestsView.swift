@@ -2,6 +2,9 @@ import SwiftUI
 import SwiftData
 
 struct PendingRequestsView: View {
+    @ScaledMetric(relativeTo: .title) private var emptyIconSize: CGFloat = 40
+    @ScaledMetric(relativeTo: .caption) private var closeIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var actionIconSize: CGFloat = 14
     @StateObject private var cloudKit = CloudKitManager.shared
     @Environment(\.modelContext) private var modelContext
 
@@ -12,7 +15,7 @@ struct PendingRequestsView: View {
             if cloudKit.pendingRequests.isEmpty {
                 VStack(spacing: HLSpacing.md) {
                     Image(systemName: "checkmark.circle")
-                        .font(.system(size: 40))
+                        .font(.system(size: min(emptyIconSize, 48)))
                         .foregroundStyle(Color.hlSuccess)
                     Text("No Pending Requests")
                         .font(HLFont.title3())
@@ -76,7 +79,7 @@ struct PendingRequestsView: View {
                     }
                 } label: {
                     Image(systemName: "checkmark")
-                        .font(.system(size: 14, weight: .bold))
+                        .font(.system(size: min(actionIconSize, 18), weight: .bold))
                         .foregroundStyle(.white)
                         .frame(width: 36, height: 36)
                         .background(Color.hlSuccess)
@@ -89,7 +92,7 @@ struct PendingRequestsView: View {
                     }
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 12, weight: .bold))
+                        .font(.system(size: min(closeIconSize, 16), weight: .bold))
                         .foregroundStyle(Color.hlTextTertiary)
                         .frame(width: 36, height: 36)
                         .background(Color.hlSurface)

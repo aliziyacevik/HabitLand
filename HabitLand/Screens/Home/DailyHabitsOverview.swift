@@ -5,6 +5,10 @@ import UIKit
 // MARK: - Daily Habits Overview
 
 struct DailyHabitsOverview: View {
+    @ScaledMetric(relativeTo: .caption) private var tinyIconSize: CGFloat = 9
+    @ScaledMetric(relativeTo: .footnote) private var badgeIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .footnote) private var sectionIconSize: CGFloat = 16
+    @ScaledMetric(relativeTo: .body) private var habitIconSize: CGFloat = 20
     @Query(filter: #Predicate<Habit> { !$0.isArchived }, sort: \Habit.name) private var habits: [Habit]
     @Query private var profiles: [UserProfile]
     @Environment(\.modelContext) private var modelContext
@@ -22,6 +26,8 @@ struct DailyHabitsOverview: View {
     @State private var showDailyOverviewForHabit: String?
     @State private var undoHabitName = ""
     @State private var undoCompletion: HabitCompletion?
+    @State private var showHealthKitToast = false
+    @State private var healthKitToastName = ""
 
     private var profile: UserProfile? { profiles.first }
 
@@ -103,12 +109,35 @@ struct DailyHabitsOverview: View {
                     onUndo: {
                         if let completion = undoCompletion {
                             modelContext.delete(completion)
+                            try? modelContext.save()
                             removeXP(lastXPGainAmount)
                             undoCompletion = nil
                         }
                     },
                     isVisible: $showUndoToast
                 )
+            }
+            .overlay(alignment: .top) {
+                if showHealthKitToast {
+                    HStack(spacing: HLSpacing.xs) {
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(.red)
+                        Text("\(healthKitToastName) syncs from Apple Health automatically")
+                            .font(HLFont.caption(.medium))
+                            .foregroundStyle(Color.hlTextPrimary)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.75)
+                    }
+                    .padding(.horizontal, HLSpacing.md)
+                    .padding(.vertical, HLSpacing.sm)
+                    .background(Color.hlSurface)
+                    .cornerRadius(HLRadius.lg)
+                    .hlShadow(HLShadow.md)
+                    .padding(.horizontal, HLSpacing.lg)
+                    .padding(.top, HLSpacing.sm)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
             }
             .fullScreenCover(isPresented: $showTimer) {
                 HabitTimerView(isPresented: $showTimer)
@@ -209,7 +238,7 @@ struct DailyHabitsOverview: View {
         HStack {
             HStack(spacing: HLSpacing.xs) {
                 Image(systemName: sectionIcon(for: title))
-                    .font(.system(size: 14))
+                    .font(.system(size: min(badgeIconSize, 18)))
                     .foregroundStyle(Color.hlTextTertiary)
                 Text(title)
                     .font(HLFont.footnote(.semibold))
@@ -239,7 +268,7 @@ struct DailyHabitsOverview: View {
                     .fill(habit.color.opacity(0.12))
                     .frame(width: 44, height: 44)
                 Image(systemName: habit.icon)
-                    .font(.system(size: 20))
+                    .font(.system(size: min(habitIconSize, 24)))
                     .foregroundStyle(habit.color)
             }
 
@@ -269,7 +298,7 @@ struct DailyHabitsOverview: View {
                     if habit.mastery != .none {
                         HStack(spacing: 2) {
                             Image(systemName: habit.mastery.icon)
-                                .font(.system(size: 9))
+                                .font(.system(size: min(tinyIconSize, 13)))
                             Text(habit.mastery.label)
                                 .font(HLFont.caption2(.semibold))
                         }
@@ -299,7 +328,7 @@ struct DailyHabitsOverview: View {
                     HLHaptics.selection()
                 } label: {
                     Image(systemName: "timer")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: min(sectionIconSize, 20), weight: .semibold))
                         .foregroundStyle(habit.color)
                         .frame(width: 32, height: 32)
                         .background(habit.color.opacity(0.12))
@@ -308,6 +337,15 @@ struct DailyHabitsOverview: View {
             }
 
             Button {
+                if habit.healthKitMetric != nil {
+                    healthKitToastName = habit.name
+                    withAnimation(HLAnimation.quick) { showHealthKitToast = true }
+                    HLHaptics.light()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                        withAnimation(HLAnimation.quick) { showHealthKitToast = false }
+                    }
+                    return
+                }
                 let wasCompleted = habit.todayCompleted
                 withAnimation(HLAnimation.celebration) {
                     if wasCompleted {
@@ -376,10 +414,30 @@ struct DailyHabitsOverview: View {
                     removeXP(streakXP(for: habit))
                     HLHaptics.light()
                 }
+                try? modelContext.save()
             } label: {
-                AnimatedCheckmark(isCompleted: habit.todayCompleted, color: habit.color, size: 28)
+                if let metricRaw = habit.healthKitMetric,
+                   let metric = HealthKitMetric(rawValue: metricRaw) {
+                    ZStack {
+                        Circle()
+                            .stroke(habit.color.opacity(0.15), lineWidth: 3)
+                            .frame(width: 28, height: 28)
+                        Circle()
+                            .trim(from: 0, to: habit.todayProgress)
+                            .stroke(habit.color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                            .frame(width: 28, height: 28)
+                            .rotationEffect(.degrees(-90))
+                        Image(systemName: metric.icon)
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(habit.color)
+                    }
+                } else {
+                    AnimatedCheckmark(isCompleted: habit.todayCompleted, color: habit.color, size: 28)
+                }
             }
-            .accessibilityLabel(habit.todayCompleted ? "Mark \(habit.name) incomplete" : "Complete \(habit.name)")
+            .accessibilityLabel(habit.healthKitMetric != nil
+                ? "\(habit.name) syncs from Apple Health"
+                : habit.todayCompleted ? "Mark \(habit.name) incomplete" : "Complete \(habit.name)")
         }
         .hlCard(padding: HLSpacing.sm)
         .contextMenu {

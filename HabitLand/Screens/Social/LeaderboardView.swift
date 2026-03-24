@@ -12,6 +12,8 @@ private enum TimePeriod: String, CaseIterable {
 // MARK: - LeaderboardView
 
 struct LeaderboardView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var emptyIconSize: CGFloat = 48
+    @ScaledMetric(relativeTo: .caption) private var rankBadgeSize: CGFloat = 10
     @Query(sort: \Friend.level, order: .reverse) private var friends: [Friend]
     @Query private var profiles: [UserProfile]
     @StateObject private var cloudKit = CloudKitManager.shared
@@ -89,7 +91,7 @@ struct LeaderboardView: View {
     private var emptyState: some View {
         VStack(spacing: HLSpacing.lg) {
             Image(systemName: HLIcon.leaderboard)
-                .font(.system(size: 48))
+                .font(.system(size: min(emptyIconSize, 56)))
                 .foregroundStyle(Color.hlTextTertiary)
             Text("No Rankings Yet")
                 .font(HLFont.title3())
@@ -221,8 +223,9 @@ struct LeaderboardView: View {
                 if entry.streak > 0 {
                     HStack(spacing: HLSpacing.xxs) {
                         Image(systemName: HLIcon.flame)
-                            .font(.system(size: 10))
+                            .font(.system(size: min(rankBadgeSize, 14)))
                             .foregroundColor(.hlFlame)
+                            .accessibilityHidden(true)
                         Text("\(entry.streak)d streak")
                             .font(HLFont.caption2())
                             .foregroundColor(.hlTextTertiary)

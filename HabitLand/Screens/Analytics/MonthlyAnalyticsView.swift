@@ -4,6 +4,7 @@ import SwiftData
 // MARK: - Monthly Analytics View
 
 struct MonthlyAnalyticsView: View {
+    @ScaledMetric(relativeTo: .footnote) private var sectionIconSize: CGFloat = 16
     @Query(filter: #Predicate<Habit> { !$0.isArchived }) private var habits: [Habit]
     @Query private var profiles: [UserProfile]
     @Query(sort: \SleepLog.createdAt, order: .reverse) private var sleepLogs: [SleepLog]
@@ -207,7 +208,7 @@ struct MonthlyAnalyticsView: View {
                     generateAndShareReport()
                 } label: {
                     Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 16))
+                        .font(.system(size: min(sectionIconSize, 20)))
                         .foregroundStyle(Color.hlPrimary)
                 }
             }
@@ -228,27 +229,13 @@ struct MonthlyAnalyticsView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: HLSpacing.md) {
-            Spacer().frame(height: 80)
-
-            ZStack {
-                Circle()
-                    .fill(Color.hlPrimary.opacity(0.08))
-                    .frame(width: 100, height: 100)
-                Image(systemName: HLIcon.chart)
-                    .font(.system(size: 40))
-                    .foregroundStyle(Color.hlPrimary.opacity(0.5))
-            }
-
-            Text("No habits yet")
-                .font(HLFont.title3(.semibold))
-                .foregroundStyle(Color.hlTextPrimary)
-
-            Text("Create habits to see your\nmonthly analytics here.")
-                .font(HLFont.subheadline())
-                .foregroundStyle(Color.hlTextSecondary)
-                .multilineTextAlignment(.center)
-
+        VStack {
+            Spacer()
+            EmptyStateView(
+                icon: HLIcon.chart,
+                title: "No Habits Yet",
+                subtitle: "Create some habits to see your monthly analytics here."
+            )
             Spacer()
         }
     }
@@ -479,7 +466,7 @@ struct MonthlyAnalyticsView: View {
 
     private func generateAndShareReport() {
         let profile = profiles.first
-        let playerName = profile?.name.isEmpty == false ? profile!.name : "HabitLand User"
+        let playerName = (profile?.name.isEmpty == false ? profile?.name : nil) ?? "HabitLand User"
         let levelTitle = profile?.levelTitle ?? "Seedling"
 
         // Habit stats

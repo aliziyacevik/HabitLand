@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct EditHabitView: View {
+    @ScaledMetric(relativeTo: .body) private var iconPreviewSize: CGFloat = 20
     @Bindable var habit: Habit
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -89,6 +90,7 @@ struct EditHabitView: View {
             .alert("Delete Habit?", isPresented: $showDeleteAlert) {
                 Button("Delete", role: .destructive) {
                     modelContext.delete(habit)
+                    try? modelContext.save()
                     dismiss()
                 }
                 Button("Cancel", role: .cancel) {}
@@ -135,7 +137,7 @@ struct EditHabitView: View {
                         selectedIcon = icon
                     } label: {
                         Image(systemName: icon)
-                            .font(.system(size: 20))
+                            .font(.system(size: min(iconPreviewSize, 24)))
                             .foregroundStyle(selectedIcon == icon ? .white : Color.hlTextSecondary)
                             .frame(width: 40, height: 40)
                             .background(selectedIcon == icon ? selectedColor : Color.hlSurface)

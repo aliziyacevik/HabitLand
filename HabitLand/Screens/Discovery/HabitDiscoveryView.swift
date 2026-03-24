@@ -4,6 +4,14 @@ import SwiftData
 // MARK: - Habit Discovery View
 
 struct HabitDiscoveryView: View {
+    @ScaledMetric(relativeTo: .caption) private var tinyIconSize: CGFloat = 10
+    @ScaledMetric(relativeTo: .caption) private var smallIconSize: CGFloat = 11
+    @ScaledMetric(relativeTo: .caption) private var chipIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var categoryBadgeSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .body) private var cardIconSize: CGFloat = 18
+    @ScaledMetric(relativeTo: .body) private var templateIconSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .title3) private var headerIconSize: CGFloat = 22
+    @ScaledMetric(relativeTo: .title) private var heroIconSize: CGFloat = 36
     @Environment(\.modelContext) private var modelContext
     @State private var searchText = ""
     @State private var addedTemplates: Set<String> = []
@@ -158,6 +166,7 @@ struct HabitDiscoveryView: View {
     private func addTemplate(_ template: HabitTemplate) {
         let habit = template.toHabit()
         modelContext.insert(habit)
+        try? modelContext.save()
         AchievementManager.checkAll(context: modelContext)
         HLHaptics.completionSuccess()
         withAnimation(HLAnimation.celebration) {
@@ -169,13 +178,15 @@ struct HabitDiscoveryView: View {
 // MARK: - Pack Card
 
 struct PackCard: View {
+    @ScaledMetric(relativeTo: .caption) private var tinyIconSize: CGFloat = 10
+    @ScaledMetric(relativeTo: .body) private var templateIconSize: CGFloat = 20
     let pack: HabitTemplatePack
 
     var body: some View {
         VStack(alignment: .leading, spacing: HLSpacing.sm) {
             HStack {
                 Image(systemName: pack.icon)
-                    .font(.system(size: 20, weight: .semibold))
+                    .font(.system(size: min(templateIconSize, 24), weight: .semibold))
                     .foregroundColor(pack.color)
                 Spacer()
                 Text("\(pack.templates.count) habits")
@@ -198,7 +209,7 @@ struct PackCard: View {
             HStack(spacing: -4) {
                 ForEach(pack.templates.prefix(4)) { template in
                     Image(systemName: template.icon)
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.system(size: min(tinyIconSize, 14), weight: .semibold))
                         .foregroundColor(.white)
                         .frame(width: 24, height: 24)
                         .background(template.color)
@@ -225,6 +236,8 @@ struct PackCard: View {
 // MARK: - Template Row (shared component)
 
 struct TemplateRow: View {
+    @ScaledMetric(relativeTo: .footnote) private var categoryBadgeSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .body) private var cardIconSize: CGFloat = 18
     let template: HabitTemplate
     let isAdded: Bool
     let onAdd: () -> Void
@@ -232,7 +245,7 @@ struct TemplateRow: View {
     var body: some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: template.icon)
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: min(cardIconSize, 22), weight: .semibold))
                 .foregroundColor(template.color)
                 .frame(width: 40, height: 40)
                 .background(template.color.opacity(0.12))
@@ -268,7 +281,7 @@ struct TemplateRow: View {
                 onAdd()
             } label: {
                 Image(systemName: isAdded ? "checkmark" : "plus")
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.system(size: min(categoryBadgeSize, 18), weight: .bold))
                     .foregroundColor(isAdded ? .white : .hlPrimary)
                     .frame(width: 32, height: 32)
                     .background(isAdded ? Color.hlPrimary : Color.hlPrimaryLight)
@@ -284,12 +297,14 @@ struct TemplateRow: View {
 // MARK: - Category Grid Item
 
 struct CategoryGridItem: View {
+    @ScaledMetric(relativeTo: .footnote) private var categoryBadgeSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .body) private var templateIconSize: CGFloat = 20
     let category: HabitCategory
 
     var body: some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: category.icon)
-                .font(.system(size: 20, weight: .semibold))
+                .font(.system(size: min(templateIconSize, 24), weight: .semibold))
                 .foregroundColor(category.color)
                 .frame(width: 40, height: 40)
                 .background(category.color.opacity(0.12))

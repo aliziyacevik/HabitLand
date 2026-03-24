@@ -2,6 +2,11 @@ import SwiftUI
 import SwiftData
 
 struct AppearanceSettingsView: View {
+    @ScaledMetric(relativeTo: .footnote) private var lockIconSize: CGFloat = 16
+    @ScaledMetric(relativeTo: .body) private var themeIconSize: CGFloat = 18
+    @ScaledMetric(relativeTo: .body) private var previewIconSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .title3) private var modeIconSize: CGFloat = 22
+    @ScaledMetric(relativeTo: .title3) private var checkmarkPreviewSize: CGFloat = 28
     @ObservedObject private var themeManager = ThemeManager.shared
     @Query private var profiles: [UserProfile]
     private var userLevel: Int { profiles.first?.level ?? 1 }
@@ -63,7 +68,7 @@ struct AppearanceSettingsView: View {
                                     )
 
                                 Image(systemName: mode.icon)
-                                    .font(.system(size: 22))
+                                    .font(.system(size: min(modeIconSize, 26)))
                                     .foregroundStyle(modePreviewForeground(mode))
                             }
 
@@ -137,11 +142,11 @@ struct AppearanceSettingsView: View {
 
                                 if locked {
                                     Image(systemName: "lock.fill")
-                                        .font(.system(size: 16, weight: .semibold))
+                                        .font(.system(size: min(lockIconSize, 20), weight: .semibold))
                                         .foregroundStyle(.white)
                                 } else {
                                     Image(systemName: theme.icon)
-                                        .font(.system(size: 18, weight: .semibold))
+                                        .font(.system(size: min(themeIconSize, 22), weight: .semibold))
                                         .foregroundStyle(.white)
                                 }
                             }
@@ -185,7 +190,7 @@ struct AppearanceSettingsView: View {
                             .fill(themeManager.accentTheme.primary.opacity(0.12))
                             .frame(width: 44, height: 44)
                         Image(systemName: "figure.run")
-                            .font(.system(size: 20))
+                            .font(.system(size: min(previewIconSize, 24)))
                             .foregroundStyle(themeManager.accentTheme.primary)
                     }
 
@@ -201,7 +206,7 @@ struct AppearanceSettingsView: View {
                     Spacer()
 
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 28))
+                        .font(.system(size: min(checkmarkPreviewSize, 32)))
                         .foregroundStyle(themeManager.accentTheme.primary)
                 }
                 .padding(HLSpacing.sm)

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct NotificationSettingsView: View {
+    @ScaledMetric(relativeTo: .footnote) private var settingsIconSize: CGFloat = 14
     @AppStorage("notif_master") private var masterToggle = true
     @AppStorage("notif_habits") private var habitReminders = true
     @AppStorage("notif_streaks") private var streakAlerts = true
@@ -111,7 +112,7 @@ struct NotificationSettingsView: View {
         Toggle(isOn: isOn) {
             HStack(spacing: HLSpacing.sm) {
                 Image(systemName: icon)
-                    .font(.system(size: 14))
+                    .font(.system(size: min(settingsIconSize, 18)))
                     .foregroundColor(.white)
                     .frame(width: 28, height: 28)
                     .background(color)

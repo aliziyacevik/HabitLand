@@ -4,6 +4,9 @@ import SwiftData
 // MARK: - Social Hub (Tab Container)
 
 struct SocialHubView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var emptyIconSize: CGFloat = 48
+    @ScaledMetric(relativeTo: .footnote) private var chevronSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .footnote) private var sectionIconSize: CGFloat = 16
     @State private var selectedSection: SocialSection = .friends
     @StateObject private var cloudKit = CloudKitManager.shared
     @Query(sort: \Friend.name) private var friends: [Friend]
@@ -62,7 +65,7 @@ struct SocialHubView: View {
                             } label: {
                                 ZStack(alignment: .topTrailing) {
                                     Image(systemName: "bell.fill")
-                                        .font(.system(size: 16))
+                                        .font(.system(size: min(sectionIconSize, 20)))
                                         .foregroundStyle(Color.hlPrimary)
 
                                     Text("\(nudges.count)")
@@ -86,7 +89,7 @@ struct SocialHubView: View {
                         } label: {
                             HStack(spacing: HLSpacing.xxs) {
                                 Image(systemName: "person.badge.clock")
-                                    .font(.system(size: 14))
+                                    .font(.system(size: min(chevronSize, 18)))
                                 Text("\(cloudKit.pendingRequests.count)")
                                     .font(HLFont.caption(.bold))
                             }
@@ -140,7 +143,7 @@ struct SocialHubView: View {
     private var iCloudUnavailableView: some View {
         VStack(spacing: HLSpacing.lg) {
             Image(systemName: "icloud.slash")
-                .font(.system(size: 48))
+                .font(.system(size: min(emptyIconSize, 56)))
                 .foregroundStyle(Color.hlTextTertiary)
 
             Text("iCloud Required")

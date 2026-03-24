@@ -2,6 +2,9 @@ import SwiftUI
 import SwiftData
 
 struct PersonalStatisticsView: View {
+    @ScaledMetric(relativeTo: .footnote) private var sectionIconSize: CGFloat = 16
+    @ScaledMetric(relativeTo: .body) private var cardIconSize: CGFloat = 18
+    @ScaledMetric(relativeTo: .largeTitle) private var emptyIconSize: CGFloat = 40
     @Query(filter: #Predicate<Habit> { !$0.isArchived }) private var activeHabits: [Habit]
     @Query private var allHabits: [Habit]
     @Query private var achievements: [Achievement]
@@ -101,7 +104,11 @@ struct PersonalStatisticsView: View {
             }
             guard count >= 7 else { continue } // need at least a week of data
             let rate = totalRate / Double(count)
-            if best == nil || rate > best!.1 {
+            if let currentBest = best {
+                if rate > currentBest.1 {
+                    best = (fmt.string(from: monthDate), rate)
+                }
+            } else {
                 best = (fmt.string(from: monthDate), rate)
             }
         }
@@ -170,13 +177,13 @@ struct PersonalStatisticsView: View {
 
     private var emptyState: some View {
         VStack(spacing: HLSpacing.md) {
-            Spacer().frame(height: 80)
+            Spacer().frame(height: HLSpacing.xxxl)
             ZStack {
                 Circle()
                     .fill(Color.hlPrimary.opacity(0.08))
                     .frame(width: 100, height: 100)
                 Image(systemName: "chart.bar.fill")
-                    .font(.system(size: 40))
+                    .font(.system(size: min(emptyIconSize, 48)))
                     .foregroundStyle(Color.hlPrimary.opacity(0.5))
             }
             Text("No statistics yet")
@@ -212,18 +219,22 @@ struct PersonalStatisticsView: View {
     private func metricTile(value: String, label: String, icon: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: HLSpacing.xs) {
             Image(systemName: icon)
-                .font(.system(size: 18))
+                .font(.system(size: min(cardIconSize, 22)))
                 .foregroundColor(color)
+                .accessibilityHidden(true)
 
             Text(value)
                 .font(HLFont.title2())
                 .foregroundColor(.hlTextPrimary)
+                .minimumScaleFactor(0.75)
 
             Text(label)
                 .font(HLFont.caption())
                 .foregroundColor(.hlTextSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(label): \(value)")
         .hlCard(padding: HLSpacing.sm)
     }
 
@@ -324,11 +335,12 @@ struct PersonalStatisticsView: View {
     private func recordRow(icon: String, color: Color, title: String, value: String, subtitle: String) -> some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: icon)
-                .font(.system(size: 16))
+                .font(.system(size: min(sectionIconSize, 20)))
                 .foregroundColor(color)
                 .frame(width: 36, height: 36)
                 .background(color.opacity(0.12))
                 .clipShape(Circle())
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                 Text(title)

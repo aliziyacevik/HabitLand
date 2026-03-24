@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct DataExportView: View {
+    @ScaledMetric(relativeTo: .footnote) private var chevronSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .footnote) private var iconSize: CGFloat = 16
     @Environment(\.modelContext) private var modelContext
     @State private var exportFormat = 0 // 0=JSON, 1=CSV
     @State private var startDate = Calendar.current.date(byAdding: .month, value: -3, to: Date()) ?? Date()
@@ -90,7 +92,7 @@ struct DataExportView: View {
         } label: {
             HStack(spacing: HLSpacing.sm) {
                 Image(systemName: icon)
-                    .font(.system(size: 16))
+                    .font(.system(size: min(iconSize, 20)))
                     .foregroundColor(color)
                     .frame(width: 32, height: 32)
                     .background(color.opacity(0.12))
@@ -108,7 +110,7 @@ struct DataExportView: View {
                 Spacer()
 
                 Image(systemName: "square.and.arrow.up")
-                    .font(.system(size: 14))
+                    .font(.system(size: min(chevronSize, 18)))
                     .foregroundColor(.hlTextTertiary)
             }
         }

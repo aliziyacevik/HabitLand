@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct StreakOverviewView: View {
+    @ScaledMetric(relativeTo: .title) private var flameIconSize: CGFloat = 44
+    @ScaledMetric(relativeTo: .title) private var streakIconSize: CGFloat = 32
     @Query(filter: #Predicate<Habit> { !$0.isArchived }) private var habits: [Habit]
 
     private var activeStreaks: [Habit] {
@@ -81,7 +83,7 @@ struct StreakOverviewView: View {
     private func featuredStreakCard(_ habit: Habit) -> some View {
         VStack(spacing: HLSpacing.sm) {
             Image(systemName: HLIcon.flame)
-                .font(.system(size: 44))
+                .font(.system(size: min(flameIconSize, 52)))
                 .foregroundStyle(Color.hlFlame)
                 .symbolEffect(.pulse, isActive: true)
 
@@ -117,6 +119,7 @@ struct StreakOverviewView: View {
             HStack(spacing: HLSpacing.xs) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(Color.hlWarning)
+                    .accessibilityHidden(true)
                 Text("Streaks at Risk")
                     .font(HLFont.headline())
                     .foregroundStyle(Color.hlTextPrimary)
@@ -167,7 +170,7 @@ struct StreakOverviewView: View {
             if activeStreaks.isEmpty {
                 VStack(spacing: HLSpacing.sm) {
                     Image(systemName: HLIcon.flame)
-                        .font(.system(size: 32))
+                        .font(.system(size: min(streakIconSize, 36)))
                         .foregroundStyle(Color.hlTextTertiary)
                     Text("No active streaks")
                         .font(HLFont.subheadline())
@@ -198,6 +201,7 @@ struct StreakOverviewView: View {
             HStack(spacing: HLSpacing.xxs) {
                 Image(systemName: HLIcon.flame)
                     .foregroundStyle(Color.hlFlame)
+                    .accessibilityHidden(true)
                 Text("\(habit.currentStreak)")
                     .font(HLFont.title2())
                     .foregroundStyle(Color.hlTextPrimary)

@@ -1,13 +1,16 @@
 import SwiftUI
 
 struct AmbientSoundPicker: View {
+    @ScaledMetric(relativeTo: .caption) private var tinyIconSize: CGFloat = 10
+    @ScaledMetric(relativeTo: .footnote) private var labelIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .body) private var soundIconSize: CGFloat = 18
     @ObservedObject private var soundManager = AmbientSoundManager.shared
 
     var body: some View {
         VStack(spacing: HLSpacing.sm) {
             HStack {
                 Image(systemName: "speaker.wave.2.fill")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: min(labelIconSize, 18), weight: .semibold))
                     .foregroundStyle(Color.hlTextSecondary)
                 Text("Ambient Sound")
                     .font(HLFont.caption(.semibold))
@@ -32,7 +35,7 @@ struct AmbientSoundPicker: View {
                         } label: {
                             VStack(spacing: HLSpacing.xxs) {
                                 Image(systemName: sound.icon)
-                                    .font(.system(size: 18, weight: .semibold))
+                                    .font(.system(size: min(soundIconSize, 22), weight: .semibold))
                                     .foregroundStyle(soundManager.currentSound == sound ? .white : sound.color)
                                     .frame(width: 44, height: 44)
                                     .background(
@@ -44,6 +47,8 @@ struct AmbientSoundPicker: View {
 
                                 Text(sound.rawValue)
                                     .font(HLFont.caption2(.medium))
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.75)
                                     .foregroundStyle(
                                         soundManager.currentSound == sound
                                             ? sound.color
@@ -59,7 +64,7 @@ struct AmbientSoundPicker: View {
             if soundManager.isPlaying {
                 HStack(spacing: HLSpacing.sm) {
                     Image(systemName: "speaker.fill")
-                        .font(.system(size: 10))
+                        .font(.system(size: min(tinyIconSize, 14)))
                         .foregroundStyle(Color.hlTextTertiary)
                     Slider(value: Binding(
                         get: { Double(soundManager.volume) },
@@ -67,7 +72,7 @@ struct AmbientSoundPicker: View {
                     ), in: 0...1)
                     .tint(soundManager.currentSound?.color ?? .hlPrimary)
                     Image(systemName: "speaker.wave.3.fill")
-                        .font(.system(size: 10))
+                        .font(.system(size: min(tinyIconSize, 14)))
                         .foregroundStyle(Color.hlTextTertiary)
                 }
             }

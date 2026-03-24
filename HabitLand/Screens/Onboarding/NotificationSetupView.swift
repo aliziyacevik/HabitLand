@@ -2,6 +2,9 @@ import SwiftUI
 
 struct NotificationSetupView: View {
     @State private var isAnimating = false
+    @ScaledMetric(relativeTo: .largeTitle) private var outerCircleSize: CGFloat = 200
+    @ScaledMetric(relativeTo: .largeTitle) private var innerCircleSize: CGFloat = 140
+    @ScaledMetric(relativeTo: .largeTitle) private var iconSize: CGFloat = 56
     var onEnable: () -> Void = {}
     var onSkip: () -> Void = {}
 
@@ -13,15 +16,15 @@ struct NotificationSetupView: View {
             ZStack {
                 Circle()
                     .fill(Color.hlPrimary.opacity(0.08))
-                    .frame(width: 200, height: 200)
+                    .frame(width: min(outerCircleSize, 220), height: min(outerCircleSize, 220))
                     .scaleEffect(isAnimating ? 1.05 : 1.0)
 
                 Circle()
                     .fill(Color.hlPrimary.opacity(0.12))
-                    .frame(width: 140, height: 140)
+                    .frame(width: min(innerCircleSize, 160), height: min(innerCircleSize, 160))
 
                 Image(systemName: HLIcon.notification)
-                    .font(.system(size: 56, weight: .medium))
+                    .font(.system(size: min(iconSize, 64), weight: .medium))
                     .foregroundColor(.hlPrimary)
                     .offset(y: isAnimating ? -4 : 4)
             }

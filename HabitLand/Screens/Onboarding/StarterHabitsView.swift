@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct StarterHabitsView: View {
+    @ScaledMetric(relativeTo: .footnote) private var chipIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .title3) private var statIconSize: CGFloat = 24
     @Environment(\.modelContext) private var modelContext
     var onComplete: (Int) -> Void = { _ in }
 
@@ -14,11 +16,11 @@ struct StarterHabitsView: View {
         VStack(spacing: 0) {
             // Header
             VStack(spacing: HLSpacing.xs) {
-                Text("Pick Your Habits")
+                Text("Want a few more?")
                     .font(HLFont.title1())
                     .foregroundStyle(Color.hlTextPrimary)
 
-                Text("Choose a few to get started. You can always add more later.")
+                Text("Pick some extra habits to build your routine.")
                     .font(HLFont.body())
                     .foregroundStyle(Color.hlTextSecondary)
                     .multilineTextAlignment(.center)
@@ -44,7 +46,7 @@ struct StarterHabitsView: View {
                 if !selectedTemplates.isEmpty {
                     HStack(spacing: HLSpacing.xs) {
                         Image(systemName: "sparkles")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.system(size: min(chipIconSize, 18), weight: .semibold))
                             .foregroundStyle(Color.hlGold)
                         Text("You'll earn \(selectedTemplates.count * 10) XP for getting started!")
                             .font(HLFont.caption(.semibold))
@@ -54,8 +56,8 @@ struct StarterHabitsView: View {
                 }
 
                 HLButton(
-                    selectedTemplates.isEmpty ? "Skip for Now" : "Add \(selectedTemplates.count) Habits",
-                    icon: selectedTemplates.isEmpty ? nil : "plus",
+                    selectedTemplates.isEmpty ? "I'm Good for Now" : "Add \(selectedTemplates.count) Habits",
+                    icon: selectedTemplates.isEmpty ? "arrow.right" : "plus",
                     style: selectedTemplates.isEmpty ? .secondary : .primary,
                     size: .lg,
                     isFullWidth: true
@@ -99,7 +101,7 @@ struct StarterHabitsView: View {
                         .frame(height: 56)
 
                     Image(systemName: template.icon)
-                        .font(.system(size: 24))
+                        .font(.system(size: min(statIconSize, 28)))
                         .foregroundStyle(template.color)
                 }
 

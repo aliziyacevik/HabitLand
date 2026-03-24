@@ -2,6 +2,12 @@ import SwiftUI
 import SwiftData
 
 struct UserProfileView: View {
+    @ScaledMetric(relativeTo: .caption) private var xpStarSize: CGFloat = 10
+    @ScaledMetric(relativeTo: .caption) private var starIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .caption) private var chevronSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var linkIconSize: CGFloat = 16
+    @ScaledMetric(relativeTo: .body) private var achievementIconSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .title3) private var shieldIconSize: CGFloat = 24
     @Query private var profiles: [UserProfile]
     @Query(filter: #Predicate<Achievement> { $0.isUnlocked }) private var unlockedAchievements: [Achievement]
     @Query private var habits: [Habit]
@@ -43,6 +49,9 @@ struct UserProfileView: View {
                 .padding(.horizontal, HLSpacing.md)
                 .padding(.vertical, HLSpacing.md)
             }
+            .refreshable {
+                try? await Task.sleep(for: .milliseconds(300))
+            }
             .background(Color.hlBackground)
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.inline)
@@ -73,8 +82,9 @@ struct UserProfileView: View {
 
                 HStack(spacing: HLSpacing.xs) {
                     Image(systemName: HLIcon.star)
-                        .font(.system(size: 12))
+                        .font(.system(size: min(starIconSize, 16)))
                         .foregroundColor(.hlPrimary)
+                        .accessibilityHidden(true)
                     Text("Level \(profile?.level ?? 1) · \(profile?.levelTitle ?? "Seedling")")
                         .font(HLFont.caption(.semibold))
                         .foregroundColor(.hlPrimary)
@@ -112,12 +122,14 @@ struct UserProfileView: View {
     private func statCard(value: String, label: String, icon: String) -> some View {
         VStack(spacing: HLSpacing.xs) {
             Image(systemName: icon)
-                .font(.system(size: 16))
+                .font(.system(size: min(linkIconSize, 20)))
                 .foregroundColor(.hlPrimary)
+                .accessibilityHidden(true)
 
             Text(value)
                 .font(HLFont.title3())
                 .foregroundColor(.hlTextPrimary)
+                .minimumScaleFactor(0.75)
 
             Text(label)
                 .font(HLFont.caption2())
@@ -126,6 +138,8 @@ struct UserProfileView: View {
                 .minimumScaleFactor(0.8)
         }
         .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(label): \(value)")
         .hlCard(padding: HLSpacing.sm)
     }
 
@@ -164,7 +178,7 @@ struct UserProfileView: View {
     private func achievementItem(icon: String, name: String, color: Color, unlocked: Bool) -> some View {
         VStack(spacing: HLSpacing.xs) {
             Image(systemName: unlocked ? icon : "lock.fill")
-                .font(.system(size: 20))
+                .font(.system(size: min(achievementIconSize, 24)))
                 .foregroundColor(unlocked ? color : .hlTextTertiary)
                 .frame(width: 48, height: 48)
                 .background(unlocked ? color.opacity(0.12) : Color.hlDivider)
@@ -174,6 +188,7 @@ struct UserProfileView: View {
                 .font(HLFont.caption2(.medium))
                 .foregroundColor(unlocked ? .hlTextPrimary : .hlTextTertiary)
                 .lineLimit(1)
+                .minimumScaleFactor(0.75)
         }
         .frame(width: 72)
     }
@@ -185,9 +200,10 @@ struct UserProfileView: View {
     private var streakFreezeCard: some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: "shield.fill")
-                .font(.system(size: 24, weight: .semibold))
+                .font(.system(size: min(shieldIconSize, 28), weight: .semibold))
                 .foregroundStyle(Color.hlInfo)
                 .frame(width: 40)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                 Text("Streak Shields")
@@ -217,7 +233,7 @@ struct UserProfileView: View {
                 } else {
                     HStack(spacing: HLSpacing.xxxs) {
                         Image(systemName: "star.fill")
-                            .font(.system(size: 10))
+                            .font(.system(size: min(xpStarSize, 14)))
                         Text("\(StreakFreezeManager.freezeCostXP)")
                     }
                     .font(HLFont.caption(.bold))
@@ -273,11 +289,12 @@ struct UserProfileView: View {
     private func quickLinkContent(icon: String, title: String) -> some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: icon)
-                .font(.system(size: 16))
+                .font(.system(size: min(linkIconSize, 20)))
                 .foregroundColor(.hlPrimary)
                 .frame(width: 32, height: 32)
                 .background(Color.hlPrimaryLight)
                 .cornerRadius(HLRadius.sm)
+                .accessibilityHidden(true)
 
             Text(title)
                 .font(HLFont.body())
@@ -286,8 +303,9 @@ struct UserProfileView: View {
             Spacer()
 
             Image(systemName: "chevron.right")
-                .font(.system(size: 12))
+                .font(.system(size: min(chevronSize, 16)))
                 .foregroundColor(.hlTextTertiary)
+                .accessibilityHidden(true)
         }
         .hlCard(padding: HLSpacing.sm)
     }

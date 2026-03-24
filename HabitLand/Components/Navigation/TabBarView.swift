@@ -60,6 +60,7 @@ struct TabBarView: View {
 // MARK: - Tab Bar Item
 
 private struct TabBarItem: View {
+    @ScaledMetric(relativeTo: .title3) private var tabIconSize: CGFloat = 22
     let tab: HLTab
     let isSelected: Bool
     let action: () -> Void
@@ -68,7 +69,7 @@ private struct TabBarItem: View {
         Button(action: action) {
             VStack(spacing: HLSpacing.xxs) {
                 Image(systemName: tab.icon)
-                    .font(.system(size: 22, weight: isSelected ? .semibold : .regular))
+                    .font(.system(size: min(tabIconSize, 26), weight: isSelected ? .semibold : .regular))
                     .scaleEffect(isSelected ? 1.1 : 1.0)
 
                 Text(tab.title)

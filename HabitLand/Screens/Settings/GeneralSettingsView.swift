@@ -3,6 +3,8 @@ import SwiftData
 import StoreKit
 
 struct GeneralSettingsView: View {
+    @ScaledMetric(relativeTo: .caption) private var safariIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var settingsIconSize: CGFloat = 14
     // MARK: - Legal URLs
     // Update this base URL with your GitHub Pages domain when deployed
     private static let legalBaseURL = "https://azc.github.io/HabitLand"
@@ -29,7 +31,7 @@ struct GeneralSettingsView: View {
                     } label: {
                         HStack(spacing: HLSpacing.sm) {
                             Image(systemName: "crown.fill")
-                                .font(.system(size: 14))
+                                .font(.system(size: min(settingsIconSize, 18)))
                                 .foregroundColor(.white)
                                 .frame(width: 28, height: 28)
                                 .background(
@@ -57,7 +59,7 @@ struct GeneralSettingsView: View {
                 // Current plan status (D-06)
                 HStack(spacing: HLSpacing.sm) {
                     Image(systemName: proManager.currentPlanDisplay.icon)
-                        .font(.system(size: 14))
+                        .font(.system(size: min(settingsIconSize, 18)))
                         .foregroundColor(.white)
                         .frame(width: 28, height: 28)
                         .background(
@@ -192,7 +194,7 @@ struct GeneralSettingsView: View {
                                 .foregroundColor(.hlPrimary)
                             Spacer()
                             Image(systemName: "safari")
-                                .font(.system(size: 12))
+                                .font(.system(size: min(safariIconSize, 16)))
                                 .foregroundColor(.hlTextTertiary)
                         }
                     }
@@ -210,7 +212,7 @@ struct GeneralSettingsView: View {
                                 .foregroundColor(.hlPrimary)
                             Spacer()
                             Image(systemName: "safari")
-                                .font(.system(size: 12))
+                                .font(.system(size: min(safariIconSize, 16)))
                                 .foregroundColor(.hlTextTertiary)
                         }
                     }
@@ -334,7 +336,7 @@ struct GeneralSettingsView: View {
     private func settingsRow(icon: String, color: Color, title: String) -> some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: icon)
-                .font(.system(size: 14))
+                .font(.system(size: min(settingsIconSize, 18)))
                 .foregroundColor(.white)
                 .frame(width: 28, height: 28)
                 .background(color)

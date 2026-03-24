@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct SleepInsightsView: View {
+    @ScaledMetric(relativeTo: .title) private var emptyIconSize: CGFloat = 44
+    @ScaledMetric(relativeTo: .title) private var insightIconSize: CGFloat = 36
     @Query(sort: \SleepLog.wakeTime, order: .reverse) private var sleepLogs: [SleepLog]
 
     private var insights: [SleepInsight] {
@@ -35,7 +37,7 @@ struct SleepInsightsView: View {
     private var headerCard: some View {
         VStack(spacing: HLSpacing.sm) {
             Image(systemName: HLIcon.sparkles)
-                .font(.system(size: 36))
+                .font(.system(size: min(insightIconSize, 40)))
                 .foregroundStyle(Color.hlSleep)
 
             Text("Personalized Insights")
@@ -95,7 +97,7 @@ struct SleepInsightsView: View {
     private var emptyState: some View {
         VStack(spacing: HLSpacing.md) {
             Image(systemName: HLIcon.moon)
-                .font(.system(size: 44))
+                .font(.system(size: min(emptyIconSize, 52)))
                 .foregroundStyle(Color.hlTextTertiary)
 
             Text("Not enough data yet")

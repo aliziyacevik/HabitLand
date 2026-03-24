@@ -4,6 +4,9 @@ import SwiftData
 // MARK: - FriendsListView
 
 struct FriendsListView: View {
+    @ScaledMetric(relativeTo: .caption) private var flameIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var chevronSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .footnote) private var searchIconSize: CGFloat = 16
     @Query(sort: \Friend.name) private var friends: [Friend]
     @State private var searchText = ""
     @State private var showAddFriends = false
@@ -59,7 +62,7 @@ struct FriendsListView: View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: HLIcon.search)
                 .foregroundColor(.hlTextTertiary)
-                .font(.system(size: 16))
+                .font(.system(size: min(searchIconSize, 20)))
 
             TextField("Search friends...", text: $searchText)
                 .font(HLFont.body())
@@ -71,7 +74,7 @@ struct FriendsListView: View {
                 } label: {
                     Image(systemName: HLIcon.close)
                         .foregroundColor(.hlTextTertiary)
-                        .font(.system(size: 12, weight: .bold))
+                        .font(.system(size: min(flameIconSize, 16), weight: .bold))
                 }
             }
         }
@@ -92,12 +95,12 @@ struct FriendsListView: View {
         } label: {
             HStack(spacing: HLSpacing.sm) {
                 Image(systemName: HLIcon.personAdd)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: min(searchIconSize, 20), weight: .semibold))
                 Text("Add Friends")
                     .font(HLFont.headline())
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: min(chevronSize, 18), weight: .semibold))
                     .foregroundColor(.hlTextTertiary)
             }
             .foregroundColor(.hlPrimary)
@@ -126,7 +129,7 @@ struct FriendsListView: View {
                 HStack(spacing: HLSpacing.md) {
                     HStack(spacing: HLSpacing.xxs) {
                         Image(systemName: HLIcon.flame)
-                            .font(.system(size: 12))
+                            .font(.system(size: min(flameIconSize, 16)))
                             .foregroundColor(.hlFlame)
                             .accessibilityHidden(true)
                         Text("\(friend.currentStreak)d")
@@ -143,7 +146,7 @@ struct FriendsListView: View {
             Spacer()
 
             Image(systemName: "chevron.right")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.system(size: min(flameIconSize, 16), weight: .semibold))
                 .foregroundColor(.hlTextTertiary)
         }
         .hlCard()
@@ -221,7 +224,7 @@ struct FriendsListView: View {
         VStack(spacing: HLSpacing.sm) {
             HStack(spacing: HLSpacing.xxs) {
                 Image(systemName: "globe")
-                    .font(.system(size: 14))
+                    .font(.system(size: min(chevronSize, 18)))
                     .foregroundStyle(Color.hlPrimary)
                     .accessibilityHidden(true)
                 Text("HabitLand Community")

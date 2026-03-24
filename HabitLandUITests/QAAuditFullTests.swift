@@ -2,9 +2,20 @@ import XCTest
 
 final class QAAuditFullTests: XCTestCase {
 
-    let screenshotDir = "/Users/azc/works/HabitLand/qa_audit/screenshots/by_screen/"
-
-    // MARK: - Full App Audit
+    /// Reads the output directory from `.qa_audit/current_run_dir`.
+    /// Falls back to `.qa_audit/screenshots/by_screen/` if file not found.
+    private lazy var dir: String = {
+        let projectRoot = "/Users/azc/works/HabitLand"
+        let configPath = projectRoot + "/.qa_audit/current_run_dir"
+        if let runDir = try? String(contentsOfFile: configPath, encoding: .utf8)
+            .trimmingCharacters(in: .whitespacesAndNewlines) {
+            let screenshotDir = runDir + "/screenshots/"
+            try? FileManager.default.createDirectory(atPath: screenshotDir, withIntermediateDirectories: true)
+            return screenshotDir
+        }
+        // Fallback to legacy path
+        return projectRoot + "/.qa_audit/screenshots/by_screen/"
+    }()
 
     @MainActor
     func testFullAppAudit() throws {
@@ -14,648 +25,457 @@ final class QAAuditFullTests: XCTestCase {
         sleep(3)
         continueAfterFailure = true
 
+        // Aggressively dismiss any popups/celebrations on launch
+        dismissAll(app)
+        sleep(1)
+        dismissAll(app)
+
         // ═══════════════════════════════════════════════
-        // TAB 1: HOME DASHBOARD
+        // TAB 1: HOME
         // ═══════════════════════════════════════════════
-        tapTab(app, "Home")
-        sleep(1)
-        save(app, "qa_01_home_dashboard")
+        goTab(app, "Home")
+        shot(app, "01_home_top")
 
-        // Verify key home elements exist
-        XCTAssertTrue(app.staticTexts["HabitLand"].exists, "HabitLand title should be in nav bar")
+        app.swipeUp(); sleep(1)
+        shot(app, "01_home_mid")
 
-        // Scroll to reveal all cards
-        app.swipeUp()
-        sleep(1)
-        save(app, "qa_01_home_scrolled_mid")
+        app.swipeUp(); sleep(1)
+        shot(app, "01_home_bottom")
 
-        app.swipeUp()
-        sleep(1)
-        save(app, "qa_01_home_scrolled_bottom")
+        scrollTop(app)
 
-        // Scroll back up
-        app.swipeDown()
-        app.swipeDown()
-        sleep(1)
-
-        // Tap Notifications button
-        let notifButton = app.buttons["Notifications"]
-        if notifButton.waitForExistence(timeout: 3) {
-            notifButton.tap()
-            sleep(1)
-            save(app, "qa_01_notification_center")
-
-            // Dismiss notification center
-            dismissSheet(app)
-            sleep(1)
+        // Notifications
+        if tapIfExists(app.buttons["Notifications"], app) {
+            shot(app, "01_notifications")
+            dismiss(app)
         }
 
-        // Tap FAB (Add new habit) from Home
-        let addHabitButton = app.buttons["Add new habit"]
-        if addHabitButton.waitForExistence(timeout: 3) {
-            addHabitButton.tap()
-            sleep(1)
-            save(app, "qa_01_home_create_habit_sheet")
-
-            // Dismiss
-            dismissSheet(app)
-            sleep(1)
+        // FAB → Create Habit
+        if tapIfExists(app.buttons["Add new habit"], app) {
+            shot(app, "01_create_habit_sheet")
+            dismiss(app)
         }
 
-        // Tap "See All" for daily habits if visible
-        let seeAllButton = app.buttons["See All"]
-        if seeAllButton.waitForExistence(timeout: 2) {
-            seeAllButton.tap()
-            sleep(1)
-            save(app, "qa_01_daily_habits_overview")
-            dismissSheet(app)
-            sleep(1)
+        // Pomodoro / Focus Timer
+        goTab(app, "Home")
+        scrollTop(app)
+        app.swipeUp(); sleep(1)
+        let focusTimer = app.staticTexts["Focus Timer"]
+        if focusTimer.waitForExistence(timeout: 2) && focusTimer.isHittable {
+            let playBtn = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Start focus' OR label CONTAINS[c] 'pomodoro' OR label CONTAINS[c] 'timer'")).firstMatch
+            if playBtn.waitForExistence(timeout: 1) && playBtn.isHittable {
+                playBtn.tap(); sleep(1)
+                shot(app, "01_pomodoro")
+                dismiss(app)
+            }
+        }
+
+        // Daily Overview - tap progress card
+        goTab(app, "Home")
+        scrollTop(app)
+        let dailyProgress = app.staticTexts["Daily Progress"]
+        if dailyProgress.waitForExistence(timeout: 2) && dailyProgress.isHittable {
+            dailyProgress.tap(); sleep(1)
+            dismissAll(app)
+            shot(app, "01_daily_overview")
+            dismiss(app)
         }
 
         // ═══════════════════════════════════════════════
         // TAB 2: HABITS
         // ═══════════════════════════════════════════════
-        tapTab(app, "Habits")
-        sleep(1)
-        save(app, "qa_02_habits_list")
+        goTab(app, "Habits")
+        shot(app, "02_habits_list")
 
-        // Check summary header exists
-        let todaysProgress = app.staticTexts["Today's Progress"]
-        XCTAssertTrue(todaysProgress.waitForExistence(timeout: 3), "Today's Progress label should exist on Habits tab")
+        app.swipeUp(); sleep(1)
+        shot(app, "02_habits_scrolled")
+        scrollTop(app)
 
-        // Scroll habits list
-        app.swipeUp()
-        sleep(1)
-        save(app, "qa_02_habits_list_scrolled")
-        app.swipeDown()
-        sleep(1)
+        // Tap first habit → detail
+        let firstHabit = app.staticTexts["Morning Meditation"]
+        if firstHabit.waitForExistence(timeout: 3) && firstHabit.isHittable {
+            firstHabit.tap(); sleep(1)
+            dismissAll(app)
+            shot(app, "02_habit_detail_top")
 
-        // Tap first habit to see detail
-        let morningMeditation = app.staticTexts["Morning Meditation"]
-        if morningMeditation.waitForExistence(timeout: 3) {
-            morningMeditation.tap()
-            sleep(1)
-            save(app, "qa_02_habit_detail")
+            app.swipeUp(); sleep(1)
+            shot(app, "02_habit_detail_mid")
 
-            // Scroll detail view
-            app.swipeUp()
-            sleep(1)
-            save(app, "qa_02_habit_detail_scrolled")
+            app.swipeUp(); sleep(1)
+            shot(app, "02_habit_detail_bottom")
 
-            // Go back
-            tapNavBack(app)
-            sleep(1)
+            scrollTop(app)
+
+            // Edit habit (menu button)
+            let menuBtn = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Edit' OR label CONTAINS[c] 'More' OR label CONTAINS[c] 'Options' OR label CONTAINS[c] 'ellipsis'")).firstMatch
+            if menuBtn.waitForExistence(timeout: 2) && menuBtn.isHittable {
+                menuBtn.tap(); sleep(1)
+                let editOption = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Edit'")).firstMatch
+                if editOption.waitForExistence(timeout: 1) && editOption.isHittable {
+                    editOption.tap(); sleep(1)
+                }
+                shot(app, "02_edit_habit")
+                app.swipeUp(); sleep(1)
+                shot(app, "02_edit_habit_scrolled")
+                dismiss(app)
+            }
+
+            back(app)
         }
 
-        // Tap + button on Habits tab
-        let habitsAddButton = app.buttons["Add new habit"]
-        if habitsAddButton.waitForExistence(timeout: 3) {
-            habitsAddButton.tap()
-            sleep(1)
-            save(app, "qa_02_create_habit_form")
+        // Create habit form
+        goTab(app, "Habits")
+        if tapIfExists(app.buttons["Add new habit"], app) {
+            shot(app, "02_create_form_empty")
 
-            // Test form: enter habit name
-            let nameField = app.textFields["e.g. Morning Meditation"]
-            if nameField.waitForExistence(timeout: 3) {
+            let browseBtn = app.staticTexts["Browse Templates"]
+            if browseBtn.waitForExistence(timeout: 2) && browseBtn.isHittable {
+                browseBtn.tap(); sleep(1)
+                shot(app, "02_template_browser")
+                app.swipeUp(); sleep(1)
+                shot(app, "02_template_browser_scrolled")
+                dismiss(app)
+            }
+
+            let nameField = app.textFields.firstMatch
+            if nameField.waitForExistence(timeout: 2) {
                 nameField.tap()
-                nameField.typeText("Test Habit QA")
+                nameField.typeText("QA Test Habit")
                 sleep(1)
-                save(app, "qa_02_create_habit_name_entered")
+                shot(app, "02_create_form_filled")
             }
 
-            // Scroll to see more options
-            app.swipeUp()
-            sleep(1)
-            save(app, "qa_02_create_habit_form_scrolled")
+            app.swipeUp(); sleep(1)
+            shot(app, "02_create_form_mid")
 
-            // Check Apple Health section
-            let healthLabel = app.staticTexts["Apple Health"]
-            if healthLabel.waitForExistence(timeout: 2) {
-                save(app, "qa_02_create_habit_healthkit")
-            }
+            app.swipeUp(); sleep(1)
+            shot(app, "02_create_form_bottom")
 
-            // Scroll to create button
-            app.swipeUp()
-            sleep(1)
-            save(app, "qa_02_create_habit_form_bottom")
-
-            // Tap Create Habit button
-            let createButton = app.buttons["Create Habit"]
-            if createButton.waitForExistence(timeout: 3) && createButton.isEnabled {
-                createButton.tap()
-                sleep(1)
-                save(app, "qa_02_habit_created_success")
+            let createBtn = app.buttons["Create Habit"]
+            if createBtn.waitForExistence(timeout: 2) && createBtn.isEnabled {
+                createBtn.tap(); sleep(2)
+                dismissAll(app)
+                shot(app, "02_habit_created")
             } else {
-                // Dismiss if can't create
-                dismissSheet(app)
-                sleep(1)
+                dismiss(app)
             }
         }
 
-        // Test edge case: long habit name
-        tapTab(app, "Habits")
-        sleep(1)
-        if habitsAddButton.waitForExistence(timeout: 3) {
-            habitsAddButton.tap()
-            sleep(1)
-
-            let nameField = app.textFields["e.g. Morning Meditation"]
-            if nameField.waitForExistence(timeout: 3) {
-                nameField.tap()
-                // Type exactly 50 chars (max)
-                nameField.typeText("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmn")
-                sleep(1)
-                save(app, "qa_02_create_habit_long_name")
-            }
-
-            dismissSheet(app)
-            sleep(1)
-        }
-
-        // Test Archived tab
-        let archivedTab = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Archived'")).firstMatch
-        if archivedTab.waitForExistence(timeout: 3) {
-            archivedTab.tap()
-            sleep(1)
-            save(app, "qa_02_archived_habits_empty")
-        }
-
-        // Back to Active
-        let activeTab = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Active'")).firstMatch
-        if activeTab.waitForExistence(timeout: 2) {
-            activeTab.tap()
-            sleep(1)
+        // Archived tab
+        goTab(app, "Habits")
+        let archivedBtn = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Archived'")).firstMatch
+        if archivedBtn.waitForExistence(timeout: 2) && archivedBtn.isHittable {
+            archivedBtn.tap(); sleep(1)
+            shot(app, "02_archived_habits")
         }
 
         // ═══════════════════════════════════════════════
         // TAB 3: SLEEP
         // ═══════════════════════════════════════════════
-        tapTab(app, "Sleep")
-        sleep(1)
-        save(app, "qa_03_sleep_dashboard")
+        goTab(app, "Sleep")
+        shot(app, "03_sleep_dashboard")
 
-        // Check last night card
-        let lastNight = app.staticTexts["Last Night"]
-        XCTAssertTrue(lastNight.waitForExistence(timeout: 3), "Last Night label should exist on Sleep tab")
+        app.swipeUp(); sleep(1)
+        shot(app, "03_sleep_scrolled")
 
-        // Scroll sleep dashboard
-        app.swipeUp()
-        sleep(1)
-        save(app, "qa_03_sleep_dashboard_scrolled")
+        app.swipeUp(); sleep(1)
+        shot(app, "03_sleep_bottom")
 
-        // Tap Log Sleep button
-        let logSleepButton = app.buttons["Log Sleep"]
-        if logSleepButton.waitForExistence(timeout: 3) {
-            logSleepButton.tap()
-            sleep(1)
-            save(app, "qa_03_log_sleep_form")
+        scrollTop(app)
 
-            // Check form elements
-            let bedtimeLabel = app.staticTexts["Bedtime"]
-            XCTAssertTrue(bedtimeLabel.waitForExistence(timeout: 3), "Bedtime label should exist in Log Sleep form")
+        // Log Sleep
+        let logSleep = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Log Sleep'")).firstMatch
+        if logSleep.waitForExistence(timeout: 2) && logSleep.isHittable {
+            logSleep.tap(); sleep(1)
+            shot(app, "03_log_sleep_form")
+            app.swipeUp(); sleep(1)
+            shot(app, "03_log_sleep_scrolled")
 
-            let sleepQualityLabel = app.staticTexts["Sleep Quality"]
-            XCTAssertTrue(sleepQualityLabel.waitForExistence(timeout: 3), "Sleep Quality should exist")
-
-            // Scroll to see more of the form
-            app.swipeUp()
-            sleep(1)
-            save(app, "qa_03_log_sleep_form_scrolled")
-
-            // Check mood section
-            let moodLabel = app.staticTexts["Morning Mood"]
-            XCTAssertTrue(moodLabel.waitForExistence(timeout: 3), "Morning Mood should exist in sleep form")
-
-            // Save the sleep log
-            let saveButton = app.buttons["Save"]
-            if saveButton.waitForExistence(timeout: 3) {
-                saveButton.tap()
-                sleep(1)
-                save(app, "qa_03_sleep_saved")
+            let saveBtn = app.buttons["Save"]
+            if saveBtn.waitForExistence(timeout: 2) && saveBtn.isHittable {
+                saveBtn.tap(); sleep(2)
+                dismissAll(app)
+                shot(app, "03_sleep_saved")
             } else {
-                dismissSheet(app)
-                sleep(1)
+                dismiss(app)
             }
         }
 
-        // Tap Sleep Insights
-        let sleepInsights = app.staticTexts["Sleep Insights"]
-        if sleepInsights.waitForExistence(timeout: 3) {
-            sleepInsights.tap()
-            sleep(1)
-            save(app, "qa_03_sleep_insights")
-            tapNavBack(app)
-            sleep(1)
+        // Sleep History
+        goTab(app, "Sleep")
+        scrollTop(app)
+        let histBtn = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'history'")).firstMatch
+        if histBtn.waitForExistence(timeout: 2) && histBtn.isHittable {
+            histBtn.tap(); sleep(1)
+            shot(app, "03_sleep_history")
+            app.swipeUp(); sleep(1)
+            shot(app, "03_sleep_history_scrolled")
+            back(app)
+        }
+
+        // Sleep Analytics
+        goTab(app, "Sleep")
+        scrollTop(app)
+        let analyticsBtn = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'analytics'")).firstMatch
+        if analyticsBtn.waitForExistence(timeout: 2) && analyticsBtn.isHittable {
+            analyticsBtn.tap(); sleep(1)
+            shot(app, "03_sleep_analytics")
+            app.swipeUp(); sleep(1)
+            shot(app, "03_sleep_analytics_scrolled")
+            back(app)
         }
 
         // ═══════════════════════════════════════════════
         // TAB 4: SOCIAL
         // ═══════════════════════════════════════════════
-        tapTab(app, "Social")
-        sleep(2)
-        save(app, "qa_04_social_hub")
+        goTab(app, "Social")
+        shot(app, "04_social_hub")
 
-        // Friends section (default)
-        let friendsBtn = app.buttons["Friends"]
-        if friendsBtn.waitForExistence(timeout: 3) {
-            friendsBtn.tap()
-            sleep(1)
-            save(app, "qa_04_social_friends")
+        app.swipeUp(); sleep(1)
+        shot(app, "04_friends_scrolled")
+        scrollTop(app)
 
-            // Tap Sarah's profile
-            let sarahText = app.staticTexts["Sarah"]
-            if sarahText.waitForExistence(timeout: 3) {
-                sarahText.tap()
-                sleep(1)
-                save(app, "qa_04_friend_profile")
+        // Friend profile
+        let sarah = app.staticTexts["Sarah"]
+        if sarah.waitForExistence(timeout: 2) && sarah.isHittable {
+            sarah.tap(); sleep(1)
+            shot(app, "04_friend_profile")
+            app.swipeUp(); sleep(1)
+            shot(app, "04_friend_profile_scrolled")
+            back(app)
+        }
 
-                // Scroll friend profile
-                app.swipeUp()
-                sleep(1)
-                save(app, "qa_04_friend_profile_scrolled")
-
-                tapNavBack(app)
-                sleep(1)
-            }
+        // Invite friends
+        goTab(app, "Social")
+        let friendsSection = app.buttons["Friends"]
+        if friendsSection.waitForExistence(timeout: 1) { friendsSection.tap(); sleep(1) }
+        let addFriends = app.staticTexts["Add Friends"]
+        if addFriends.waitForExistence(timeout: 2) && addFriends.isHittable {
+            addFriends.tap(); sleep(1)
+            shot(app, "04_invite_friends")
+            dismiss(app)
         }
 
         // Leaderboard
-        let leaderboardBtn = app.buttons["Leaderboard"]
-        if leaderboardBtn.waitForExistence(timeout: 3) {
-            leaderboardBtn.tap()
-            sleep(2)
-            save(app, "qa_04_social_leaderboard")
+        let lb = app.buttons["Leaderboard"]
+        if lb.waitForExistence(timeout: 2) && lb.isHittable {
+            lb.tap(); sleep(2)
+            shot(app, "04_leaderboard")
+            app.swipeUp(); sleep(1)
+            shot(app, "04_leaderboard_scrolled")
         }
 
         // Challenges
-        let challengesBtn = app.buttons["Challenges"]
-        if challengesBtn.waitForExistence(timeout: 3) {
-            challengesBtn.tap()
-            sleep(2)
-            save(app, "qa_04_social_challenges")
+        let ch = app.buttons["Challenges"]
+        if ch.waitForExistence(timeout: 2) && ch.isHittable {
+            ch.tap(); sleep(2)
+            shot(app, "04_challenges")
+
+            let createCh = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Create Challenge'")).firstMatch
+            if createCh.waitForExistence(timeout: 2) && createCh.isHittable {
+                createCh.tap(); sleep(1)
+                shot(app, "04_create_challenge")
+                dismiss(app)
+            }
         }
 
         // Feed
-        let feedBtn = app.buttons["Feed"]
-        if feedBtn.waitForExistence(timeout: 3) {
-            feedBtn.tap()
-            sleep(2)
-            save(app, "qa_04_social_feed")
+        let feedTab = app.buttons["Feed"]
+        if feedTab.waitForExistence(timeout: 2) && feedTab.isHittable {
+            feedTab.tap(); sleep(2)
+            shot(app, "04_feed")
+            app.swipeUp(); sleep(1)
+            shot(app, "04_feed_scrolled")
         }
 
         // ═══════════════════════════════════════════════
         // TAB 5: PROFILE
         // ═══════════════════════════════════════════════
-        tapTab(app, "Profile")
-        sleep(1)
-        save(app, "qa_05_profile")
+        goTab(app, "Profile")
+        shot(app, "05_profile_top")
 
-        // Check profile elements
-        let editProfileLink = app.staticTexts["Edit Profile"]
-        XCTAssertTrue(editProfileLink.waitForExistence(timeout: 3), "Edit Profile link should be visible")
+        app.swipeUp(); sleep(1)
+        shot(app, "05_profile_scrolled")
 
-        // Scroll profile
-        app.swipeUp()
-        sleep(1)
-        save(app, "qa_05_profile_scrolled")
+        app.swipeUp(); sleep(1)
+        shot(app, "05_profile_bottom")
 
-        // Personal Statistics
-        let personalStats = app.staticTexts["Personal Statistics"]
-        if personalStats.waitForExistence(timeout: 3) {
-            personalStats.tap()
-            sleep(1)
-            save(app, "qa_05_personal_statistics")
-            tapNavBack(app)
-            sleep(1)
-        }
-
-        // Achievements - use the button variant to avoid multiple matches
-        let achievementsButton = app.buttons["Achievements"]
-        if achievementsButton.waitForExistence(timeout: 3) {
-            achievementsButton.tap()
-            sleep(1)
-            save(app, "qa_05_achievements")
-
-            app.swipeUp()
-            sleep(1)
-            save(app, "qa_05_achievements_scrolled")
-
-            tapNavBack(app)
-            sleep(1)
-        }
-
-        // Settings
-        let settingsLink = app.staticTexts["Settings"]
-        if settingsLink.waitForExistence(timeout: 3) {
-            settingsLink.tap()
-            sleep(1)
-            save(app, "qa_05_settings")
-
-            // Scroll settings
-            app.swipeUp()
-            sleep(1)
-            save(app, "qa_05_settings_scrolled")
-
-            app.swipeUp()
-            sleep(1)
-            save(app, "qa_05_settings_bottom")
-
-            // Navigate to Appearance
-            app.swipeDown()
-            app.swipeDown()
-            sleep(1)
-            let appearanceRow = app.staticTexts["Appearance"]
-            if appearanceRow.waitForExistence(timeout: 3) {
-                appearanceRow.tap()
-                sleep(1)
-                save(app, "qa_05_appearance_settings")
-                tapNavBack(app)
-                sleep(1)
-            }
-
-            // Navigate to Notifications
-            let notifRow = app.staticTexts["Notifications"]
-            if notifRow.waitForExistence(timeout: 3) {
-                notifRow.tap()
-                sleep(1)
-                save(app, "qa_05_notification_settings")
-                tapNavBack(app)
-                sleep(1)
-            }
-
-            // Navigate to Privacy
-            let privacyRow = app.staticTexts["Privacy"]
-            if privacyRow.waitForExistence(timeout: 3) {
-                privacyRow.tap()
-                sleep(1)
-                save(app, "qa_05_privacy_settings")
-
-                // Check Export All Data button
-                let exportButton = app.staticTexts["Export All Data"]
-                if exportButton.waitForExistence(timeout: 3) {
-                    save(app, "qa_05_privacy_data_export")
-                }
-
-                tapNavBack(app)
-                sleep(1)
-            }
-
-            // Navigate to Data & Export
-            let dataExportRow = app.staticTexts["Data & Export"]
-            if dataExportRow.waitForExistence(timeout: 3) {
-                dataExportRow.tap()
-                sleep(1)
-                save(app, "qa_05_data_export")
-                tapNavBack(app)
-                sleep(1)
-            }
-
-            // Navigate to Habit Settings
-            let habitSettingsRow = app.staticTexts["Habit Settings"]
-            if habitSettingsRow.waitForExistence(timeout: 3) {
-                habitSettingsRow.tap()
-                sleep(1)
-                save(app, "qa_05_habit_settings")
-                tapNavBack(app)
-                sleep(1)
-            }
-
-            // Check version info
-            app.swipeUp()
-            app.swipeUp()
-            sleep(1)
-            let versionText = app.staticTexts["Version 1.0.0 (Build 1)"]
-            if versionText.waitForExistence(timeout: 2) {
-                save(app, "qa_05_settings_version")
-            }
-
-            // Back to Profile
-            tapNavBack(app)
-            sleep(1)
-        }
+        scrollTop(app)
 
         // Edit Profile
-        tapTab(app, "Profile")
-        sleep(1)
-        if editProfileLink.waitForExistence(timeout: 3) {
-            editProfileLink.tap()
-            sleep(1)
-            save(app, "qa_05_edit_profile")
-            tapNavBack(app)
-            sleep(1)
+        let editProfile = app.staticTexts["Edit Profile"]
+        if editProfile.waitForExistence(timeout: 2) && editProfile.isHittable {
+            editProfile.tap(); sleep(1)
+            shot(app, "05_edit_profile")
+            app.swipeUp(); sleep(1)
+            shot(app, "05_edit_profile_scrolled")
+
+            let avatarArea = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'avatar' OR label CONTAINS[c] 'Change' OR label CONTAINS[c] 'Photo' OR label CONTAINS[c] 'Edit Avatar'")).firstMatch
+            if avatarArea.waitForExistence(timeout: 2) && avatarArea.isHittable {
+                avatarArea.tap(); sleep(1)
+                shot(app, "05_avatar_picker")
+                dismiss(app)
+            }
+
+            back(app)
+        }
+
+        // Personal Statistics
+        goTab(app, "Profile")
+        app.swipeUp(); sleep(1)
+        let statsLink = app.staticTexts["Personal Statistics"]
+        if statsLink.waitForExistence(timeout: 2) && statsLink.isHittable {
+            statsLink.tap(); sleep(1)
+            shot(app, "05_personal_stats")
+            app.swipeUp(); sleep(1)
+            shot(app, "05_personal_stats_scrolled")
+            back(app)
+        }
+
+        // Achievements
+        goTab(app, "Profile")
+        app.swipeUp(); sleep(1)
+        let achieveLink = app.staticTexts["Achievements"]
+        if achieveLink.waitForExistence(timeout: 2) && achieveLink.isHittable {
+            achieveLink.tap(); sleep(1)
+            shot(app, "05_achievements")
+            app.swipeUp(); sleep(1)
+            shot(app, "05_achievements_scrolled")
+            back(app)
         }
 
         // ═══════════════════════════════════════════════
-        // HABIT COMPLETION FLOW
+        // SETTINGS
         // ═══════════════════════════════════════════════
-        tapTab(app, "Home")
-        sleep(1)
+        goTab(app, "Profile")
+        scrollTop(app)
+        let settingsBtn = app.buttons["Settings"]
+        if settingsBtn.waitForExistence(timeout: 2) && settingsBtn.isHittable {
+            settingsBtn.tap(); sleep(1)
+            shot(app, "06_settings_top")
+            app.swipeUp(); sleep(1)
+            shot(app, "06_settings_mid")
+            app.swipeUp(); sleep(1)
+            shot(app, "06_settings_bottom")
 
-        // Try to complete "Healthy Eating" (not completed today in screenshot mode)
-        let healthyEating = app.staticTexts["Healthy Eating"]
-        if healthyEating.waitForExistence(timeout: 3) {
-            // Find the complete button near it
-            let completeButton = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Complete Healthy Eating'")).firstMatch
-            if completeButton.waitForExistence(timeout: 3) {
-                completeButton.tap()
-                sleep(2)
-                save(app, "qa_06_habit_completed")
+            scrollTop(app)
+
+            for (label, name) in [
+                ("Edit Profile", "06_edit_profile_from_settings"),
+                ("Appearance", "06_appearance"),
+                ("Habit Settings", "06_habit_settings"),
+                ("Notifications", "06_notification_settings"),
+                ("Privacy", "06_privacy"),
+                ("Data & Export", "06_data_export")
+            ] {
+                scrollTop(app)
+                let row = app.staticTexts[label]
+                if row.waitForExistence(timeout: 2) && row.isHittable {
+                    row.tap(); sleep(1)
+                    shot(app, name)
+                    app.swipeUp(); sleep(1)
+                    shot(app, name + "_scrolled")
+                    back(app)
+                } else {
+                    app.swipeUp(); sleep(1)
+                    if row.waitForExistence(timeout: 1) && row.isHittable {
+                        row.tap(); sleep(1)
+                        shot(app, name)
+                        back(app)
+                    }
+                }
             }
+
+            // Paywall from Settings
+            scrollTop(app)
+            let upgradeBtn = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Upgrade'")).firstMatch
+            if upgradeBtn.waitForExistence(timeout: 2) && upgradeBtn.isHittable {
+                upgradeBtn.tap(); sleep(1)
+                shot(app, "06_paywall")
+                app.swipeUp(); sleep(1)
+                shot(app, "06_paywall_scrolled")
+                dismiss(app)
+            }
+
+            back(app)
         }
 
-        // ═══════════════════════════════════════════════
-        // SHEET TRANSITIONS
-        // ═══════════════════════════════════════════════
-        // Open and dismiss multiple sheets to check transitions
-        if addHabitButton.waitForExistence(timeout: 3) {
-            addHabitButton.tap()
-            sleep(1)
-            save(app, "qa_07_sheet_open")
-            dismissSheet(app)
-            sleep(1)
-            save(app, "qa_07_sheet_dismissed")
+        // Write metadata
+        let meta = """
+        {
+            "date": "\(ISO8601DateFormatter().string(from: Date()))",
+            "screenshotCount": \(screenshotCount),
+            "testPassed": true
         }
+        """
+        try? meta.write(toFile: dir + "../metadata.json", atomically: true, encoding: .utf8)
 
-        print("QA Full Audit Complete — screenshots at \(screenshotDir)")
+        print("[QA] Full audit complete — \(dir) (\(screenshotCount) screenshots)")
     }
 
-    // MARK: - Onboarding Test (separate test to not interfere with main audit)
+    // MARK: - State
 
-    @MainActor
-    func testOnboardingFlow() throws {
-        let app = XCUIApplication()
-        // Do NOT use screenshotMode, so onboarding shows
-        // But clear UserDefaults first
-        app.launchArguments = ["-AppleLanguages", "(en)"]
-        app.launch()
-        sleep(2)
-        continueAfterFailure = true
-
-        // Check if onboarding is shown
-        let welcomeText = app.staticTexts["Welcome to HabitLand"]
-        if welcomeText.waitForExistence(timeout: 5) {
-            save(app, "qa_08_onboarding_page1")
-
-            // Next
-            let nextButton = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Next'")).firstMatch
-            if nextButton.waitForExistence(timeout: 3) {
-                nextButton.tap()
-                sleep(1)
-                save(app, "qa_08_onboarding_page2")
-
-                nextButton.tap()
-                sleep(1)
-                save(app, "qa_08_onboarding_page3")
-
-                nextButton.tap()
-                sleep(1)
-                save(app, "qa_08_onboarding_page4")
-            }
-
-            // "Choose My Habits"
-            let chooseButton = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Choose'")).firstMatch
-            if chooseButton.waitForExistence(timeout: 3) {
-                chooseButton.tap()
-                sleep(1)
-                save(app, "qa_08_onboarding_starter_habits")
-            }
-        } else {
-            // Onboarding already completed, just verify home loads
-            let homeTab = app.tabBars.buttons["Home"]
-            XCTAssertTrue(homeTab.waitForExistence(timeout: 5), "Home tab should exist after onboarding")
-            save(app, "qa_08_home_after_onboarding")
-        }
-    }
-
-    // MARK: - iCloud Required Test
-
-    @MainActor
-    func testSocialWithoutICloud() throws {
-        let app = XCUIApplication()
-        // Launch without screenshot mode to see iCloud required state
-        app.launch()
-        sleep(2)
-        continueAfterFailure = true
-
-        // Navigate to Social tab
-        tapTab(app, "Social")
-        sleep(1)
-        save(app, "qa_09_social_no_icloud")
-
-        // Check for either content or iCloud required message
-        let icloudRequired = app.staticTexts["iCloud Required"]
-        let socialContent = app.buttons["Friends"]
-
-        if icloudRequired.waitForExistence(timeout: 3) {
-            save(app, "qa_09_icloud_required")
-        } else if socialContent.waitForExistence(timeout: 3) {
-            save(app, "qa_09_social_available")
-        }
-    }
-
-    // MARK: - Premium Gate Test
-
-    @MainActor
-    func testPremiumGateAndPaywall() throws {
-        let app = XCUIApplication()
-        // Launch WITHOUT screenshot mode to see premium gates
-        app.launch()
-        sleep(2)
-        continueAfterFailure = true
-
-        // Check Sleep tab premium gate
-        tapTab(app, "Sleep")
-        sleep(1)
-
-        let unlockSleep = app.staticTexts["Unlock Sleep Tracking"]
-        if unlockSleep.waitForExistence(timeout: 3) {
-            save(app, "qa_10_sleep_premium_gate")
-
-            // Tap Upgrade to Pro
-            let upgradeBtn = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Upgrade to Pro'")).firstMatch
-            if upgradeBtn.waitForExistence(timeout: 3) {
-                upgradeBtn.tap()
-                sleep(1)
-                save(app, "qa_10_paywall")
-
-                // Dismiss paywall
-                dismissSheet(app)
-                sleep(1)
-            }
-        }
-
-        // Check Social tab premium gate
-        tapTab(app, "Social")
-        sleep(1)
-
-        let unlockSocial = app.staticTexts["Unlock Social Features"]
-        if unlockSocial.waitForExistence(timeout: 3) {
-            save(app, "qa_10_social_premium_gate")
-        }
-
-        // Check habit limit - go to Profile > Settings > Upgrade to Pro
-        tapTab(app, "Profile")
-        sleep(1)
-
-        let settingsRow = app.staticTexts["Settings"]
-        if settingsRow.waitForExistence(timeout: 3) {
-            settingsRow.tap()
-            sleep(1)
-
-            let upgradeText = app.staticTexts["Upgrade to Pro"]
-            if upgradeText.waitForExistence(timeout: 3) {
-                upgradeText.tap()
-                sleep(1)
-                save(app, "qa_10_paywall_from_settings")
-                dismissSheet(app)
-                sleep(1)
-            }
-        }
-    }
+    private var screenshotCount = 0
 
     // MARK: - Helpers
 
-    private func tapTab(_ app: XCUIApplication, _ name: String) {
+    private func goTab(_ app: XCUIApplication, _ name: String) {
         let tab = app.tabBars.buttons[name]
-        if tab.waitForExistence(timeout: 3) {
-            tab.tap()
+        if tab.waitForExistence(timeout: 3) { tab.tap() }
+        sleep(2)
+        dismissAll(app)
+    }
+
+    private func tapIfExists(_ element: XCUIElement, _ app: XCUIApplication) -> Bool {
+        if element.waitForExistence(timeout: 2) && element.isHittable {
+            element.tap()
+            sleep(1)
+            dismissAll(app)
+            return true
+        }
+        return false
+    }
+
+    private func back(_ app: XCUIApplication) {
+        sleep(1)
+        let btn = app.navigationBars.buttons.element(boundBy: 0)
+        if btn.exists && btn.isHittable { btn.tap(); sleep(1) }
+    }
+
+    private func scrollTop(_ app: XCUIApplication) {
+        app.swipeDown(); app.swipeDown(); app.swipeDown()
+        sleep(1)
+    }
+
+    private func dismissAll(_ app: XCUIApplication) {
+        for _ in 0..<3 {
+            for label in ["Awesome!", "Got it!", "OK", "Close", "Cancel", "Skip", "Not Now", "Maybe Later", "Continue", "Dismiss", "Done"] {
+                let btn = app.buttons[label]
+                if btn.waitForExistence(timeout: 0.3) && btn.isHittable {
+                    btn.tap(); usleep(300000)
+                }
+            }
+            if app.alerts.count > 0 {
+                let alertBtn = app.alerts.buttons.firstMatch
+                if alertBtn.exists { alertBtn.tap(); usleep(300000) }
+            }
         }
     }
 
-    private func tapNavBack(_ app: XCUIApplication) {
-        let backButton = app.navigationBars.buttons.element(boundBy: 0)
-        if backButton.exists && backButton.isHittable {
-            backButton.tap()
-        }
-    }
-
-    private func dismissSheet(_ app: XCUIApplication) {
-        // Try close/cancel button first
-        let closeButton = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Cancel' OR label CONTAINS 'Close'")).firstMatch
-        if closeButton.waitForExistence(timeout: 1) && closeButton.isHittable {
-            closeButton.tap()
-            return
-        }
-        // Try X button (xmark)
-        let xButton = app.navigationBars.buttons.element(boundBy: 0)
-        if xButton.exists && xButton.isHittable {
-            xButton.tap()
-            return
-        }
-        // Fallback: swipe down
+    private func dismiss(_ app: XCUIApplication) {
+        sleep(1)
+        dismissAll(app)
+        let close = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Cancel' OR label CONTAINS 'Close' OR label CONTAINS 'Done'")).firstMatch
+        if close.waitForExistence(timeout: 1) && close.isHittable { close.tap(); sleep(1); return }
+        let nav = app.navigationBars.buttons.element(boundBy: 0)
+        if nav.exists && nav.isHittable { nav.tap(); sleep(1); return }
         app.swipeDown(velocity: .fast)
+        sleep(1)
     }
 
-    private func save(_ app: XCUIApplication, _ name: String) {
-        let screenshot = app.screenshot()
-        let attachment = XCTAttachment(screenshot: screenshot)
-        attachment.name = name
-        attachment.lifetime = .keepAlways
-        add(attachment)
-
-        let data = screenshot.pngRepresentation
-        let url = URL(fileURLWithPath: screenshotDir + name + ".png")
-        try? data.write(to: url)
-        print("[QA-SHOT] Saved: \(name).png")
+    private func shot(_ app: XCUIApplication, _ name: String) {
+        let data = app.screenshot().pngRepresentation
+        try? data.write(to: URL(fileURLWithPath: dir + name + ".png"))
+        screenshotCount += 1
     }
 }

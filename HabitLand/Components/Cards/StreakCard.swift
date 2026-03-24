@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct StreakCard: View {
+    @ScaledMetric(relativeTo: .caption) private var flameIconSize: CGFloat = 12
     let currentStreak: Int
     let bestStreak: Int
     var useGradient: Bool = true
@@ -68,7 +69,7 @@ struct StreakCard: View {
             // Best streak
             HStack(spacing: HLSpacing.xxs) {
                 Image(systemName: HLIcon.trophy)
-                    .font(.system(size: 12))
+                    .font(.system(size: min(flameIconSize, 16)))
                     .foregroundColor(useGradient ? .white.opacity(0.7) : .hlGold)
                     .accessibilityHidden(true)
 

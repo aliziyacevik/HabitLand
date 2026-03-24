@@ -3,9 +3,11 @@ import SwiftUI
 // MARK: - Floating Action Button
 
 struct FloatingActionButton: View {
+    @ScaledMetric(relativeTo: .title3) private var fabIconSize: CGFloat = 24
     let icon: String
     let action: () -> Void
 
+    @ScaledMetric(relativeTo: .title) private var buttonSize: CGFloat = 56
     @State private var isPressed = false
 
     init(
@@ -21,9 +23,9 @@ struct FloatingActionButton: View {
             action()
         } label: {
             Image(systemName: icon)
-                .font(.system(size: 24, weight: .semibold))
+                .font(.system(size: min(fabIconSize, 28), weight: .semibold))
                 .foregroundColor(.white)
-                .frame(width: 56, height: 56)
+                .frame(width: buttonSize, height: buttonSize)
                 .background(Color.hlPrimary)
                 .clipShape(Circle())
                 .hlShadow(HLShadow.lg)

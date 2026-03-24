@@ -26,11 +26,12 @@ final class AmbientSoundManager: ObservableObject {
         }
 
         let engine = AVAudioEngine()
-        let format = AVAudioFormat(standardFormatWithSampleRate: 44100, channels: 1)!
+        guard let format = AVAudioFormat(standardFormatWithSampleRate: 44100, channels: 1) else { return }
         let params = sound.noiseParams
 
         let sourceNode = AVAudioSourceNode(format: format) { _, _, frameCount, bufferList -> OSStatus in
             let buffer = UnsafeMutableAudioBufferListPointer(bufferList)
+            guard let data = buffer[0].mData?.assumingMemoryBound(to: Float.self) else { return noErr }
             for frame in 0..<Int(frameCount) {
                 // Generate noise sample
                 var sample = Float.random(in: -1.0...1.0)
@@ -40,11 +41,11 @@ final class AmbientSoundManager: ObservableObject {
 
                 // Apply low-pass filter approximation for colored noise
                 if params.smoothing > 0 {
-                    let prev = frame > 0 ? buffer[0].mData!.assumingMemoryBound(to: Float.self)[frame - 1] : 0
+                    let prev = frame > 0 ? data[frame - 1] : 0
                     sample = prev * params.smoothing + sample * (1.0 - params.smoothing)
                 }
 
-                buffer[0].mData!.assumingMemoryBound(to: Float.self)[frame] = sample
+                data[frame] = sample
             }
             return noErr
         }

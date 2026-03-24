@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct CreateChallengeView: View {
+    @ScaledMetric(relativeTo: .caption) private var chipIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .body) private var cardIconSize: CGFloat = 20
     var inviteFriend: Friend?
 
     @State private var name = ""
@@ -108,7 +110,7 @@ struct CreateChallengeView: View {
                     } label: {
                         VStack(spacing: HLSpacing.xxs) {
                             Image(systemName: item.icon)
-                                .font(.system(size: 20))
+                                .font(.system(size: min(cardIconSize, 24)))
                                 .foregroundColor(selectedIcon == item.icon ? .white : .hlPrimary)
                                 .frame(width: 44, height: 44)
                                 .background(selectedIcon == item.icon ? Color.hlPrimary : Color.hlPrimaryLight)
@@ -142,7 +144,7 @@ struct CreateChallengeView: View {
                         } label: {
                             HStack(spacing: HLSpacing.xxs) {
                                 Image(systemName: category.icon)
-                                    .font(.system(size: 12))
+                                    .font(.system(size: min(chipIconSize, 16)))
                                 Text(category.rawValue)
                                     .font(HLFont.caption(.semibold))
                             }
@@ -205,7 +207,7 @@ struct CreateChallengeView: View {
             Spacer()
 
             Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 20))
+                .font(.system(size: min(cardIconSize, 24)))
                 .foregroundStyle(Color.hlSuccess)
         }
         .hlCard()

@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct HabitNotesView: View {
+    @ScaledMetric(relativeTo: .title) private var emptyIconSize: CGFloat = 36
     @Bindable var habit: Habit
     @Environment(\.modelContext) private var modelContext
 
@@ -95,7 +96,7 @@ struct HabitNotesView: View {
             if completionsWithNotes.isEmpty {
                 VStack(spacing: HLSpacing.sm) {
                     Image(systemName: HLIcon.note)
-                        .font(.system(size: 36))
+                        .font(.system(size: min(emptyIconSize, 40)))
                         .foregroundStyle(Color.hlTextTertiary)
                     Text("No notes yet")
                         .font(HLFont.subheadline())
@@ -160,6 +161,7 @@ struct HabitNotesView: View {
         )
         completion.habit = habit
         modelContext.insert(completion)
+        try? modelContext.save()
         newNote = ""
         isEditorFocused = false
     }

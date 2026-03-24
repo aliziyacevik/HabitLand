@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct HabitReminderView: View {
+    @ScaledMetric(relativeTo: .title3) private var bellIconSize: CGFloat = 22
     @Bindable var habit: Habit
     @Environment(\.dismiss) private var dismiss
 
@@ -52,7 +53,7 @@ struct HabitReminderView: View {
                         .fill(Color.hlMindfulness.opacity(0.15))
                         .frame(width: 48, height: 48)
                     Image(systemName: HLIcon.bell)
-                        .font(.system(size: 22))
+                        .font(.system(size: min(bellIconSize, 26)))
                         .foregroundStyle(Color.hlMindfulness)
                 }
 

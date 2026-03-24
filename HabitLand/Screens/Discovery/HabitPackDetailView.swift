@@ -4,6 +4,7 @@ import SwiftData
 // MARK: - Habit Pack Detail View
 
 struct HabitPackDetailView: View {
+    @ScaledMetric(relativeTo: .title) private var headerIconSize: CGFloat = 40
     let pack: HabitTemplatePack
     @Environment(\.modelContext) private var modelContext
     @State private var addedTemplates: Set<String> = []
@@ -34,7 +35,7 @@ struct HabitPackDetailView: View {
     private var packHeader: some View {
         VStack(spacing: HLSpacing.sm) {
             Image(systemName: pack.icon)
-                .font(.system(size: 40, weight: .semibold))
+                .font(.system(size: min(headerIconSize, 48), weight: .semibold))
                 .foregroundColor(pack.color)
                 .frame(width: 80, height: 80)
                 .background(pack.color.opacity(0.15))
@@ -104,6 +105,7 @@ struct HabitPackDetailView: View {
     private func addTemplate(_ template: HabitTemplate) {
         let habit = template.toHabit()
         modelContext.insert(habit)
+        try? modelContext.save()
         AchievementManager.checkAll(context: modelContext)
         HLHaptics.completionSuccess()
         withAnimation(HLAnimation.celebration) {
@@ -117,6 +119,7 @@ struct HabitPackDetailView: View {
             let habit = template.toHabit(sortOrder: index)
             modelContext.insert(habit)
         }
+        try? modelContext.save()
         AchievementManager.checkAll(context: modelContext)
         HLHaptics.success()
         withAnimation(HLAnimation.celebration) {

@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct SleepDashboardView: View {
+    @ScaledMetric(relativeTo: .footnote) private var actionIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .title) private var moonIconSize: CGFloat = 32
     @Query(sort: \SleepLog.wakeTime, order: .reverse) private var sleepLogs: [SleepLog]
     @Query(filter: #Predicate<Habit> { !$0.isArchived }) private var habits: [Habit]
     @State private var showLogSleep = false
@@ -51,6 +53,9 @@ struct SleepDashboardView: View {
                 .padding(.horizontal, HLSpacing.md)
                 .padding(.bottom, HLSpacing.xl)
             }
+            .refreshable {
+                try? await Task.sleep(for: .milliseconds(300))
+            }
             .background(Color.hlBackground)
             .navigationTitle("Sleep")
             .toolbar {
@@ -82,7 +87,7 @@ struct SleepDashboardView: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, HLSpacing.sm)
-                        .background(Color.hlSleep, in: RoundedRectangle(cornerRadius: HLRadius.lg))
+                        .background(Color.hlPrimary, in: RoundedRectangle(cornerRadius: HLRadius.lg))
                 }
                 .padding(.horizontal, HLSpacing.md)
                 .padding(.bottom, HLSpacing.xs)
@@ -124,6 +129,7 @@ struct SleepDashboardView: View {
                 Text(log.durationFormatted)
                     .font(HLFont.largeTitle(.bold))
                     .foregroundStyle(Color.hlSleep)
+                    .minimumScaleFactor(0.75)
 
                 HStack(spacing: HLSpacing.lg) {
                     Label {
@@ -133,6 +139,7 @@ struct SleepDashboardView: View {
                     } icon: {
                         Image(systemName: HLIcon.bed)
                             .foregroundStyle(Color.hlSleep)
+                            .accessibilityHidden(true)
                     }
 
                     Label {
@@ -142,12 +149,13 @@ struct SleepDashboardView: View {
                     } icon: {
                         Image(systemName: HLIcon.sunrise)
                             .foregroundStyle(Color.hlFlame)
+                            .accessibilityHidden(true)
                     }
                 }
             } else {
                 VStack(spacing: HLSpacing.sm) {
                     Image(systemName: "moon.zzz.fill")
-                        .font(.system(size: 32))
+                        .font(.system(size: min(moonIconSize, 36)))
                         .foregroundStyle(Color.hlPrimary.opacity(0.5))
                     Text("No sleep logged yet")
                         .font(HLFont.body(.semibold))
@@ -247,6 +255,7 @@ struct SleepDashboardView: View {
             Text(value)
                 .font(HLFont.headline())
                 .foregroundStyle(Color.hlTextPrimary)
+                .minimumScaleFactor(0.75)
             Text(title)
                 .font(HLFont.caption(.medium))
                 .foregroundStyle(Color.hlTextSecondary)
@@ -268,6 +277,7 @@ struct SleepDashboardView: View {
                 Image(systemName: HLIcon.sparkles)
                     .font(HLFont.title3())
                     .foregroundStyle(Color.hlSleep)
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                     Text("Sleep Insights")
@@ -284,6 +294,7 @@ struct SleepDashboardView: View {
                 Image(systemName: "chevron.right")
                     .font(HLFont.footnote(.semibold))
                     .foregroundStyle(Color.hlTextTertiary)
+                    .accessibilityHidden(true)
             }
             .hlCard()
         }
@@ -343,7 +354,7 @@ struct SleepDashboardView: View {
         return VStack(alignment: .leading, spacing: HLSpacing.sm) {
             HStack(spacing: HLSpacing.xs) {
                 Image(systemName: "link")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: min(actionIconSize, 18), weight: .semibold))
                     .foregroundStyle(Color.hlSleep)
                     .accessibilityHidden(true)
                 Text("Sleep & Habits")
@@ -400,6 +411,7 @@ struct SleepDashboardView: View {
             Text(value)
                 .font(HLFont.title2())
                 .foregroundStyle(color)
+                .minimumScaleFactor(0.75)
             Text(label)
                 .font(HLFont.caption2())
                 .foregroundStyle(Color.hlTextTertiary)

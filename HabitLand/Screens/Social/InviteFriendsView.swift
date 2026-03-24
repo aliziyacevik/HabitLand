@@ -3,6 +3,10 @@ import SwiftData
 import CloudKit
 
 struct InviteFriendsView: View {
+    @ScaledMetric(relativeTo: .title) private var giftIconSize: CGFloat = 40
+    @ScaledMetric(relativeTo: .caption) private var closeIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var chevronSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .footnote) private var iconSize: CGFloat = 16
     @Query private var profiles: [UserProfile]
     private var profile: UserProfile? { profiles.first }
 
@@ -73,7 +77,7 @@ struct InviteFriendsView: View {
     private var referralCodeSection: some View {
         VStack(spacing: HLSpacing.md) {
             Image(systemName: HLIcon.gift)
-                .font(.system(size: 40))
+                .font(.system(size: min(giftIconSize, 48)))
                 .foregroundColor(.hlPrimary)
                 .frame(width: 80, height: 80)
                 .background(Color.hlPrimaryLight)
@@ -107,7 +111,7 @@ struct InviteFriendsView: View {
                             .font(HLFont.title1(.bold))
                             .foregroundColor(.hlPrimary)
                         Image(systemName: "doc.on.doc")
-                            .font(.system(size: 16))
+                            .font(.system(size: min(iconSize, 20)))
                             .foregroundColor(.hlTextTertiary)
                     }
                     .padding(.vertical, HLSpacing.sm)
@@ -119,7 +123,7 @@ struct InviteFriendsView: View {
 
             // ShareLink with localized message
             ShareLink(
-                item: URL(string: appStoreURL)!,
+                item: URL(string: appStoreURL) ?? URL(string: "https://apps.apple.com")!,
                 subject: Text(isTurkish ? "HabitLand'e Katil!" : "Join HabitLand!"),
                 message: Text(shareMessage)
             ) {
@@ -164,7 +168,7 @@ struct InviteFriendsView: View {
         VStack(spacing: HLSpacing.xxs) {
             HStack(spacing: HLSpacing.xxs) {
                 Image(systemName: icon)
-                    .font(.system(size: 14))
+                    .font(.system(size: min(chevronSize, 18)))
                     .foregroundColor(.hlPrimary)
                 Text(value)
                     .font(HLFont.title2(.bold))
@@ -232,7 +236,7 @@ struct InviteFriendsView: View {
                     } label: {
                         Image(systemName: HLIcon.close)
                             .foregroundColor(.hlTextTertiary)
-                            .font(.system(size: 12, weight: .bold))
+                            .font(.system(size: min(closeIconSize, 16), weight: .bold))
                     }
                     .accessibilityLabel("Clear search")
                 }
@@ -352,7 +356,7 @@ struct InviteFriendsView: View {
     private func benefitRow(icon: String, color: Color, title: String, subtitle: String) -> some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: icon)
-                .font(.system(size: 16))
+                .font(.system(size: min(iconSize, 20)))
                 .foregroundColor(color)
                 .frame(width: 36, height: 36)
                 .background(color.opacity(0.12))

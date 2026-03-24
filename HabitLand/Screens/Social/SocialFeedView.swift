@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct SocialFeedView: View {
+    @ScaledMetric(relativeTo: .caption) private var smallIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var feedIconSize: CGFloat = 14
     @Query(sort: \Friend.name) private var friends: [Friend]
     @StateObject private var cloudKit = CloudKitManager.shared
     @State private var likedItems: Set<UUID> = []
@@ -132,7 +134,7 @@ struct SocialFeedView: View {
                 Spacer()
 
                 Image(systemName: item.typeIcon)
-                    .font(.system(size: 14))
+                    .font(.system(size: min(feedIconSize, 18)))
                     .foregroundColor(item.typeColor)
                     .padding(HLSpacing.xs)
                     .background(item.typeColor.opacity(0.12))
@@ -147,8 +149,9 @@ struct SocialFeedView: View {
             if let detail = item.detail {
                 HStack(spacing: HLSpacing.xs) {
                     Image(systemName: item.detailIcon)
-                        .font(.system(size: 12))
+                        .font(.system(size: min(smallIconSize, 16)))
                         .foregroundColor(.hlPrimary)
+                        .accessibilityHidden(true)
                     Text(detail)
                         .font(HLFont.caption(.medium))
                         .foregroundColor(.hlPrimary)
@@ -173,11 +176,13 @@ struct SocialFeedView: View {
                     HStack(spacing: HLSpacing.xxs) {
                         Image(systemName: likedItems.contains(item.id) ? "heart.fill" : "heart")
                             .foregroundColor(likedItems.contains(item.id) ? .hlError : .hlTextTertiary)
-                            .scaleEffect(likedItems.contains(item.id) ? 1.15 : 1.0)
+                            .scaleEffect(likedItems.contains(item.id) ? 1.2 : 1.0)
+                            .animation(HLAnimation.spring, value: likedItems.contains(item.id))
                         Text(likedItems.contains(item.id) ? "\(item.likes + 1)" : "\(item.likes)")
                             .font(HLFont.caption())
                             .foregroundColor(likedItems.contains(item.id) ? .hlError : .hlTextSecondary)
                     }
+                    .frame(minWidth: 44, minHeight: 44)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(likedItems.contains(item.id) ? "Unlike, \(item.likes + 1) likes" : "Like, \(item.likes) likes")

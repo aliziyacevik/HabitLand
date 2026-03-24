@@ -101,19 +101,11 @@ struct NotificationCenterView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: HLSpacing.md) {
-            Image(systemName: "bell.slash")
-                .font(.system(size: 48))
-                .foregroundColor(.hlTextTertiary)
-
-            Text("All Caught Up!")
-                .font(HLFont.title2())
-                .foregroundColor(.hlTextPrimary)
-
-            Text("You have no notifications right now.")
-                .font(HLFont.body())
-                .foregroundColor(.hlTextSecondary)
-        }
+        EmptyStateView(
+            icon: "bell.slash",
+            title: "All Caught Up!",
+            subtitle: "You're on top of your game. New achievements and friend updates will appear here."
+        )
     }
 
     // MARK: - Actions
@@ -127,6 +119,7 @@ struct NotificationCenterView: View {
     private func dismiss(_ notification: AppNotification) {
         withAnimation(HLAnimation.standard) {
             modelContext.delete(notification)
+            try? modelContext.save()
         }
     }
 }
@@ -134,6 +127,7 @@ struct NotificationCenterView: View {
 // MARK: - Notification Row
 
 struct NotificationRow: View {
+    @ScaledMetric(relativeTo: .footnote) private var notifIconSize: CGFloat = 16
     let notification: AppNotification
 
     var body: some View {
@@ -145,7 +139,7 @@ struct NotificationRow: View {
                     .frame(width: 40, height: 40)
 
                 Image(systemName: notification.icon)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: min(notifIconSize, 20), weight: .semibold))
                     .foregroundColor(notification.type.color)
             }
 

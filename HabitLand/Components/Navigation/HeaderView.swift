@@ -49,13 +49,14 @@ struct HeaderView<LeadingContent: View, TrailingContent: View>: View {
 // MARK: - Header Action Button
 
 struct HeaderActionButton: View {
+    @ScaledMetric(relativeTo: .body) private var headerIconSize: CGFloat = 18
     let icon: String
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Image(systemName: icon)
-                .font(.system(size: 18, weight: .medium))
+                .font(.system(size: min(headerIconSize, 22), weight: .medium))
                 .foregroundColor(.hlTextPrimary)
                 .frame(width: 36, height: 36)
                 .background(Color.hlBackground)

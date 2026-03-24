@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct NudgesSheetView: View {
+    @ScaledMetric(relativeTo: .title) private var emptyIconSize: CGFloat = 40
+    @ScaledMetric(relativeTo: .body) private var nudgeIconSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .title3) private var cardIconSize: CGFloat = 24
     @Binding var nudges: [NudgeMessage]
     @StateObject private var cloudKit = CloudKitManager.shared
     @Environment(\.dismiss) private var dismiss
@@ -13,7 +16,7 @@ struct NudgesSheetView: View {
                 if nudges.isEmpty {
                     VStack(spacing: HLSpacing.md) {
                         Image(systemName: "bell.slash")
-                            .font(.system(size: 40))
+                            .font(.system(size: min(emptyIconSize, 48)))
                             .foregroundStyle(Color.hlTextTertiary)
                         Text("No Nudges")
                             .font(HLFont.title3())
@@ -50,7 +53,7 @@ struct NudgesSheetView: View {
     private func nudgeCard(_ nudge: NudgeMessage) -> some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: "hand.wave.fill")
-                .font(.system(size: 20))
+                .font(.system(size: min(nudgeIconSize, 24)))
                 .foregroundColor(.hlPrimary)
                 .frame(width: 40, height: 40)
                 .background(Color.hlPrimaryLight)
@@ -79,7 +82,7 @@ struct NudgesSheetView: View {
                 }
             } label: {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 24))
+                    .font(.system(size: min(cardIconSize, 28)))
                     .foregroundStyle(Color.hlSuccess)
             }
         }

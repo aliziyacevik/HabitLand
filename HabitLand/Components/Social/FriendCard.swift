@@ -21,6 +21,8 @@ enum FriendCardAction {
 // MARK: - Friend Card
 
 struct FriendCard: View {
+    @ScaledMetric(relativeTo: .caption) private var streakIconSize: CGFloat = 11
+    @ScaledMetric(relativeTo: .caption) private var smallIconSize: CGFloat = 12
     let friend: Friend
     var action: FriendCardAction = .add
     var onAction: (() -> Void)? = nil
@@ -60,7 +62,7 @@ struct FriendCard: View {
             VStack(spacing: HLSpacing.xxxs) {
                 HStack(spacing: HLSpacing.xxxs) {
                     Image(systemName: HLIcon.flame)
-                        .font(.system(size: 12))
+                        .font(.system(size: min(smallIconSize, 16)))
                         .foregroundColor(.hlFlame)
                         .accessibilityHidden(true)
 
@@ -75,7 +77,7 @@ struct FriendCard: View {
                 } label: {
                     HStack(spacing: HLSpacing.xxxs) {
                         Image(systemName: action.icon)
-                            .font(.system(size: 11))
+                            .font(.system(size: min(streakIconSize, 15)))
                         Text(action.label)
                             .font(HLFont.caption2(.semibold))
                     }

@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct LogSleepView: View {
+    @ScaledMetric(relativeTo: .title) private var moonIconSize: CGFloat = 40
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
@@ -81,7 +82,7 @@ struct LogSleepView: View {
     private var durationDisplay: some View {
         VStack(spacing: HLSpacing.xs) {
             Image(systemName: HLIcon.moon)
-                .font(.system(size: 40))
+                .font(.system(size: min(moonIconSize, 48)))
                 .foregroundStyle(Color.hlSleep)
 
             Text(durationFormatted)
@@ -130,38 +131,45 @@ struct LogSleepView: View {
 
     // MARK: - Quality
 
-    @ViewBuilder
     private var qualitySection: some View {
         VStack(alignment: .leading, spacing: HLSpacing.sm) {
             Text("Sleep Quality")
                 .font(HLFont.headline())
                 .foregroundStyle(Color.hlTextPrimary)
 
-            HStack(spacing: HLSpacing.xs) {
+            VStack(spacing: HLSpacing.xs) {
                 ForEach(SleepQuality.allCases, id: \.self) { quality in
                     Button {
                         withAnimation(HLAnimation.quick) {
                             selectedQuality = quality
                         }
+                        HLHaptics.selection()
                     } label: {
-                        VStack(spacing: HLSpacing.xxs) {
+                        HStack(spacing: HLSpacing.sm) {
                             Text(quality.icon)
-                                .font(selectedQuality == quality ? HLFont.largeTitle() : HLFont.title1())
+                                .font(HLFont.title2())
 
                             Text(quality.rawValue)
-                                .font(HLFont.caption2(.medium))
+                                .font(HLFont.body(.medium))
                                 .foregroundStyle(
-                                    selectedQuality == quality ? Color.hlSleep : Color.hlTextTertiary
+                                    selectedQuality == quality ? Color.hlSleep : Color.hlTextPrimary
                                 )
+
+                            Spacer()
+
+                            if selectedQuality == quality {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(Color.hlSleep)
+                            }
                         }
-                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, HLSpacing.md)
                         .padding(.vertical, HLSpacing.sm)
                         .background(
-                            RoundedRectangle(cornerRadius: HLRadius.md)
-                                .fill(selectedQuality == quality ? Color.hlSleep.opacity(0.1) : Color.clear)
+                            RoundedRectangle(cornerRadius: HLRadius.lg)
+                                .fill(selectedQuality == quality ? Color.hlSleep.opacity(0.1) : Color.hlSurface)
                         )
                         .overlay(
-                            RoundedRectangle(cornerRadius: HLRadius.md)
+                            RoundedRectangle(cornerRadius: HLRadius.lg)
                                 .stroke(
                                     selectedQuality == quality ? Color.hlSleep : Color.hlDivider,
                                     lineWidth: selectedQuality == quality ? 2 : 1
@@ -177,38 +185,56 @@ struct LogSleepView: View {
 
     // MARK: - Mood
 
-    @ViewBuilder
     private var moodSection: some View {
         VStack(alignment: .leading, spacing: HLSpacing.sm) {
             Text("Morning Mood")
                 .font(HLFont.headline())
                 .foregroundStyle(Color.hlTextPrimary)
 
-            HStack(spacing: HLSpacing.sm) {
+            VStack(spacing: HLSpacing.xs) {
                 ForEach(1...5, id: \.self) { value in
-                    let moodEmoji = moodEmojiFor(value)
+                    let emoji = moodEmojiFor(value)
+                    let label = moodLabelFor(value)
                     Button {
                         withAnimation(HLAnimation.quick) {
                             mood = value
                         }
+                        HLHaptics.selection()
                     } label: {
-                        Text(moodEmoji)
-                            .font(mood == value ? HLFont.largeTitle() : HLFont.title1())
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, HLSpacing.xs)
-                            .background(
-                                Circle()
-                                    .fill(mood == value ? Color.hlSleep.opacity(0.12) : Color.clear)
-                            )
+                        HStack(spacing: HLSpacing.sm) {
+                            Text(emoji)
+                                .font(HLFont.title2())
+
+                            Text(label)
+                                .font(HLFont.body(.medium))
+                                .foregroundStyle(
+                                    mood == value ? Color.hlSleep : Color.hlTextPrimary
+                                )
+
+                            Spacer()
+
+                            if mood == value {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(Color.hlSleep)
+                            }
+                        }
+                        .padding(.horizontal, HLSpacing.md)
+                        .padding(.vertical, HLSpacing.sm)
+                        .background(
+                            RoundedRectangle(cornerRadius: HLRadius.lg)
+                                .fill(mood == value ? Color.hlSleep.opacity(0.1) : Color.hlSurface)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: HLRadius.lg)
+                                .stroke(
+                                    mood == value ? Color.hlSleep : Color.hlDivider,
+                                    lineWidth: mood == value ? 2 : 1
+                                )
+                        )
                     }
                     .buttonStyle(.plain)
                 }
             }
-
-            Text(moodLabel)
-                .font(HLFont.footnote(.medium))
-                .foregroundStyle(Color.hlTextSecondary)
-                .frame(maxWidth: .infinity, alignment: .center)
         }
         .hlCard()
     }
@@ -245,8 +271,8 @@ struct LogSleepView: View {
         }
     }
 
-    private var moodLabel: String {
-        switch mood {
+    private func moodLabelFor(_ value: Int) -> String {
+        switch value {
         case 1: return "Exhausted"
         case 2: return "Tired"
         case 3: return "Neutral"
@@ -265,6 +291,7 @@ struct LogSleepView: View {
             mood: mood
         )
         modelContext.insert(log)
+        try? modelContext.save()
         dismiss()
     }
 }

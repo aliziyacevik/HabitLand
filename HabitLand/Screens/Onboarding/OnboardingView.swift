@@ -31,19 +31,27 @@ private struct OnboardingPage: Identifiable {
 // MARK: - OnboardingView
 
 struct OnboardingView: View {
+    @ScaledMetric(relativeTo: .caption) private var tinyIconSize: CGFloat = 10
+    @ScaledMetric(relativeTo: .caption) private var sortIconSize: CGFloat = 11
+    @ScaledMetric(relativeTo: .caption) private var smallIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var badgeIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .footnote) private var sectionIconSize: CGFloat = 16
+    @ScaledMetric(relativeTo: .body) private var cardIconSize: CGFloat = 18
+    @ScaledMetric(relativeTo: .body) private var mediumIconSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .title3) private var playIconSize: CGFloat = 28
+    @ScaledMetric(relativeTo: .largeTitle) private var heroIconSize: CGFloat = 60
     @Environment(\.modelContext) private var modelContext
     @Query private var profiles: [UserProfile]
     private var profile: UserProfile? { profiles.first }
 
     // Page state
     @State private var currentPage = 0
-    // Steps: 0=pages, 1=habits, 2=reminder+notif, 3=theme, 4=trial, 5=complete
+    // Steps: 0=pages, 1=reminder+notif, 2=theme, 3=trial, 4=complete
     @State private var currentStep = 0
 
     // Data collected
     @State private var userName = ""
     @State private var selectedAvatar = "🌱"
-    @State private var habitsCreatedCount = 0
     @State private var reminderTime = Calendar.current.date(from: DateComponents(hour: 20, minute: 0)) ?? Date()
 
     @FocusState private var nameFieldFocused: Bool
@@ -100,29 +108,19 @@ struct OnboardingView: View {
         Group {
             switch currentStep {
             case 1:
-                StarterHabitsView { count in
-                    habitsCreatedCount = count
-                    withAnimation(HLAnimation.gentleSpring) {
-                        currentStep = 2
-                    }
-                }
-            case 2:
                 reminderSetupStep
-            case 3:
+            case 2:
                 ThemeOnboardingView {
                     withAnimation(HLAnimation.gentleSpring) {
-                        currentStep = 4
+                        currentStep = 3
                     }
                 }
-            case 4:
+            case 3:
                 trialWelcomeStep
-            case 5:
+            case 4:
                 OnboardingCompleteView(
-                    habitsCreated: habitsCreatedCount
+                    habitsCreated: 0
                 ) {
-                    if habitsCreatedCount > 0 {
-                        awardFirstXP()
-                    }
                     onComplete()
                 }
             default:
@@ -146,7 +144,7 @@ struct OnboardingView: View {
                     } label: {
                         HStack(spacing: HLSpacing.xxs) {
                             Image(systemName: "chevron.left")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.system(size: min(badgeIconSize, 18), weight: .semibold))
                             Text("Back")
                                 .font(HLFont.callout(.medium))
                         }
@@ -204,7 +202,7 @@ struct OnboardingView: View {
 
             // Next / Choose My Habits button
             HLButton(
-                currentPage == pages.count - 1 ? "Choose My Habits" : "Next",
+                currentPage == pages.count - 1 ? "Let's Go" : "Next",
                 icon: "arrow.right",
                 style: .primary,
                 size: .lg,
@@ -303,7 +301,7 @@ struct OnboardingView: View {
                     onboardingPodiumPlace(name: "Mike", emoji: "🐻", xp: 640, rank: 2, color: .hlSilver, height: 48)
                     onboardingPodiumPlace(name: "Sarah", emoji: "🦊", xp: 810, rank: 1, color: .hlGold, height: 64, hasCrown: true)
                     onboardingPodiumPlace(name: "You", emoji: selectedAvatar, xp: 520, rank: 3, color: .hlBronze, height: 36)
-                }
+}
                 .padding(HLSpacing.md)
 
                 Divider()
@@ -326,7 +324,7 @@ struct OnboardingView: View {
         VStack(spacing: HLSpacing.xxs) {
             if hasCrown {
                 Image(systemName: "crown.fill")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: min(sectionIconSize, 20), weight: .semibold))
                     .foregroundColor(.hlGold)
             }
 
@@ -371,7 +369,7 @@ struct OnboardingView: View {
                     .fill(Color.hlPrimary.opacity(0.1))
                     .frame(width: 32, height: 32)
                 Text(emoji)
-                    .font(.system(size: 16))
+                    .font(.system(size: min(sectionIconSize, 20)))
             }
 
             Text(name)
@@ -382,7 +380,7 @@ struct OnboardingView: View {
 
             HStack(spacing: HLSpacing.xxs) {
                 Image(systemName: "flame.fill")
-                    .font(.system(size: 10))
+                    .font(.system(size: min(tinyIconSize, 14)))
                     .foregroundColor(.hlFlame)
                 Text("\(streak)d")
                     .font(HLFont.caption2())
@@ -410,7 +408,7 @@ struct OnboardingView: View {
                     .frame(width: 96, height: 96)
 
                 Text(selectedAvatar)
-                    .font(HLFont.largeTitle(.bold))
+                    .font(.system(size: 40))
             }
 
             Text(page.title)
@@ -425,16 +423,16 @@ struct OnboardingView: View {
             // Avatar picker
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: HLSpacing.xs) {
-                    ForEach(avatarOptions, id: \.self) { emoji in
+                    ForEach(avatarOptions, id: \.self) { avatar in
                         Button {
-                            selectedAvatar = emoji
+                            selectedAvatar = avatar
                             HLHaptics.selection()
                         } label: {
-                            Text(emoji)
-                                .font(HLFont.title1())
+                            Text(avatar)
+                                .font(.system(size: 22))
                                 .frame(width: 48, height: 48)
                                 .background(
-                                    selectedAvatar == emoji
+                                    selectedAvatar == avatar
                                         ? Color.hlPrimary.opacity(0.15)
                                         : Color(.systemGray6)
                                 )
@@ -442,12 +440,12 @@ struct OnboardingView: View {
                                 .overlay(
                                     Circle()
                                         .stroke(
-                                            selectedAvatar == emoji ? Color.hlPrimary : Color.clear,
+                                            selectedAvatar == avatar ? Color.hlPrimary : Color.clear,
                                             lineWidth: 2
                                         )
                                 )
                         }
-                        .scaleEffect(selectedAvatar == emoji ? 1.1 : 1.0)
+                        .scaleEffect(selectedAvatar == avatar ? 1.1 : 1.0)
                         .animation(HLAnimation.microSpring, value: selectedAvatar)
                     }
                 }
@@ -492,12 +490,15 @@ struct OnboardingView: View {
 
     // MARK: - Reminder Setup Step
 
+    @ScaledMetric(relativeTo: .largeTitle) private var largeIconSize: CGFloat = 64
+    @ScaledMetric(relativeTo: .largeTitle) private var trialCircleSize: CGFloat = 160
+
     private var reminderSetupStep: some View {
         VStack(spacing: HLSpacing.xl) {
             Spacer()
 
             Image(systemName: "bell.badge.fill")
-                .font(.system(size: 64))
+                .font(.system(size: min(largeIconSize, 72)))
                 .foregroundStyle(Color.hlPrimary)
                 .symbolRenderingMode(.hierarchical)
 
@@ -506,18 +507,20 @@ struct OnboardingView: View {
                     .font(HLFont.title1())
                     .foregroundStyle(Color.hlTextPrimary)
                     .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.75)
 
                 Text("Pick a time and we'll send you a daily reminder. You can change this in Settings.")
                     .font(HLFont.body())
                     .foregroundStyle(Color.hlTextSecondary)
                     .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.75)
                     .padding(.horizontal, HLSpacing.lg)
             }
 
             DatePicker("Reminder Time", selection: $reminderTime, displayedComponents: .hourAndMinute)
                 .datePickerStyle(.wheel)
                 .labelsHidden()
-                .frame(height: 150)
+                .frame(maxHeight: 150)
 
             Spacer()
 
@@ -528,14 +531,14 @@ struct OnboardingView: View {
                         _ = await NotificationManager.shared.requestPermission()
                         await MainActor.run {
                             withAnimation(HLAnimation.gentleSpring) {
-                                currentStep = 3
+                                currentStep = 2
                             }
                         }
                     }
                 } label: {
                     HStack(spacing: HLSpacing.xs) {
                         Image(systemName: "bell.fill")
-                            .font(.system(size: 16))
+                            .font(.system(size: min(sectionIconSize, 20)))
                         Text("Enable Reminders")
                     }
                     .font(HLFont.headline())
@@ -548,7 +551,7 @@ struct OnboardingView: View {
 
                 Button {
                     withAnimation(HLAnimation.gentleSpring) {
-                        currentStep = 3
+                        currentStep = 2
                     }
                 } label: {
                     Text("Skip for now")
@@ -576,10 +579,10 @@ struct OnboardingView: View {
             ZStack {
                 Circle()
                     .fill(Color.hlGold.opacity(0.12))
-                    .frame(width: 160, height: 160)
+                    .frame(width: min(trialCircleSize, 180), height: min(trialCircleSize, 180))
 
                 Image(systemName: "crown.fill")
-                    .font(.system(size: 64))
+                    .font(.system(size: min(largeIconSize, 72)))
                     .foregroundStyle(Color.hlGold)
             }
 
@@ -588,11 +591,13 @@ struct OnboardingView: View {
                     .font(HLFont.title1())
                     .foregroundStyle(Color.hlTextPrimary)
                     .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.75)
 
                 Text("You get full access to everything for 7 days:")
                     .font(HLFont.body())
                     .foregroundStyle(Color.hlTextSecondary)
                     .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.75)
             }
 
             VStack(alignment: .leading, spacing: HLSpacing.sm) {
@@ -608,7 +613,7 @@ struct OnboardingView: View {
 
             Button {
                 withAnimation(HLAnimation.gentleSpring) {
-                    currentStep = 5
+                    currentStep = 4
                 }
             } label: {
                 Text("Start My Free Trial")
@@ -627,7 +632,7 @@ struct OnboardingView: View {
     private func trialFeatureRow(icon: String, text: String, color: Color) -> some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: icon)
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: min(cardIconSize, 22), weight: .semibold))
                 .foregroundStyle(color)
                 .frame(width: 28)
             Text(text)
@@ -635,21 +640,12 @@ struct OnboardingView: View {
                 .foregroundStyle(Color.hlTextPrimary)
             Spacer()
             Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 18))
+                .font(.system(size: min(cardIconSize, 22)))
                 .foregroundStyle(Color.hlSuccess)
         }
     }
 
-    // MARK: - First XP Award
-
-    private func awardFirstXP() {
-        let xpAmount = habitsCreatedCount * 10
-        guard xpAmount > 0 else { return }
-        let descriptor = FetchDescriptor<UserProfile>()
-        guard let profile = try? modelContext.fetch(descriptor).first else { return }
-        profile.xp += xpAmount
-        try? modelContext.save()
-    }
+    // MARK: - First XP Award (no longer used — coaching handles this on home screen)
 }
 
 // MARK: - Animated Onboarding Page
@@ -657,6 +653,7 @@ struct OnboardingView: View {
 // MARK: - Onboarding Preview Page (shared layout: title top, preview bottom with slide-up)
 
 private struct OnboardingPreviewPage<Preview: View>: View {
+    @ScaledMetric(relativeTo: .caption) private var sortIconSize: CGFloat = 11
     let page: OnboardingPage
     let pageIndex: Int
     let currentPage: Int
@@ -689,6 +686,7 @@ private struct OnboardingPreviewPage<Preview: View>: View {
                     .font(HLFont.title1())
                     .foregroundColor(.hlTextPrimary)
                     .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.75)
                     .opacity(showTitle ? 1 : 0)
                     .offset(y: showTitle ? 0 : 20)
 
@@ -697,6 +695,7 @@ private struct OnboardingPreviewPage<Preview: View>: View {
                     .foregroundColor(.hlTextSecondary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(4)
+                    .minimumScaleFactor(0.75)
                     .padding(.horizontal, HLSpacing.md)
                     .opacity(showTitle ? 1 : 0)
                     .offset(y: showTitle ? 0 : 15)
@@ -757,7 +756,7 @@ private struct OnboardingPreviewPage<Preview: View>: View {
             ForEach(Array(pills.enumerated()), id: \.offset) { index, pill in
                 HStack(spacing: HLSpacing.xxs) {
                     Image(systemName: pill.icon)
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.system(size: min(sortIconSize, 15), weight: .semibold))
                         .foregroundStyle(pill.color)
                     Text(pill.text)
                         .font(HLFont.caption(.semibold))
@@ -775,6 +774,11 @@ private struct OnboardingPreviewPage<Preview: View>: View {
 // MARK: - Streak Preview Content (with XP fill + Level Up animation)
 
 private struct StreakPreviewContent: View {
+    @ScaledMetric(relativeTo: .caption) private var tinyIconSize: CGFloat = 10
+    @ScaledMetric(relativeTo: .caption) private var sortIconSize: CGFloat = 11
+    @ScaledMetric(relativeTo: .caption) private var smallIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .body) private var cardIconSize: CGFloat = 18
+    @ScaledMetric(relativeTo: .title3) private var playIconSize: CGFloat = 28
     let isActive: Bool
 
     // Animation phases
@@ -798,7 +802,7 @@ private struct StreakPreviewContent: View {
                             .fill(Color.hlMindfulness.opacity(0.15))
                             .frame(width: 40, height: 40)
                         Image(systemName: "brain.head.profile")
-                            .font(.system(size: 18))
+                            .font(.system(size: min(cardIconSize, 22)))
                             .foregroundStyle(Color.hlMindfulness)
                     }
 
@@ -808,7 +812,7 @@ private struct StreakPreviewContent: View {
                             .foregroundStyle(Color.hlTextPrimary)
                         HStack(spacing: HLSpacing.xxs) {
                             Image(systemName: "flame.fill")
-                                .font(.system(size: 10))
+                                .font(.system(size: min(tinyIconSize, 14)))
                                 .foregroundStyle(Color.hlFlame)
                             Text("32 days")
                                 .font(HLFont.caption())
@@ -828,7 +832,7 @@ private struct StreakPreviewContent: View {
                                 .fill(Color.hlPrimary)
                                 .frame(width: 24, height: 24)
                             Image(systemName: "checkmark")
-                                .font(.system(size: 12, weight: .bold))
+                                .font(.system(size: min(smallIconSize, 16), weight: .bold))
                                 .foregroundStyle(.white)
                         }
                     }
@@ -851,7 +855,7 @@ private struct StreakPreviewContent: View {
             // 3. Streak counter
             HStack(spacing: HLSpacing.md) {
                 Image(systemName: "flame.fill")
-                    .font(.system(size: 28, weight: .semibold))
+                    .font(.system(size: min(playIconSize, 32), weight: .semibold))
                     .foregroundStyle(
                         LinearGradient(colors: [.hlFlame, .hlGold], startPoint: .bottom, endPoint: .top)
                     )
@@ -1011,6 +1015,8 @@ private struct StreakPreviewContent: View {
 // MARK: - Sleep Preview Content (with animated duration + correlation count-up)
 
 private struct SleepPreviewContent: View {
+    @ScaledMetric(relativeTo: .caption) private var smallIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var badgeIconSize: CGFloat = 14
     let isActive: Bool
     @State private var sleepHours = 0
     @State private var sleepMinutes = 0
@@ -1060,7 +1066,7 @@ private struct SleepPreviewContent: View {
                     HStack(spacing: HLSpacing.lg) {
                         HStack(spacing: HLSpacing.xxs) {
                             Image(systemName: "bed.double.fill")
-                                .font(.system(size: 12))
+                                .font(.system(size: min(smallIconSize, 16)))
                                 .foregroundStyle(Color.hlTextTertiary)
                             Text("23:04")
                                 .font(HLFont.caption())
@@ -1068,7 +1074,7 @@ private struct SleepPreviewContent: View {
                         }
                         HStack(spacing: HLSpacing.xxs) {
                             Image(systemName: "sun.horizon.fill")
-                                .font(.system(size: 12))
+                                .font(.system(size: min(smallIconSize, 16)))
                                 .foregroundStyle(Color.hlTextTertiary)
                             Text("06:46")
                                 .font(HLFont.caption())
@@ -1086,7 +1092,7 @@ private struct SleepPreviewContent: View {
             if showInsight {
                 HStack(spacing: HLSpacing.sm) {
                     Image(systemName: "link")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.system(size: min(badgeIconSize, 18), weight: .semibold))
                         .foregroundStyle(Color.hlSleep)
                     Text("You complete ")
                         .font(HLFont.caption())
@@ -1168,6 +1174,7 @@ private struct SleepPreviewContent: View {
 }
 
 private struct AnimatedOnboardingPage: View {
+    @ScaledMetric(relativeTo: .caption) private var smallIconSize: CGFloat = 12
     let page: OnboardingPage
     @State private var showIcon = false
     @State private var showTitle = false
@@ -1176,6 +1183,9 @@ private struct AnimatedOnboardingPage: View {
     @State private var pulseGlow = false
     @State private var floatOffset: CGFloat = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ScaledMetric(relativeTo: .largeTitle) private var outerCircleSize: CGFloat = 200
+    @ScaledMetric(relativeTo: .largeTitle) private var innerCircleSize: CGFloat = 160
+    @ScaledMetric(relativeTo: .largeTitle) private var iconFontSize: CGFloat = 60
 
     var body: some View {
         VStack(spacing: HLSpacing.lg) {
@@ -1185,23 +1195,23 @@ private struct AnimatedOnboardingPage: View {
             ZStack {
                 Circle()
                     .stroke(page.accentColor.opacity(0.15), lineWidth: 2)
-                    .frame(width: 200, height: 200)
+                    .frame(width: min(outerCircleSize, 220), height: min(outerCircleSize, 220))
                     .scaleEffect(pulseGlow ? 1.1 : 0.9)
                     .opacity(pulseGlow ? 0 : 0.6)
 
                 Circle()
                     .fill(page.accentColor.opacity(0.12))
-                    .frame(width: 160, height: 160)
+                    .frame(width: min(innerCircleSize, 180), height: min(innerCircleSize, 180))
                     .hlGlow(page.accentColor, radius: pulseGlow ? 30 : 15, isActive: true)
 
-                if let emoji = page.emoji {
+                if let emoji = page.emoji, !emoji.isEmpty {
                     Text(emoji)
-                        .font(HLFont.largeTitle(.bold))
+                        .font(.system(size: min(iconFontSize, 66)))
                         .scaleEffect(showIcon ? 1.0 : 0.3)
                         .opacity(showIcon ? 1 : 0)
                 } else {
                     Image(systemName: page.systemImage)
-                        .font(.system(size: 60, weight: .medium))
+                        .font(.system(size: min(iconFontSize, 66), weight: .medium))
                         .foregroundStyle(page.accentColor)
                         .scaleEffect(showIcon ? 1.0 : 0.3)
                         .opacity(showIcon ? 1 : 0)
@@ -1231,6 +1241,7 @@ private struct AnimatedOnboardingPage: View {
                     .font(HLFont.title1())
                     .foregroundColor(.hlTextPrimary)
                     .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.75)
                     .opacity(showTitle ? 1 : 0)
                     .offset(y: showTitle ? 0 : 20)
 
@@ -1239,6 +1250,7 @@ private struct AnimatedOnboardingPage: View {
                     .foregroundColor(.hlTextSecondary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(4)
+                    .minimumScaleFactor(0.75)
                     .padding(.horizontal, HLSpacing.lg)
                     .opacity(showSubtitle ? 1 : 0)
                     .offset(y: showSubtitle ? 0 : 15)
@@ -1274,8 +1286,7 @@ private struct AnimatedOnboardingPage: View {
     @ViewBuilder
     private var featurePills: some View {
         let pills: [(icon: String, text: String, color: Color)] = {
-            if page.emoji != nil {
-                // Welcome page
+            if page.systemImage == "heart.slash" {
                 return [
                     ("lock.shield.fill", "Private", .hlSuccess),
                     ("gamecontroller.fill", "Gamified", .hlPrimary),
@@ -1295,7 +1306,7 @@ private struct AnimatedOnboardingPage: View {
             ForEach(Array(pills.enumerated()), id: \.offset) { index, pill in
                 HStack(spacing: HLSpacing.xxs) {
                     Image(systemName: pill.icon)
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.system(size: min(smallIconSize, 16), weight: .semibold))
                         .foregroundStyle(pill.color)
                     Text(pill.text)
                         .font(HLFont.caption(.semibold))
@@ -1328,6 +1339,8 @@ private struct AnimatedOnboardingPage: View {
 // MARK: - Level Up Preview Page
 
 private struct LevelUpPreviewPage: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var heroIconSize: CGFloat = 60
+    @ScaledMetric(relativeTo: .body) private var mediumIconSize: CGFloat = 20
     let page: OnboardingPage
     let isActive: Bool
     @State private var animateXP = false
@@ -1346,7 +1359,7 @@ private struct LevelUpPreviewPage: View {
                     .hlGlow(page.accentColor, radius: 20, isActive: true)
 
                 Image(systemName: page.systemImage)
-                    .font(.system(size: 60, weight: .medium))
+                    .font(.system(size: min(heroIconSize, 72), weight: .medium))
                     .foregroundColor(page.accentColor)
                     .scaleEffect(showLevel ? 1.0 : 0.5)
                     .animation(HLAnimation.bouncy.delay(0.2), value: showLevel)
@@ -1464,7 +1477,7 @@ private struct LevelUpPreviewPage: View {
     private func achievementBadge(icon: String, color: Color, label: String) -> some View {
         VStack(spacing: HLSpacing.xxs) {
             Image(systemName: icon)
-                .font(.system(size: 20, weight: .semibold))
+                .font(.system(size: min(mediumIconSize, 24), weight: .semibold))
                 .foregroundColor(color)
                 .frame(width: 44, height: 44)
                 .background(color.opacity(0.12))

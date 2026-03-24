@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct AchievementCard: View {
+    @ScaledMetric(relativeTo: .footnote) private var lockIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .title3) private var achievementIconSize: CGFloat = 22
     let name: String
     let descriptionText: String
     let icon: String
@@ -68,7 +70,7 @@ struct AchievementCard: View {
             // Unlocked indicator
             if isUnlocked {
                 Image(systemName: HLIcon.checkmark)
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.system(size: min(lockIconSize, 18), weight: .bold))
                     .foregroundColor(.hlPrimary)
                     .accessibilityHidden(true)
                     .padding(HLSpacing.xxs)
@@ -107,7 +109,7 @@ struct AchievementCard: View {
                 .frame(width: iconSize, height: iconSize)
 
             Image(systemName: icon)
-                .font(.system(size: 22, weight: .semibold))
+                .font(.system(size: min(achievementIconSize, 26), weight: .semibold))
                 .foregroundColor(isUnlocked ? .white : .hlTextTertiary)
         }
     }

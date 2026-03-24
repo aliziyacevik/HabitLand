@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct UndoToast: View {
+    @ScaledMetric(relativeTo: .body) private var toastIconSize: CGFloat = 18
     let message: String
     let onUndo: () -> Void
     @Binding var isVisible: Bool
@@ -9,7 +10,7 @@ struct UndoToast: View {
         if isVisible {
             HStack(spacing: HLSpacing.sm) {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 18))
+                    .font(.system(size: min(toastIconSize, 22)))
                     .foregroundStyle(Color.hlPrimary)
 
                 Text(message)

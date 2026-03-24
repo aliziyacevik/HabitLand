@@ -238,6 +238,13 @@ final class HealthKitManager: ObservableObject {
         }
     }
 
+    // MARK: - Live Progress Query
+
+    func currentValue(for metricRaw: String) async -> Double {
+        guard let metric = HealthKitMetric(rawValue: metricRaw) else { return 0 }
+        return await todayValue(for: metric)
+    }
+
     // MARK: - Check & Auto-Complete Habits
 
     func syncHealthHabits(context: ModelContext) async {

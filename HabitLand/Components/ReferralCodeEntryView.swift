@@ -4,6 +4,7 @@ import SwiftData
 // MARK: - Referral Code Entry View
 
 struct ReferralCodeEntryView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var celebrationIconSize: CGFloat = 48
     @Bindable var profile: UserProfile
     var onRedeemed: (() -> Void)?
 
@@ -89,7 +90,7 @@ struct ReferralCodeEntryView: View {
     private var successView: some View {
         VStack(spacing: HLSpacing.md) {
             Image(systemName: "party.popper.fill")
-                .font(.system(size: 48))
+                .font(.system(size: min(celebrationIconSize, 56)))
                 .foregroundStyle(Color.hlPrimary)
 
             Text("Tebrikler!") // Congratulations!

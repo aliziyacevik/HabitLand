@@ -3,6 +3,10 @@ import SwiftData
 import UIKit
 
 struct ContentView: View {
+    @ScaledMetric(relativeTo: .caption) private var dismissIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .body) private var bannerIconSize: CGFloat = 18
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @Binding var quickAction: HabitLandApp.QuickAction?
     @State private var selectedTab: HLTab = .home
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
@@ -134,6 +138,13 @@ struct ContentView: View {
         .onChange(of: selectedTab) { _, _ in
             HLHaptics.selection()
         }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                Task {
+                    await HealthKitManager.shared.syncHealthHabits(context: modelContext)
+                }
+            }
+        }
     }
 
     // MARK: - Trial Welcome Banner
@@ -142,7 +153,7 @@ struct ContentView: View {
         VStack {
             HStack(spacing: HLSpacing.sm) {
                 Image(systemName: "sparkles")
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.system(size: min(bannerIconSize, 22), weight: .semibold))
                     .foregroundStyle(Color.hlGold)
                 VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                     Text("7 Days of Pro — Free!")
@@ -159,7 +170,7 @@ struct ContentView: View {
                     }
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 12, weight: .bold))
+                        .font(.system(size: min(dismissIconSize, 16), weight: .bold))
                         .foregroundStyle(Color.hlTextTertiary)
                 }
                 .accessibilityLabel("Dismiss")
@@ -187,6 +198,9 @@ struct ContentView: View {
 // MARK: - Trial Expiry Paywall
 
 struct TrialExpiryPaywallView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var crownIconSize: CGFloat = 48
+    @ScaledMetric(relativeTo: .footnote) private var loseItemIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .title3) private var statIconSize: CGFloat = 24
     @Query private var habits: [Habit]
     @Query private var sleepLogs: [SleepLog]
     var onDismiss: () -> Void
@@ -203,7 +217,7 @@ struct TrialExpiryPaywallView: View {
                     // Header
                     VStack(spacing: HLSpacing.sm) {
                         Image(systemName: "crown.fill")
-                            .font(.system(size: 48))
+                            .font(.system(size: min(crownIconSize, 56)))
                             .foregroundStyle(Color.hlGold)
 
                         Text("Your Pro Trial Ended")
@@ -287,7 +301,7 @@ struct TrialExpiryPaywallView: View {
     private func trialStat(value: String, label: String, icon: String, color: Color) -> some View {
         VStack(spacing: HLSpacing.xs) {
             Image(systemName: icon)
-                .font(.system(size: 24))
+                .font(.system(size: min(statIconSize, 28)))
                 .foregroundStyle(color)
             Text(value)
                 .font(HLFont.title2())
@@ -306,7 +320,7 @@ struct TrialExpiryPaywallView: View {
     private func loseItem(icon: String, text: String, isWarning: Bool) -> some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: icon)
-                .font(.system(size: 14))
+                .font(.system(size: min(loseItemIconSize, 18)))
                 .foregroundStyle(isWarning ? Color.hlError : Color.hlTextTertiary)
             Text(text)
                 .font(HLFont.subheadline())

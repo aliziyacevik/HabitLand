@@ -2,6 +2,11 @@ import SwiftUI
 import SwiftData
 
 struct CreateHabitView: View {
+    @ScaledMetric(relativeTo: .caption) private var unitHintSize: CGFloat = 11
+    @ScaledMetric(relativeTo: .caption) private var chipIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var previewIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .body) private var categoryIconSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .title3) private var selectedIconSize: CGFloat = 22
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
@@ -118,7 +123,7 @@ struct CreateHabitView: View {
                         selectedIcon = icon
                     } label: {
                         Image(systemName: icon)
-                            .font(.system(size: 22))
+                            .font(.system(size: min(selectedIconSize, 26)))
                             .foregroundStyle(selectedIcon == icon ? .white : Color.hlTextSecondary)
                             .frame(width: 44, height: 44)
                             .background(selectedIcon == icon ? selectedColor : Color.hlSurface)
@@ -286,7 +291,7 @@ struct CreateHabitView: View {
                             } label: {
                                 HStack(spacing: HLSpacing.xxs) {
                                     Image(systemName: preset.1)
-                                        .font(.system(size: 11))
+                                        .font(.system(size: min(unitHintSize, 15)))
                                     Text(preset.0)
                                         .font(HLFont.caption(.medium))
                                 }
@@ -315,7 +320,7 @@ struct CreateHabitView: View {
             if unit == "minutes" || unit == "hours" {
                 HStack(spacing: HLSpacing.xs) {
                     Image(systemName: "timer")
-                        .font(.system(size: 12))
+                        .font(.system(size: min(chipIconSize, 16)))
                         .foregroundStyle(Color.hlFlame)
                     Text("This habit will use the Focus Timer for tracking")
                         .font(HLFont.caption())
@@ -477,7 +482,7 @@ struct CreateHabitView: View {
         } label: {
             HStack(spacing: HLSpacing.sm) {
                 Image(systemName: "rectangle.stack.fill")
-                    .font(.system(size: 20, weight: .semibold))
+                    .font(.system(size: min(categoryIconSize, 24), weight: .semibold))
                     .foregroundColor(.hlGold)
                     .frame(width: 40, height: 40)
                     .background(Color.hlGold.opacity(0.12))
@@ -495,7 +500,7 @@ struct CreateHabitView: View {
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: min(previewIconSize, 18), weight: .semibold))
                     .foregroundColor(.hlTextTertiary)
             }
             .hlCard()
@@ -585,6 +590,7 @@ struct CreateHabitView: View {
         )
         habit.healthKitMetric = selectedHealthMetric?.rawValue
         modelContext.insert(habit)
+        try? modelContext.save()
 
         if reminderEnabled {
             NotificationManager.shared.scheduleHabitReminder(

@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct SleepHistoryView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var emptyIconSize: CGFloat = 48
     @Query(sort: \SleepLog.wakeTime, order: .reverse) private var sleepLogs: [SleepLog]
 
     private var groupedByMonth: [(key: String, logs: [SleepLog])] {
@@ -37,7 +38,7 @@ struct SleepHistoryView: View {
     private var emptyState: some View {
         VStack(spacing: HLSpacing.md) {
             Image(systemName: HLIcon.moon)
-                .font(.system(size: 48))
+                .font(.system(size: min(emptyIconSize, 56)))
                 .foregroundStyle(Color.hlTextTertiary)
             Text("No sleep logs yet")
                 .font(HLFont.headline())

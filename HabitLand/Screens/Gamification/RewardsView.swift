@@ -2,6 +2,9 @@ import SwiftUI
 import SwiftData
 
 struct RewardsView: View {
+    @ScaledMetric(relativeTo: .title) private var emptyIconSize: CGFloat = 44
+    @ScaledMetric(relativeTo: .title3) private var rewardIconSize: CGFloat = 24
+    @ScaledMetric(relativeTo: .title3) private var cardIconSize: CGFloat = 28
     @Query private var profiles: [UserProfile]
 
     private var userXP: Int { profiles.first?.xp ?? 0 }
@@ -38,7 +41,7 @@ struct RewardsView: View {
     private var xpBalanceCard: some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: HLIcon.bolt)
-                .font(.system(size: 28))
+                .font(.system(size: min(cardIconSize, 32)))
                 .foregroundStyle(Color.hlGold)
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
@@ -53,7 +56,7 @@ struct RewardsView: View {
             Spacer()
 
             Image(systemName: HLIcon.gift)
-                .font(.system(size: 24))
+                .font(.system(size: min(rewardIconSize, 28)))
                 .foregroundStyle(Color.hlPrimary.opacity(0.5))
         }
         .hlCard()
@@ -95,7 +98,7 @@ struct RewardsView: View {
         if rewards.isEmpty {
             VStack(spacing: HLSpacing.md) {
                 Image(systemName: selectedTab == .available ? HLIcon.gift : HLIcon.star)
-                    .font(.system(size: 44))
+                    .font(.system(size: min(emptyIconSize, 52)))
                     .foregroundStyle(Color.hlTextTertiary)
 
                 Text(selectedTab == .available ? "No rewards available" : "No claimed rewards yet")

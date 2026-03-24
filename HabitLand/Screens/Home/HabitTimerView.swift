@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct HabitTimerView: View {
+    @ScaledMetric(relativeTo: .body) private var controlIconSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .title3) private var playIconSize: CGFloat = 28
     @ObservedObject private var timerManager = HabitTimerManager.shared
     @Environment(\.modelContext) private var modelContext
     @Binding var isPresented: Bool
@@ -16,7 +18,7 @@ struct HabitTimerView: View {
                 // Habit info
                 VStack(spacing: HLSpacing.sm) {
                     Image(systemName: timerManager.habitIcon)
-                        .font(.system(size: 28, weight: .semibold))
+                        .font(.system(size: min(playIconSize, 32), weight: .semibold))
                         .foregroundStyle(timerManager.habitColor)
                     Text(timerManager.habitName)
                         .font(HLFont.title3(.medium))
@@ -64,7 +66,7 @@ struct HabitTimerView: View {
                         isPresented = false
                     } label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: 20, weight: .semibold))
+                            .font(.system(size: min(controlIconSize, 24), weight: .semibold))
                             .foregroundStyle(Color.hlTextSecondary)
                             .frame(width: 56, height: 56)
                             .background(Color.hlSurface)
@@ -82,7 +84,7 @@ struct HabitTimerView: View {
                         HLHaptics.selection()
                     } label: {
                         Image(systemName: timerManager.isRunning ? "pause.fill" : "play.fill")
-                            .font(.system(size: 28, weight: .semibold))
+                            .font(.system(size: min(playIconSize, 32), weight: .semibold))
                             .foregroundStyle(.white)
                             .frame(width: 72, height: 72)
                             .background(timerManager.habitColor)
@@ -97,7 +99,7 @@ struct HabitTimerView: View {
                         isPresented = false
                     } label: {
                         Image(systemName: "forward.fill")
-                            .font(.system(size: 20, weight: .semibold))
+                            .font(.system(size: min(controlIconSize, 24), weight: .semibold))
                             .foregroundStyle(timerManager.habitColor)
                             .frame(width: 56, height: 56)
                             .background(timerManager.habitColor.opacity(0.12))

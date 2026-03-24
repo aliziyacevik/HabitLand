@@ -3,6 +3,11 @@ import SwiftUI
 // MARK: - Template Browser View
 
 struct TemplateBrowserView: View {
+    @ScaledMetric(relativeTo: .caption) private var chipIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .caption) private var chevronSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var previewIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .footnote) private var packHeaderSize: CGFloat = 16
+    @ScaledMetric(relativeTo: .body) private var templateIconSize: CGFloat = 18
     let onSelect: (HabitTemplate) -> Void
     var onPackSelect: ((_ templates: [HabitTemplate]) -> Void)?
 
@@ -95,7 +100,7 @@ struct TemplateBrowserView: View {
             HStack(spacing: HLSpacing.xxs) {
                 if let category {
                     Image(systemName: category.icon)
-                        .font(.system(size: 12))
+                        .font(.system(size: min(chipIconSize, 16)))
                 }
                 Text(label)
                     .font(HLFont.caption(.medium))
@@ -143,7 +148,7 @@ struct TemplateBrowserView: View {
                     // Pack header
                     HStack {
                         Image(systemName: pack.icon)
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: min(packHeaderSize, 20), weight: .semibold))
                             .foregroundStyle(pack.color)
                         Text(pack.name)
                             .font(HLFont.callout(.semibold))
@@ -158,7 +163,7 @@ struct TemplateBrowserView: View {
                     ForEach(pack.templates) { template in
                         HStack(spacing: HLSpacing.sm) {
                             Image(systemName: template.icon)
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.system(size: min(previewIconSize, 18), weight: .semibold))
                                 .foregroundStyle(template.color)
                                 .frame(width: 32, height: 32)
                                 .background(template.color.opacity(0.12))
@@ -229,7 +234,7 @@ struct TemplateBrowserView: View {
         return VStack(alignment: .leading, spacing: HLSpacing.xxs) {
             HStack {
                 Image(systemName: isAdded ? "checkmark.circle.fill" : pack.icon)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: min(packHeaderSize, 20), weight: .semibold))
                     .foregroundColor(isAdded ? .hlPrimary : pack.color)
                 Spacer()
             }
@@ -258,7 +263,7 @@ struct TemplateBrowserView: View {
     private func templateCard(_ template: HabitTemplate) -> some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: template.icon)
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: min(templateIconSize, 22), weight: .semibold))
                 .foregroundColor(template.color)
                 .frame(width: 40, height: 40)
                 .background(template.color.opacity(0.12))
@@ -293,7 +298,7 @@ struct TemplateBrowserView: View {
             Spacer()
 
             Image(systemName: "chevron.right")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.system(size: min(chevronSize, 16), weight: .semibold))
                 .foregroundColor(.hlTextTertiary)
         }
         .hlCard()

@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct AvatarPickerView: View {
+    @ScaledMetric(relativeTo: .caption) private var badgeCheckSize: CGFloat = 10
+    @ScaledMetric(relativeTo: .footnote) private var previewIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .footnote) private var labelIconSize: CGFloat = 16
     @Binding var selectedAvatarType: AvatarType
     let userName: String
     let userLevel: Int
@@ -162,7 +165,7 @@ struct AvatarPickerView: View {
                             .frame(width: 56, height: 56)
 
                         Image(systemName: "lock.fill")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: min(labelIconSize, 20), weight: .semibold))
                             .foregroundColor(.white)
                     }
 
@@ -172,7 +175,7 @@ struct AvatarPickerView: View {
                             .frame(width: 20, height: 20)
                             .overlay(
                                 Image(systemName: "checkmark")
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.system(size: min(badgeCheckSize, 14), weight: .bold))
                                     .foregroundColor(.white)
                             )
                             .offset(x: 18, y: 18)
@@ -208,7 +211,7 @@ struct AvatarPickerView: View {
         } label: {
             HStack(spacing: HLSpacing.xs) {
                 Image(systemName: "lock.open.fill")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: min(previewIconSize, 18), weight: .semibold))
                 Text("\(label) \u{2014} \(price)")
                     .font(HLFont.headline())
             }

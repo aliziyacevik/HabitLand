@@ -2,6 +2,9 @@ import SwiftUI
 import SwiftData
 
 struct AchievementsShowcaseView: View {
+    @ScaledMetric(relativeTo: .footnote) private var badgeIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .title3) private var achievementIconSize: CGFloat = 24
+    @ScaledMetric(relativeTo: .largeTitle) private var emptyIconSize: CGFloat = 40
     @Query(sort: \Achievement.name) private var achievements: [Achievement]
     @State private var selectedCategory: AchievementCategory? = nil
 
@@ -44,14 +47,14 @@ struct AchievementsShowcaseView: View {
 
     private var emptyState: some View {
         VStack(spacing: HLSpacing.md) {
-            Spacer().frame(height: 80)
+            Spacer().frame(height: HLSpacing.xxxl)
 
             ZStack {
                 Circle()
                     .fill(Color.hlGold.opacity(0.08))
                     .frame(width: 100, height: 100)
                 Image(systemName: HLIcon.trophy)
-                    .font(.system(size: 40))
+                    .font(.system(size: min(emptyIconSize, 48)))
                     .foregroundStyle(Color.hlGold.opacity(0.5))
             }
 
@@ -161,7 +164,7 @@ struct AchievementsShowcaseView: View {
                     .frame(width: 56, height: 56)
 
                 Image(systemName: a.isUnlocked ? a.icon : "lock.fill")
-                    .font(.system(size: 24))
+                    .font(.system(size: min(achievementIconSize, 28)))
                     .foregroundColor(a.isUnlocked ? .hlGold : .hlTextTertiary)
             }
             .hlGlow(.hlGold, radius: 8, isActive: a.isUnlocked)
@@ -184,7 +187,7 @@ struct AchievementsShowcaseView: View {
                     .foregroundColor(.hlTextTertiary)
             } else {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 14))
+                    .font(.system(size: min(badgeIconSize, 18)))
                     .foregroundColor(.hlPrimary)
             }
         }

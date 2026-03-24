@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct HabitArchiveView: View {
+    @ScaledMetric(relativeTo: .body) private var habitIconSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .title) private var emptyIconSize: CGFloat = 36
     @Query(filter: #Predicate<Habit> { $0.isArchived }) private var archivedHabits: [Habit]
     @Environment(\.modelContext) private var modelContext
 
@@ -31,6 +33,7 @@ struct HabitArchiveView: View {
             Button("Delete", role: .destructive) {
                 if let habit = habitToDelete {
                     modelContext.delete(habit)
+                    try? modelContext.save()
                     habitToDelete = nil
                 }
             }
@@ -53,7 +56,7 @@ struct HabitArchiveView: View {
                         .fill(habit.color.opacity(0.15))
                         .frame(width: 48, height: 48)
                     Image(systemName: habit.icon)
-                        .font(.system(size: 20))
+                        .font(.system(size: min(habitIconSize, 24)))
                         .foregroundStyle(habit.color)
                 }
 
@@ -145,7 +148,7 @@ struct HabitArchiveView: View {
                     .fill(Color.hlPrimaryLight)
                     .frame(width: 80, height: 80)
                 Image(systemName: HLIcon.archive)
-                    .font(.system(size: 36))
+                    .font(.system(size: min(emptyIconSize, 40)))
                     .foregroundStyle(Color.hlPrimary)
             }
 
@@ -153,7 +156,7 @@ struct HabitArchiveView: View {
                 .font(HLFont.title3())
                 .foregroundStyle(Color.hlTextPrimary)
 
-            Text("When you archive a habit, it will appear here. You can restore it anytime.")
+            Text("When you pause a habit, it will rest here safely until you're ready to bring it back.")
                 .font(HLFont.subheadline())
                 .foregroundStyle(Color.hlTextSecondary)
                 .multilineTextAlignment(.center)

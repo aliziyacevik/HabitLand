@@ -76,6 +76,7 @@ struct HabitPreferenceView: View {
 // MARK: - Category Card
 
 private struct CategoryCard: View {
+    @ScaledMetric(relativeTo: .title3) private var categoryIconSize: CGFloat = 24
     let category: HabitCategory
     let isSelected: Bool
     let action: () -> Void
@@ -89,7 +90,7 @@ private struct CategoryCard: View {
                         .frame(width: 56, height: 56)
 
                     Image(systemName: category.icon)
-                        .font(.system(size: 24, weight: .semibold))
+                        .font(.system(size: min(categoryIconSize, 28), weight: .semibold))
                         .foregroundColor(category.color)
                 }
 

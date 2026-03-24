@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct MilestonesView: View {
+    @ScaledMetric(relativeTo: .title) private var emptyIconSize: CGFloat = 44
+    @ScaledMetric(relativeTo: .caption) private var dotSize: CGFloat = 8
     @Query(filter: #Predicate<Habit> { !$0.isArchived }) private var habits: [Habit]
 
     private let milestoneDefinitions: [(days: Int, title: String, tier: MilestoneTier)] = [
@@ -103,7 +105,7 @@ struct MilestonesView: View {
                             .overlay {
                                 if milestone.isAchieved {
                                     Image(systemName: HLIcon.checkmark)
-                                        .font(.system(size: 8, weight: .bold))
+                                        .font(.system(size: min(dotSize, 12), weight: .bold))
                                         .foregroundStyle(.white)
                                 }
                             }
@@ -190,7 +192,7 @@ struct MilestonesView: View {
     private var emptyState: some View {
         VStack(spacing: HLSpacing.md) {
             Image(systemName: HLIcon.medal)
-                .font(.system(size: 44))
+                .font(.system(size: min(emptyIconSize, 52)))
                 .foregroundStyle(Color.hlTextTertiary)
             Text("No milestones yet")
                 .font(HLFont.headline())

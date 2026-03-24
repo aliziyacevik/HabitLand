@@ -142,23 +142,13 @@ struct HabitDifficultyInsightsView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: HLSpacing.md) {
-            Spacer().frame(height: 80)
-            ZStack {
-                Circle()
-                    .fill(Color.hlPrimary.opacity(0.08))
-                    .frame(width: 100, height: 100)
-                Image(systemName: HLIcon.barChart)
-                    .font(.system(size: 40))
-                    .foregroundStyle(Color.hlPrimary.opacity(0.5))
-            }
-            Text("No habits yet")
-                .font(HLFont.title3(.semibold))
-                .foregroundStyle(Color.hlTextPrimary)
-            Text("Create habits to see difficulty\ninsights based on your data.")
-                .font(HLFont.subheadline())
-                .foregroundStyle(Color.hlTextSecondary)
-                .multilineTextAlignment(.center)
+        VStack {
+            Spacer()
+            EmptyStateView(
+                icon: HLIcon.barChart,
+                title: "No Habits Yet",
+                subtitle: "Create some habits to see difficulty insights based on your data."
+            )
             Spacer()
         }
     }

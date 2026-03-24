@@ -411,7 +411,7 @@ struct HabitStatisticsView: View {
             let h = Habit(name: "Morning Meditation", icon: "brain.head.profile", colorHex: "#9966E6", category: .mindfulness)
             h.completions = (0..<60).map { i in
                 HabitCompletion(
-                    date: Calendar.current.date(byAdding: .day, value: -i, to: Date())!
+                    date: Calendar.current.date(byAdding: .day, value: -i, to: Date()) ?? Date()
                         .addingTimeInterval(Double.random(in: 0...43200)),
                     isCompleted: Double.random(in: 0...1) > 0.3
                 )

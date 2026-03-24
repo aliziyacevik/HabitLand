@@ -2,6 +2,10 @@ import SwiftUI
 
 struct ThemeOnboardingView: View {
     @ObservedObject private var themeManager = ThemeManager.shared
+    @ScaledMetric(relativeTo: .title) private var themeCircleSize: CGFloat = 96
+    @ScaledMetric(relativeTo: .body) private var smallThemeIconSize: CGFloat = 18
+    @ScaledMetric(relativeTo: .body) private var previewIconSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .title) private var themeIconSize: CGFloat = 44
     var onContinue: () -> Void = {}
 
     var body: some View {
@@ -13,10 +17,10 @@ struct ThemeOnboardingView: View {
                         ZStack {
                             Circle()
                                 .fill(themeManager.accentTheme.primary.opacity(0.12))
-                                .frame(width: 96, height: 96)
+                                .frame(width: min(themeCircleSize, 110), height: min(themeCircleSize, 110))
 
                             Image(systemName: "paintpalette.fill")
-                                .font(.system(size: 44, weight: .medium))
+                                .font(.system(size: min(themeIconSize, 50), weight: .medium))
                                 .foregroundStyle(themeManager.accentTheme.primary)
                         }
                         .animation(HLAnimation.standard, value: themeManager.accentTheme)
@@ -63,7 +67,7 @@ struct ThemeOnboardingView: View {
                                                 )
 
                                             Image(systemName: mode.icon)
-                                                .font(.system(size: 20))
+                                                .font(.system(size: min(previewIconSize, 24)))
                                                 .foregroundStyle(modeForeground(mode))
                                         }
 
@@ -117,7 +121,7 @@ struct ThemeOnboardingView: View {
                                                 .frame(width: 48, height: 48)
 
                                             Image(systemName: theme.icon)
-                                                .font(.system(size: 18, weight: .semibold))
+                                                .font(.system(size: min(smallThemeIconSize, 22), weight: .semibold))
                                                 .foregroundStyle(.white)
                                         }
                                         .overlay {

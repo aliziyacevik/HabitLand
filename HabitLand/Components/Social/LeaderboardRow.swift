@@ -42,6 +42,7 @@ struct LeaderboardEntry: Identifiable {
 // MARK: - Leaderboard Row
 
 struct LeaderboardRow: View {
+    @ScaledMetric(relativeTo: .caption) private var streakIconSize: CGFloat = 11
     let entry: LeaderboardEntry
 
     @ScaledMetric(relativeTo: .body) private var avatarSizeLarge: CGFloat = 44
@@ -75,7 +76,7 @@ struct LeaderboardRow: View {
 
             HStack(spacing: HLSpacing.xxxs) {
                 Image(systemName: HLIcon.flame)
-                    .font(.system(size: 11))
+                    .font(.system(size: min(streakIconSize, 15)))
                     .foregroundColor(.hlFlame)
                     .accessibilityHidden(true)
 

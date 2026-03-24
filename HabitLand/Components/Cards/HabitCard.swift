@@ -12,6 +12,7 @@ struct HabitCard: View {
     let currentCount: Int
     let unit: String
     let isTimeBased: Bool
+    let isHealthKit: Bool
     var onToggle: (() -> Void)?
     var onIncrement: (() -> Void)?
     var onStartTimer: (() -> Void)?
@@ -28,6 +29,7 @@ struct HabitCard: View {
         self.goalCount = habit.goalCount
         self.unit = habit.unit
         self.isTimeBased = habit.unit == "minutes" || habit.unit == "hours"
+        self.isHealthKit = habit.healthKitMetric != nil
         self.onToggle = onToggle
         self.onIncrement = onIncrement
         self.onStartTimer = onStartTimer
@@ -53,6 +55,7 @@ struct HabitCard: View {
         currentCount: Int = 0,
         unit: String = "times",
         isTimeBased: Bool = false,
+        isHealthKit: Bool = false,
         onToggle: (() -> Void)? = nil
     ) {
         self.name = name
@@ -65,6 +68,7 @@ struct HabitCard: View {
         self.currentCount = currentCount
         self.unit = unit
         self.isTimeBased = isTimeBased
+        self.isHealthKit = isHealthKit
         self.onToggle = onToggle
         self.onIncrement = nil
         self.onStartTimer = nil
@@ -75,6 +79,10 @@ struct HabitCard: View {
     @State private var justCompleted = false
     @ScaledMetric(relativeTo: .body) private var iconSize: CGFloat = 36
     @ScaledMetric(relativeTo: .body) private var checkmarkSize: CGFloat = 36
+    @ScaledMetric(relativeTo: .caption) private var counterTextSize: CGFloat = 11
+    @ScaledMetric(relativeTo: .caption) private var flameSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var checkIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .body) private var habitIconSize: CGFloat = 20
 
     var body: some View {
         HStack(spacing: HLSpacing.sm) {
@@ -89,6 +97,17 @@ struct HabitCard: View {
                     .lineLimit(1)
 
                 HStack(spacing: HLSpacing.sm) {
+                    if isHealthKit {
+                        HStack(spacing: HLSpacing.xxxs) {
+                            Image(systemName: "heart.fill")
+                                .font(.system(size: min(flameSize, 16)))
+                                .foregroundStyle(.red.opacity(0.7))
+                                .accessibilityHidden(true)
+                            Text("Health")
+                                .font(HLFont.caption())
+                                .foregroundStyle(.red.opacity(0.6))
+                        }
+                    }
                     if streak > 0 {
                         streakLabel
                     }
@@ -102,8 +121,10 @@ struct HabitCard: View {
 
             Spacer()
 
-            // Action button: timer / counter / checkmark
-            if isTimeBased && !isCompleted {
+            // Action button: health sync / timer / counter / checkmark
+            if isHealthKit && !isCompleted {
+                healthSyncView
+            } else if isTimeBased && !isCompleted {
                 timerButton
             } else if isProgressive && !isCompleted {
                 counterButton
@@ -126,7 +147,7 @@ struct HabitCard: View {
                 .frame(width: iconSize + 8, height: iconSize + 8)
 
             Image(systemName: icon)
-                .font(.system(size: 20, weight: .semibold))
+                .font(.system(size: min(habitIconSize, 24), weight: .semibold))
                 .foregroundColor(color)
         }
     }
@@ -134,7 +155,7 @@ struct HabitCard: View {
     private var streakLabel: some View {
         HStack(spacing: HLSpacing.xxs) {
             Image(systemName: HLIcon.flame)
-                .font(.system(size: 12))
+                .font(.system(size: min(flameSize, 16)))
                 .foregroundColor(.hlFlame)
                 .accessibilityHidden(true)
 
@@ -142,6 +163,27 @@ struct HabitCard: View {
                 .font(HLFont.caption(.medium))
                 .foregroundColor(.hlTextSecondary)
         }
+    }
+
+    // MARK: - Health Sync View (for HealthKit habits)
+
+    private var healthSyncView: some View {
+        ZStack {
+            Circle()
+                .stroke(color.opacity(0.15), lineWidth: 3)
+                .frame(width: checkmarkSize, height: checkmarkSize)
+
+            Circle()
+                .trim(from: 0, to: progress)
+                .stroke(color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                .frame(width: checkmarkSize, height: checkmarkSize)
+                .rotationEffect(.degrees(-90))
+
+            Image(systemName: "heart.fill")
+                .font(.system(size: min(checkIconSize, 18), weight: .semibold))
+                .foregroundStyle(.red.opacity(0.8))
+        }
+        .accessibilityLabel("Syncs from Apple Health, \(Int(progress * 100))% complete")
     }
 
     // MARK: - Timer Button (for time-based habits)
@@ -163,7 +205,7 @@ struct HabitCard: View {
                     .rotationEffect(.degrees(-90))
 
                 Image(systemName: "play.fill")
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.system(size: min(flameSize, 16), weight: .bold))
                     .foregroundColor(color)
             }
         }
@@ -190,7 +232,7 @@ struct HabitCard: View {
                     .rotationEffect(.degrees(-90))
 
                 Text("+1")
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .font(.system(size: min(counterTextSize, 15), weight: .bold, design: .rounded))
                     .foregroundColor(color)
             }
         }
@@ -243,7 +285,7 @@ struct HabitCard: View {
                         .hlGlow(color, radius: 6, isActive: justCompleted)
 
                     Image(systemName: HLIcon.checkmark)
-                        .font(.system(size: 14, weight: .bold))
+                        .font(.system(size: min(checkIconSize, 18), weight: .bold))
                         .foregroundColor(.white)
                 } else {
                     Circle()

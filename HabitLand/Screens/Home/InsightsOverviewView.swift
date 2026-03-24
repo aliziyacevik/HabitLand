@@ -4,6 +4,14 @@ import SwiftUI
 // MARK: - Insights Overview View
 
 struct InsightsOverviewView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var emptyIconSize: CGFloat = 48
+    @ScaledMetric(relativeTo: .caption) private var trendArrowSize: CGFloat = 10
+    @ScaledMetric(relativeTo: .caption) private var flameIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var trendIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .footnote) private var sectionIconSize: CGFloat = 16
+    @ScaledMetric(relativeTo: .body) private var cardIconSize: CGFloat = 18
+    @ScaledMetric(relativeTo: .body) private var habitIconSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .title3) private var strongHabitIconSize: CGFloat = 26
     @Query(filter: #Predicate<Habit> { !$0.isArchived }, sort: \Habit.name)
     private var habits: [Habit]
 
@@ -278,7 +286,7 @@ struct InsightsOverviewView: View {
                 .frame(height: 80)
 
             Image(systemName: HLIcon.sparkles)
-                .font(.system(size: 48))
+                .font(.system(size: min(emptyIconSize, 56)))
                 .foregroundStyle(Color.hlTextTertiary)
 
             Text("No Insights Yet")
@@ -302,8 +310,9 @@ struct InsightsOverviewView: View {
         VStack(spacing: HLSpacing.md) {
             HStack(spacing: HLSpacing.xs) {
                 Image(systemName: HLIcon.sparkles)
-                    .font(.system(size: 18))
+                    .font(.system(size: min(cardIconSize, 22)))
                     .foregroundStyle(Color.hlMindfulness)
+                    .accessibilityHidden(true)
                 Text("Your Week at a Glance")
                     .font(HLFont.headline())
                     .foregroundStyle(Color.hlTextPrimary)
@@ -353,8 +362,9 @@ struct InsightsOverviewView: View {
                     .foregroundStyle(color)
                 if trend != .neutral {
                     Image(systemName: trend == .up ? HLIcon.trendUp : HLIcon.trendDown)
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.system(size: min(trendArrowSize, 14), weight: .bold))
                         .foregroundStyle(trend == .up ? Color.hlSuccess : Color.hlError)
+                        .accessibilityHidden(true)
                 }
             }
             Text(label)
@@ -393,7 +403,7 @@ struct InsightsOverviewView: View {
                     .fill(insight.color.opacity(0.12))
                     .frame(width: 40, height: 40)
                 Image(systemName: HLIcon.sparkles)
-                    .font(.system(size: 18))
+                    .font(.system(size: min(cardIconSize, 22)))
                     .foregroundStyle(insight.color)
             }
 
@@ -420,8 +430,9 @@ struct InsightsOverviewView: View {
         VStack(alignment: .leading, spacing: HLSpacing.sm) {
             HStack(spacing: HLSpacing.xs) {
                 Image(systemName: HLIcon.trophy)
-                    .font(.system(size: 16))
+                    .font(.system(size: min(sectionIconSize, 20)))
                     .foregroundStyle(Color.hlGold)
+                    .accessibilityHidden(true)
                 Text("Your Strongest Habit")
                     .font(HLFont.headline())
                     .foregroundStyle(Color.hlTextPrimary)
@@ -433,7 +444,7 @@ struct InsightsOverviewView: View {
                         .fill(strongest.color.opacity(0.12))
                         .frame(width: 56, height: 56)
                     Image(systemName: strongest.icon)
-                        .font(.system(size: 26))
+                        .font(.system(size: min(strongHabitIconSize, 30)))
                         .foregroundStyle(strongest.color)
                 }
 
@@ -445,16 +456,18 @@ struct InsightsOverviewView: View {
                     HStack(spacing: HLSpacing.md) {
                         HStack(spacing: HLSpacing.xxxs) {
                             Image(systemName: HLIcon.flame)
-                                .font(.system(size: 12))
+                                .font(.system(size: min(flameIconSize, 16)))
                                 .foregroundStyle(Color.hlFlame)
+                                .accessibilityHidden(true)
                             Text("\(strongest.streakDays)d streak")
                                 .font(HLFont.caption(.medium))
                                 .foregroundStyle(Color.hlTextSecondary)
                         }
                         HStack(spacing: HLSpacing.xxxs) {
                             Image(systemName: HLIcon.chart)
-                                .font(.system(size: 12))
+                                .font(.system(size: min(flameIconSize, 16)))
                                 .foregroundStyle(Color.hlInfo)
+                                .accessibilityHidden(true)
                             Text("\(strongest.completionRate)% rate")
                                 .font(HLFont.caption(.medium))
                                 .foregroundStyle(Color.hlTextSecondary)
@@ -498,8 +511,9 @@ struct InsightsOverviewView: View {
         VStack(alignment: .leading, spacing: HLSpacing.sm) {
             HStack(spacing: HLSpacing.xs) {
                 Image(systemName: "exclamationmark.circle.fill")
-                    .font(.system(size: 16))
+                    .font(.system(size: min(sectionIconSize, 20)))
                     .foregroundStyle(Color.hlWarning)
+                    .accessibilityHidden(true)
                 Text("Needs Attention")
                     .font(HLFont.headline())
                     .foregroundStyle(Color.hlTextPrimary)
@@ -513,7 +527,7 @@ struct InsightsOverviewView: View {
                                 .fill(habit.color.opacity(0.12))
                                 .frame(width: 40, height: 40)
                             Image(systemName: habit.icon)
-                                .font(.system(size: 18))
+                                .font(.system(size: min(cardIconSize, 22)))
                                 .foregroundStyle(habit.color)
                         }
 
@@ -534,7 +548,8 @@ struct InsightsOverviewView: View {
                                 .foregroundStyle(Color.hlWarning)
                             HStack(spacing: HLSpacing.xxxs) {
                                 Image(systemName: HLIcon.trendDown)
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.system(size: min(trendArrowSize, 14), weight: .bold))
+                                    .accessibilityHidden(true)
                                 Text("\(habit.dropPercent)%")
                                     .font(HLFont.caption2(.medium))
                             }
@@ -559,9 +574,10 @@ struct InsightsOverviewView: View {
                 ForEach(computedTrends) { trend in
                     HStack(spacing: HLSpacing.sm) {
                         Image(systemName: trend.isPositive ? HLIcon.trendUp : HLIcon.trendDown)
-                            .font(.system(size: 14, weight: .bold))
+                            .font(.system(size: min(trendIconSize, 18), weight: .bold))
                             .foregroundStyle(trend.isPositive ? Color.hlSuccess : Color.hlError)
                             .frame(width: 28)
+                            .accessibilityHidden(true)
 
                         VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                             Text(trend.title)

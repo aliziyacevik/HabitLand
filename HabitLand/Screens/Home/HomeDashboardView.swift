@@ -5,6 +5,17 @@ import UIKit
 // MARK: - Home Dashboard View
 
 struct HomeDashboardView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var emptyStateIconSize: CGFloat = 64
+    @ScaledMetric(relativeTo: .caption) private var tinyIconSize: CGFloat = 10
+    @ScaledMetric(relativeTo: .caption) private var smallIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .footnote) private var badgeIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .footnote) private var labelIconSize: CGFloat = 16
+    @ScaledMetric(relativeTo: .body) private var bodyIconSize: CGFloat = 18
+    @ScaledMetric(relativeTo: .body) private var mediumIconSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .title3) private var cardIconSize: CGFloat = 22
+    @ScaledMetric(relativeTo: .title3) private var sparklesIconSize: CGFloat = 24
+    @ScaledMetric(relativeTo: .title3) private var flameIconSize: CGFloat = 26
+    @ScaledMetric(relativeTo: .title3) private var playIconSize: CGFloat = 28
     @Query(filter: #Predicate<Habit> { !$0.isArchived }, sort: \Habit.name) private var habits: [Habit]
     @Query private var profiles: [UserProfile]
     @Environment(\.modelContext) private var modelContext
@@ -21,6 +32,12 @@ struct HomeDashboardView: View {
     @State private var showUndoToast = false
     @State private var showInviteFriends = false
     @AppStorage("invite_card_dismissed") private var inviteCardDismissed = false
+    @AppStorage("coaching_dismissed") private var coachingDismissed = false
+    @State private var showCoaching = false
+    @State private var coachingStep: SpotlightCoachingView.CoachingStep = .createFirstHabit
+    @State private var showHealthKitToast = false
+    @State private var healthKitToastName = ""
+    @AppStorage("healthkit_toast_count") private var healthKitToastShownCount = 0
     @State private var undoHabitName = ""
     @State private var undoCompletion: HabitCompletion?
     @State private var achievementCelebration: AchievementCelebrationData?
@@ -177,32 +194,23 @@ struct HomeDashboardView: View {
                                 firstDayProgressionCard
                                     .hlStaggeredAppear(index: 2)
                             }
-                            motivationCard
-                                .hlStaggeredAppear(index: 2)
-                            streakCard
-                                .hlStaggeredAppear(index: 3)
-                            weeklyQuestsCard
-                                .hlStaggeredAppear(index: 4)
                             todaysHabitsSection
-                                .hlStaggeredAppear(index: 5)
+                                .hlStaggeredAppear(index: 2)
+                            compactStatsRow
+                                .hlStaggeredAppear(index: 3)
                             quickInsightsCard
-                                .hlStaggeredAppear(index: 5)
+                                .hlStaggeredAppear(index: 4)
                             focusTimerCard
-                                .hlStaggeredAppear(index: 6)
-                            weeklyOverviewCard
-                                .hlStaggeredAppear(index: 7)
-
+                                .hlStaggeredAppear(index: 5)
                             dailyWisdomCard
-                                .hlStaggeredAppear(index: 7)
-
-                            if !inviteCardDismissed {
-                                inviteFriendsCard
-                                    .hlStaggeredAppear(index: 7)
-                            }
+                                .hlStaggeredAppear(index: 6)
                         }
                     }
                     .padding(.horizontal, HLSpacing.md)
                     .padding(.bottom, HLSpacing.xxxl + HLSpacing.xl)
+                }
+                .refreshable {
+                    AchievementManager.checkAll(context: modelContext)
                 }
 
                 // Floating Action Button
@@ -235,19 +243,15 @@ struct HomeDashboardView: View {
             }
             .background(Color.hlBackground.ignoresSafeArea())
             .onAppear { bonusManager.recordDailyOpen() }
+            .navigationTitle("HabitLand")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Text("HabitLand")
-                        .font(HLFont.title2())
-                        .foregroundStyle(Color.hlPrimary)
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showPomodoro = true
                     } label: {
                         Image(systemName: "timer")
-                            .font(.system(size: 18, weight: .medium))
+                            .font(.system(size: min(bodyIconSize, 22), weight: .medium))
                             .foregroundStyle(Color.hlFlame)
                     }
                     .accessibilityLabel("Pomodoro Focus")
@@ -257,7 +261,7 @@ struct HomeDashboardView: View {
                         showNotifications = true
                     } label: {
                         Image(systemName: HLIcon.notification)
-                            .font(.system(size: 18, weight: .medium))
+                            .font(.system(size: min(bodyIconSize, 22), weight: .medium))
                             .foregroundStyle(Color.hlTextSecondary)
                     }
                     .accessibilityLabel("Notifications")
@@ -311,6 +315,28 @@ struct HomeDashboardView: View {
                 )
                 .padding(.bottom, HLSpacing.xxxl + HLSpacing.xl)
             }
+            .overlay(alignment: .top) {
+                if showHealthKitToast {
+                    HStack(spacing: HLSpacing.xs) {
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: min(badgeIconSize, 18), weight: .semibold))
+                            .foregroundStyle(.red)
+                        Text("\(healthKitToastName) syncs from Apple Health automatically")
+                            .font(HLFont.caption(.medium))
+                            .foregroundStyle(Color.hlTextPrimary)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.75)
+                    }
+                    .padding(.horizontal, HLSpacing.md)
+                    .padding(.vertical, HLSpacing.sm)
+                    .background(Color.hlSurface)
+                    .cornerRadius(HLRadius.lg)
+                    .hlShadow(HLShadow.md)
+                    .padding(.horizontal, HLSpacing.lg)
+                    .padding(.top, HLSpacing.sm)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
             .overlay {
                 CelebrationOverlay(
                     isActive: $showCelebration,
@@ -324,6 +350,55 @@ struct HomeDashboardView: View {
             .overlay {
                 LevelUpCelebrationOverlay(levelUpData: $levelUpData)
             }
+            .overlay {
+                if showCoaching {
+                    SpotlightCoachingView(step: coachingStep) {
+                        // Action
+                        withAnimation(HLAnimation.standard) {
+                            showCoaching = false
+                        }
+                        switch coachingStep {
+                        case .createFirstHabit:
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                showCreateHabit = true
+                            }
+                        case .completeFirstHabit:
+                            break // just dismiss, user will tap the circle
+                        }
+                    } onDismiss: {
+                        withAnimation(HLAnimation.standard) {
+                            showCoaching = false
+                            coachingDismissed = true
+                        }
+                    }
+                }
+            }
+            .onAppear {
+                // Show coaching for first-time users with 0 habits
+                if habits.isEmpty && !coachingDismissed {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                        coachingStep = .createFirstHabit
+                        withAnimation(HLAnimation.gentleSpring) {
+                            showCoaching = true
+                        }
+                    }
+                }
+            }
+            .onChange(of: habits.count) { oldCount, newCount in
+                // After first habit created, show step 2
+                if oldCount == 0 && newCount == 1 && !coachingDismissed {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        coachingStep = .completeFirstHabit(habitName: habits.first?.name ?? "your habit")
+                        withAnimation(HLAnimation.gentleSpring) {
+                            showCoaching = true
+                        }
+                    }
+                }
+                // After first completion, dismiss coaching permanently
+                if newCount > 0 && habits.contains(where: \.todayCompleted) {
+                    coachingDismissed = true
+                }
+            }
         }
     }
 
@@ -332,7 +407,7 @@ struct HomeDashboardView: View {
     private var emptyState: some View {
         VStack(spacing: HLSpacing.lg) {
             Image(systemName: "leaf.circle")
-                .font(.system(size: 64))
+                .font(.system(size: min(emptyStateIconSize, 72)))
                 .foregroundStyle(Color.hlPrimary)
                 .symbolEffect(.pulse, options: .repeating)
 
@@ -473,8 +548,9 @@ struct HomeDashboardView: View {
                 HStack(spacing: HLSpacing.sm) {
                     HStack(spacing: HLSpacing.xxs) {
                         Image(systemName: progressStatusIcon)
-                            .font(.system(size: 12, weight: .bold))
+                            .font(.system(size: min(smallIconSize, 16), weight: .bold))
                             .foregroundStyle(progressStatusColor)
+                            .accessibilityHidden(true)
                         Text(progressStatusText)
                             .font(HLFont.caption(.medium))
                             .foregroundStyle(progressStatusColor)
@@ -486,7 +562,7 @@ struct HomeDashboardView: View {
                         } label: {
                             HStack(spacing: HLSpacing.xxs) {
                                 Image(systemName: "link")
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.system(size: min(tinyIconSize, 14), weight: .bold))
                                 Text("Chain")
                                     .font(HLFont.caption2(.semibold))
                             }
@@ -505,6 +581,69 @@ struct HomeDashboardView: View {
         .hlCard()
     }
 
+    // MARK: - Compact Stats Row
+
+    private var compactStatsRow: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: HLSpacing.sm) {
+                // Streak pill
+                compactStatPill(
+                    icon: "flame.fill",
+                    iconColor: .hlFlame,
+                    value: "\(streakDays)d",
+                    label: "Streak",
+                    detail: streakDays > 0 ? "Best: \(bestStreak)d" : nil
+                )
+
+                // Quests pill
+                compactStatPill(
+                    icon: "scroll.fill",
+                    iconColor: .hlGold,
+                    value: "\(questManager.quests.filter(\.isCompleted).count)/\(questManager.quests.count)",
+                    label: "Quests",
+                    detail: nil
+                )
+
+                // Weekly average pill
+                compactStatPill(
+                    icon: "chart.bar.fill",
+                    iconColor: .hlPrimary,
+                    value: "\(weeklyAverage)%",
+                    label: "This Week",
+                    detail: "Best: \(weeklyBest)%"
+                )
+            }
+            .padding(.horizontal, HLSpacing.xxs)
+        }
+    }
+
+    private func compactStatPill(icon: String, iconColor: Color, value: String, label: String, detail: String?) -> some View {
+        VStack(alignment: .leading, spacing: HLSpacing.xxs) {
+            HStack(spacing: HLSpacing.xxs) {
+                Image(systemName: icon)
+                    .font(.system(size: min(badgeIconSize, 18)))
+                    .foregroundStyle(iconColor)
+                    .accessibilityHidden(true)
+                Text(value)
+                    .font(HLFont.headline())
+                    .foregroundStyle(Color.hlTextPrimary)
+                    .minimumScaleFactor(0.75)
+            }
+            Text(label)
+                .font(HLFont.caption())
+                .foregroundStyle(Color.hlTextSecondary)
+            if let detail {
+                Text(detail)
+                    .font(HLFont.caption2())
+                    .foregroundStyle(Color.hlTextTertiary)
+            }
+        }
+        .padding(HLSpacing.sm)
+        .frame(minWidth: 110)
+        .background(Color.hlSurface)
+        .cornerRadius(HLRadius.lg)
+    }
+
     // MARK: - Streak Card
 
     private var streakCard: some View {
@@ -514,9 +653,10 @@ struct HomeDashboardView: View {
                     .fill(Color.hlFlame.opacity(0.15))
                     .frame(width: 52, height: 52)
                 Image(systemName: HLIcon.flame)
-                    .font(.system(size: 26))
+                    .font(.system(size: min(flameIconSize, 30)))
                     .foregroundStyle(Color.hlFlame)
                     .symbolEffect(.bounce, options: .repeating.speed(0.3))
+                    .accessibilityHidden(true)
             }
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
@@ -581,8 +721,9 @@ struct HomeDashboardView: View {
         VStack(alignment: .leading, spacing: HLSpacing.sm) {
             HStack {
                 Image(systemName: "scroll.fill")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: min(labelIconSize, 20), weight: .semibold))
                     .foregroundStyle(Color.hlGold)
+                    .accessibilityHidden(true)
                 Text("Weekly Quests")
                     .font(HLFont.headline())
                     .foregroundStyle(Color.hlTextPrimary)
@@ -601,7 +742,7 @@ struct HomeDashboardView: View {
                     } label: {
                         HStack(spacing: HLSpacing.sm) {
                             Image(systemName: "lock.fill")
-                                .font(.system(size: 14))
+                                .font(.system(size: min(badgeIconSize, 18)))
                                 .foregroundStyle(Color.hlTextTertiary)
                                 .frame(width: 36, height: 36)
                             Text(quest.title)
@@ -626,7 +767,7 @@ struct HomeDashboardView: View {
                             .fill(quest.isCompleted ? Color.hlPrimary.opacity(0.15) : Color.hlDivider.opacity(0.5))
                             .frame(width: 36, height: 36)
                         Image(systemName: quest.isCompleted ? "checkmark.circle.fill" : quest.icon)
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: min(labelIconSize, 20), weight: .semibold))
                             .foregroundStyle(quest.isCompleted ? Color.hlPrimary : Color.hlTextTertiary)
                     }
 
@@ -686,6 +827,7 @@ struct HomeDashboardView: View {
             VStack(spacing: HLSpacing.xs) {
                 ForEach(habits) { habit in
                     habitRow(habit: habit)
+                        .id(habit.updatedAt)
                 }
             }
         }
@@ -698,9 +840,22 @@ struct HomeDashboardView: View {
                     .fill(habit.color.opacity(0.12))
                     .frame(width: 40, height: 40)
                 Image(systemName: habit.icon)
-                    .font(.system(size: 18))
+                    .font(.system(size: min(bodyIconSize, 22)))
                     .foregroundStyle(habit.color)
             }
+            .overlay(alignment: .bottomTrailing) {
+                if habit.healthKitMetric != nil {
+                    Image(systemName: "heart.fill")
+                        .font(.system(size: min(tinyIconSize, 12), weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(width: min(badgeIconSize, 18), height: min(badgeIconSize, 18))
+                        .background(.red)
+                        .clipShape(Circle())
+                        .offset(x: 4, y: 4)
+                        .accessibilityHidden(true)
+                }
+            }
+            .frame(width: 40, height: 40)
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                 HStack(spacing: HLSpacing.xs) {
@@ -734,6 +889,18 @@ struct HomeDashboardView: View {
             }
 
             Button {
+                if habit.healthKitMetric != nil {
+                    if healthKitToastShownCount < 3 {
+                        healthKitToastName = habit.name
+                        withAnimation(HLAnimation.quick) { showHealthKitToast = true }
+                        healthKitToastShownCount += 1
+                        HLHaptics.light()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                            withAnimation(HLAnimation.quick) { showHealthKitToast = false }
+                        }
+                    }
+                    return
+                }
                 let wasCompleted = habit.todayCompleted
                 withAnimation(HLAnimation.celebration) {
                     if wasCompleted {
@@ -750,6 +917,7 @@ struct HomeDashboardView: View {
                         undoCompletion = completion
                     }
                 }
+                try? modelContext.save()
                 if !wasCompleted {
                     HLHaptics.completionSuccess()
                     ReviewManager.trackCompletion()
@@ -807,11 +975,57 @@ struct HomeDashboardView: View {
                     HLHaptics.light()
                 }
             } label: {
-                AnimatedCheckmark(isCompleted: habit.todayCompleted, color: habit.color, size: 26)
+                if let metricRaw = habit.healthKitMetric,
+                   let metric = HealthKitMetric(rawValue: metricRaw) {
+                    ZStack {
+                        Circle()
+                            .stroke(habit.color.opacity(0.15), lineWidth: 3)
+                            .frame(width: 28, height: 28)
+                        Circle()
+                            .trim(from: 0, to: habit.todayProgress)
+                            .stroke(habit.color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                            .frame(width: 28, height: 28)
+                            .rotationEffect(.degrees(-90))
+                        Image(systemName: metric.icon)
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(habit.color)
+                    }
+                    .accessibilityLabel("Syncs from Apple Health, \(Int(habit.todayProgress * 100))% complete")
+                } else if habit.goalCount > 1 && !habit.todayCompleted {
+                    // Progressive habit — show counter
+                    ZStack {
+                        Circle()
+                            .stroke(habit.color.opacity(0.15), lineWidth: 3)
+                            .frame(width: 28, height: 28)
+                        Circle()
+                            .trim(from: 0, to: habit.todayProgress)
+                            .stroke(habit.color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                            .frame(width: 28, height: 28)
+                            .rotationEffect(.degrees(-90))
+                        Text("+1")
+                            .font(.system(size: min(tinyIconSize, 12), weight: .bold, design: .rounded))
+                            .foregroundStyle(habit.color)
+                    }
+                } else {
+                    AnimatedCheckmark(isCompleted: habit.todayCompleted, color: habit.color, size: 26)
+                }
             }
-            .accessibilityLabel(habit.todayCompleted ? "Mark \(habit.name) incomplete" : "Complete \(habit.name)")
+            .accessibilityLabel(habit.healthKitMetric != nil
+                ? "\(habit.name) syncs from Apple Health"
+                : habit.todayCompleted ? "Mark \(habit.name) incomplete" : "Complete \(habit.name)")
         }
         .hlCard(padding: HLSpacing.sm)
+        .onTapGesture {
+            if habit.healthKitMetric != nil && healthKitToastShownCount < 3 {
+                healthKitToastName = habit.name
+                withAnimation(HLAnimation.quick) { showHealthKitToast = true }
+                healthKitToastShownCount += 1
+                HLHaptics.light()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                    withAnimation(HLAnimation.quick) { showHealthKitToast = false }
+                }
+            }
+        }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             if !habit.todayCompleted {
                 Button {
@@ -831,11 +1045,13 @@ struct HomeDashboardView: View {
     }
 
     private func completeHabit(_ habit: Habit) {
+        guard habit.healthKitMetric == nil else { return }
         let completion = HabitCompletion(date: Date())
         withAnimation(HLAnimation.celebration) {
             completion.habit = habit
             modelContext.insert(completion)
         }
+        try? modelContext.save()
         HLHaptics.completionSuccess()
         ReviewManager.trackCompletion()
         gainXP(10)
@@ -872,6 +1088,7 @@ struct HomeDashboardView: View {
             profile.xp -= profile.xpForNextLevel
             profile.level += 1
         }
+        try? modelContext.save()
         if profile.level > oldLevel {
             let newTitle = profile.levelTitle
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
@@ -892,6 +1109,7 @@ struct HomeDashboardView: View {
             profile.xp += profile.xpForNextLevel
         }
         profile.xp = max(0, profile.xp)
+        try? modelContext.save()
     }
 
     // MARK: - First Day Progression Card
@@ -900,8 +1118,9 @@ struct HomeDashboardView: View {
         VStack(spacing: HLSpacing.sm) {
             HStack(spacing: HLSpacing.sm) {
                 Image(systemName: "sparkles")
-                    .font(.system(size: 24, weight: .semibold))
+                    .font(.system(size: min(sparklesIconSize, 28), weight: .semibold))
                     .foregroundStyle(Color.hlGold)
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                     Text("Your Journey Begins!")
@@ -919,7 +1138,7 @@ struct HomeDashboardView: View {
             HStack(spacing: HLSpacing.lg) {
                 VStack(spacing: HLSpacing.xxs) {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 20))
+                        .font(.system(size: min(mediumIconSize, 24)))
                         .foregroundStyle(Color.hlPrimary)
                     Text("Complete")
                         .font(HLFont.caption2())
@@ -927,7 +1146,7 @@ struct HomeDashboardView: View {
                 }
 
                 Image(systemName: "arrow.right")
-                    .font(.system(size: 12))
+                    .font(.system(size: min(smallIconSize, 16)))
                     .foregroundStyle(Color.hlDivider)
 
                 VStack(spacing: HLSpacing.xxs) {
@@ -940,12 +1159,12 @@ struct HomeDashboardView: View {
                 }
 
                 Image(systemName: "arrow.right")
-                    .font(.system(size: 12))
+                    .font(.system(size: min(smallIconSize, 16)))
                     .foregroundStyle(Color.hlDivider)
 
                 VStack(spacing: HLSpacing.xxs) {
                     Image(systemName: "arrow.up.circle.fill")
-                        .font(.system(size: 20))
+                        .font(.system(size: min(mediumIconSize, 24)))
                         .foregroundStyle(Color.hlPrimary)
                     Text("Level Up")
                         .font(HLFont.caption2())
@@ -987,7 +1206,7 @@ struct HomeDashboardView: View {
         if completedCount == totalCount && totalCount > 0 { return "🏆" }
         if streakDays >= 30 { return "💎" }
         if streakDays >= 7 { return "🔥" }
-        if completionPercent >= 0.5 { return "💪" }
+        if completionPercent >= 0.5 { return "⚡" }
         return "🌱"
     }
 
@@ -1029,8 +1248,9 @@ struct HomeDashboardView: View {
     private var quickInsightsCard: some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: HLIcon.sparkles)
-                .font(.system(size: 22))
+                .font(.system(size: min(cardIconSize, 26)))
                 .foregroundStyle(Color.hlMindfulness)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                 Text("Weekly Insight")
@@ -1130,7 +1350,7 @@ struct HomeDashboardView: View {
                             .font(HLFont.caption(.semibold))
                             .foregroundStyle(Color.hlPrimary)
                         Image(systemName: "arrow.right")
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(.system(size: min(smallIconSize, 16), weight: .semibold))
                             .foregroundStyle(Color.hlPrimary)
                     }
                     .frame(maxWidth: .infinity, alignment: .trailing)
@@ -1152,7 +1372,7 @@ struct HomeDashboardView: View {
                         .fill(Color.hlFlame.opacity(0.12))
                         .frame(width: 44, height: 44)
                     Image(systemName: "timer")
-                        .font(.system(size: 20, weight: .semibold))
+                        .font(.system(size: min(mediumIconSize, 24), weight: .semibold))
                         .foregroundStyle(Color.hlFlame)
                 }
 
@@ -1170,7 +1390,7 @@ struct HomeDashboardView: View {
                 Spacer()
 
                 Image(systemName: "play.circle.fill")
-                    .font(.system(size: 28))
+                    .font(.system(size: min(playIconSize, 32)))
                     .foregroundStyle(Color.hlFlame)
             }
             .hlCard()
@@ -1217,9 +1437,10 @@ struct HomeDashboardView: View {
 
         return HStack(spacing: HLSpacing.sm) {
             Image(systemName: wisdom.icon)
-                .font(.system(size: 20, weight: .semibold))
+                .font(.system(size: min(mediumIconSize, 24), weight: .semibold))
                 .foregroundStyle(wisdom.color)
                 .frame(width: 36)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                 Text(wisdom.title)
@@ -1241,7 +1462,7 @@ struct HomeDashboardView: View {
     private var dailyBonusBanner: some View {
         HStack(spacing: HLSpacing.sm) {
             Text(bonusManager.streakEmoji)
-                .font(HLFont.title3())
+                .font(.system(size: 20))
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                 Text(bonusManager.streakMessage)
@@ -1270,7 +1491,7 @@ struct HomeDashboardView: View {
                 bonusManager.dismissBanner()
             } label: {
                 Image(systemName: "xmark")
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.system(size: min(tinyIconSize, 14), weight: .bold))
                     .foregroundStyle(Color.hlTextTertiary)
                     .frame(width: 44, height: 44)
                     .contentShape(Rectangle())
@@ -1303,7 +1524,7 @@ struct HomeDashboardView: View {
                     }
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 12, weight: .bold))
+                        .font(.system(size: min(smallIconSize, 16), weight: .bold))
                         .foregroundStyle(Color.hlTextTertiary)
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
@@ -1320,7 +1541,7 @@ struct HomeDashboardView: View {
             } label: {
                 HStack(spacing: HLSpacing.xs) {
                     Image(systemName: "person.badge.plus")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: min(labelIconSize, 20), weight: .semibold))
                     Text("Invite a Friend")
                         .font(HLFont.headline())
                 }

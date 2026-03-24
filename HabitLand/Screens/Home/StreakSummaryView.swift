@@ -4,6 +4,12 @@ import SwiftUI
 // MARK: - Streak Summary View
 
 struct StreakSummaryView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var emptyIconSize: CGFloat = 48
+    @ScaledMetric(relativeTo: .largeTitle) private var flameIconSize: CGFloat = 52
+    @ScaledMetric(relativeTo: .footnote) private var warningIconSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .footnote) private var streakNameIconSize: CGFloat = 16
+    @ScaledMetric(relativeTo: .body) private var streakRowIconSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .title) private var emptyStreakIconSize: CGFloat = 32
     @Query(filter: #Predicate<Habit> { !$0.isArchived }, sort: \Habit.name)
     private var habits: [Habit]
 
@@ -103,7 +109,7 @@ struct StreakSummaryView: View {
         VStack(spacing: HLSpacing.md) {
             Spacer()
             Image(systemName: HLIcon.flame)
-                .font(.system(size: 48))
+                .font(.system(size: min(emptyIconSize, 56)))
                 .foregroundStyle(Color.hlTextTertiary)
             Text("No habits yet")
                 .font(HLFont.title3())
@@ -180,7 +186,7 @@ struct StreakSummaryView: View {
                     .scaleEffect(flameScale)
 
                 Image(systemName: HLIcon.flame)
-                    .font(.system(size: 52))
+                    .font(.system(size: min(flameIconSize, 60)))
                     .foregroundStyle(Color.hlFlame)
                     .scaleEffect(flameScale)
             }
@@ -201,8 +207,9 @@ struct StreakSummaryView: View {
 
                 HStack(spacing: HLSpacing.xs) {
                     Image(systemName: streak.icon)
-                        .font(.system(size: 16))
+                        .font(.system(size: min(streakNameIconSize, 20)))
                         .foregroundStyle(streak.color)
+                        .accessibilityHidden(true)
                     Text(streak.name)
                         .font(HLFont.callout(.medium))
                         .foregroundStyle(Color.hlTextPrimary)
@@ -242,8 +249,9 @@ struct StreakSummaryView: View {
         VStack(alignment: .leading, spacing: HLSpacing.sm) {
             HStack(spacing: HLSpacing.xs) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.system(size: 14))
+                    .font(.system(size: min(warningIconSize, 18)))
                     .foregroundStyle(Color.hlWarning)
+                    .accessibilityHidden(true)
                 Text("At Risk")
                     .font(HLFont.headline())
                     .foregroundStyle(Color.hlTextPrimary)
@@ -272,7 +280,7 @@ struct StreakSummaryView: View {
             if activeStreaks.isEmpty {
                 VStack(spacing: HLSpacing.sm) {
                     Image(systemName: HLIcon.flame)
-                        .font(.system(size: 32))
+                        .font(.system(size: min(emptyStreakIconSize, 36)))
                         .foregroundStyle(Color.hlTextTertiary)
                     Text("No active streaks yet")
                         .font(HLFont.callout())
@@ -302,7 +310,7 @@ struct StreakSummaryView: View {
                     .fill(streak.color.opacity(0.12))
                     .frame(width: 44, height: 44)
                 Image(systemName: streak.icon)
-                    .font(.system(size: 20))
+                    .font(.system(size: min(streakRowIconSize, 24)))
                     .foregroundStyle(streak.color)
             }
 
@@ -328,8 +336,9 @@ struct StreakSummaryView: View {
 
             HStack(spacing: HLSpacing.xxs) {
                 Image(systemName: HLIcon.flame)
-                    .font(.system(size: 14))
+                    .font(.system(size: min(warningIconSize, 18)))
                     .foregroundStyle(isAtRisk ? Color.hlWarning : Color.hlFlame)
+                    .accessibilityHidden(true)
                 Text("\(streak.currentDays)")
                     .font(HLFont.title3())
                     .foregroundStyle(isAtRisk ? Color.hlWarning : Color.hlFlame)

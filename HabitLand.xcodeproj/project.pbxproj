@@ -52,6 +52,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2BDB45602F711FC000784B0F /* Exceptions for "HabitLand" folder in "HabitLand" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 2B1BE9A02F683FAF00B17D4A /* HabitLand */;
+		};
 		AA1BE9DD2F68400100B17D4A /* Exceptions for "HabitLand" folder in "HabitLandWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -78,6 +85,7 @@
 		2B1BE9A32F683FAF00B17D4A /* HabitLand */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				2BDB45602F711FC000784B0F /* Exceptions for "HabitLand" folder in "HabitLand" target */,
 				AA1BE9DD2F68400100B17D4A /* Exceptions for "HabitLand" folder in "HabitLandWidgetExtension" target */,
 				BB1BE9ED2F68500100B17D4A /* Exceptions for "HabitLand" folder in "HabitLandWatch Watch App" target */,
 			);
@@ -564,11 +572,13 @@
 				DEVELOPMENT_TEAM = 32SSMH2HFF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HabitLand/Info.plist;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "HabitLand reads your health data (steps, exercise, sleep) to automatically track habit completions and show progress insights.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "HabitLand saves workout and activity data to Apple Health when you complete fitness habits.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -598,11 +608,13 @@
 				DEVELOPMENT_TEAM = 32SSMH2HFF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HabitLand/Info.plist;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "HabitLand reads your health data (steps, exercise, sleep) to automatically track habit completions and show progress insights.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "HabitLand saves workout and activity data to Apple Health when you complete fitness habits.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

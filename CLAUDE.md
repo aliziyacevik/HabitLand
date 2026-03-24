@@ -266,6 +266,37 @@ HabitLand, gamification odaklı bir iOS habit tracker uygulamasıdır. Kullanıc
 - Health/fitness data requires permission check before reading
 <!-- GSD:architecture-end -->
 
+## Unit Test Zorunlulugu
+
+Her yeni feature veya bug fix sonrasi:
+
+1. **Unit test yaz** — Yeni eklenen/degistirilen business logic, manager, computed property icin unit test ZORUNLU
+2. **Test'i calistir** — `xcodebuild test` ile testlerin gectigini dogrula
+3. **Gecene kadar durma** — Test fail ederse, fix'le ve tekrar calistir. Test gecene kadar feature tamamlanmis sayilmaz
+4. **XCUITest** — UI degisiklikleri icin hedeflenen ekrani test eden XCUITest de yaz
+
+Test yazma istisna: Sadece copy/text degisikligi, asset ekleme, veya pure UI spacing/color tweaks icin test gerekmez.
+
+## Force Unwrap & Safety Enforcement
+
+- `!` (force unwrap) kullanildiktan sonra `grep -rn '!' ile tum yeni force unwrap'lari tara
+- `URL(string:)!` YASAK — her zaman `guard let` veya `?? fallbackURL` kullan
+- `Calendar.current.date(byAdding:)!` YASAK — her zaman `?? Date()` fallback ekle
+- `best!.property` pattern'i YASAK — `if let` veya `guard let` kullan
+- `@ScaledMetric` kullanirken her zaman `min(scaledValue, maxCap)` pattern'i uygula
+
+## modelContext.save() Kurali
+
+`modelContext.insert()` veya `modelContext.delete()` sonrasi **HER ZAMAN** `try? modelContext.save()` cagir.
+Bunu unutmamak icin her mutation iceren fonksiyonda save() cagrisini kontrol et.
+
+## QA Audit & Milestone Kurali
+
+- Her major milestone tamamlandiginda Claude kullaniciya **"/qa-audit calistiralim mi?"** diye sormali
+- Major milestone = yeni feature grubu tamamlama, buyuk refactor, release oncesi
+- QA audit sonuclari versiyonlu klasorlerde saklanir (`.qa_audit/runs/vN/`)
+- Onceki versiyonlarla karsilastirma yapilabilir
+
 <!-- GSD:workflow-start source:GSD defaults -->
 ## GSD Workflow Enforcement
 

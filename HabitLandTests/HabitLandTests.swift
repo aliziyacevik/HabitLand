@@ -119,7 +119,7 @@ struct HabitTests {
             habit.completions = (habit.completions ?? []) + [c]
         }
 
-        #expect(habit.bestStreak >= 5)
+        #expect(habit.bestStreak == 5)
     }
 
     @Test func weekCompletionRate() {
@@ -380,7 +380,7 @@ struct SampleDataTests {
     }
 
     @Test func sampleAchievementsExist() {
-        #expect(SampleData.achievements.count == 11)
+        #expect(SampleData.achievements.count == 25)
     }
 
     @Test func allTemplatesHaveValidData() {

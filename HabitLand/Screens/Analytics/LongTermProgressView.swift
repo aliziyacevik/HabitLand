@@ -4,6 +4,7 @@ import SwiftData
 // MARK: - Long Term Progress View
 
 struct LongTermProgressView: View {
+    @ScaledMetric(relativeTo: .title) private var heroIconSize: CGFloat = 36
     @Query(filter: #Predicate<Habit> { !$0.isArchived }) private var activeHabits: [Habit]
     @Query private var allHabits: [Habit]
     @Query private var profiles: [UserProfile]
@@ -154,23 +155,13 @@ struct LongTermProgressView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: HLSpacing.md) {
-            Spacer().frame(height: 80)
-            ZStack {
-                Circle()
-                    .fill(Color.hlGold.opacity(0.08))
-                    .frame(width: 100, height: 100)
-                Image(systemName: HLIcon.trophy)
-                    .font(.system(size: 40))
-                    .foregroundStyle(Color.hlGold.opacity(0.5))
-            }
-            Text("No data yet")
-                .font(HLFont.title3(.semibold))
-                .foregroundStyle(Color.hlTextPrimary)
-            Text("Complete habits over time to\nsee your long-term progress.")
-                .font(HLFont.subheadline())
-                .foregroundStyle(Color.hlTextSecondary)
-                .multilineTextAlignment(.center)
+        VStack {
+            Spacer()
+            EmptyStateView(
+                icon: HLIcon.trophy,
+                title: "No Data Yet",
+                subtitle: "Complete habits over time to see your long-term progress here."
+            )
             Spacer()
         }
     }
@@ -353,7 +344,7 @@ struct LongTermProgressView: View {
     private var gamificationCard: some View {
         VStack(spacing: HLSpacing.md) {
             Image(systemName: HLIcon.crown)
-                .font(.system(size: 36))
+                .font(.system(size: min(heroIconSize, 40)))
                 .foregroundColor(.hlGold)
 
             if let p = profile {

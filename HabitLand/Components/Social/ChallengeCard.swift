@@ -3,6 +3,8 @@ import SwiftUI
 // MARK: - Challenge Card
 
 struct ChallengeCard: View {
+    @ScaledMetric(relativeTo: .caption) private var participantsIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .body) private var challengeIconSize: CGFloat = 20
     let challenge: Challenge
     var isJoined: Bool = false
     var onJoin: (() -> Void)? = nil
@@ -12,7 +14,7 @@ struct ChallengeCard: View {
             // Header row
             HStack(spacing: HLSpacing.sm) {
                 Image(systemName: challenge.icon)
-                    .font(.system(size: 20, weight: .semibold))
+                    .font(.system(size: min(challengeIconSize, 24), weight: .semibold))
                     .foregroundColor(.hlPrimary)
                     .frame(width: 40, height: 40)
                     .background(Color.hlPrimaryLight)
@@ -52,7 +54,7 @@ struct ChallengeCard: View {
                 // Participants
                 HStack(spacing: HLSpacing.xxs) {
                     Image(systemName: HLIcon.social)
-                        .font(.system(size: 12))
+                        .font(.system(size: min(participantsIconSize, 16)))
                         .foregroundColor(.hlTextTertiary)
 
                     Text("\(challenge.participantCount) joined")
@@ -63,7 +65,7 @@ struct ChallengeCard: View {
                 // Days remaining
                 HStack(spacing: HLSpacing.xxs) {
                     Image(systemName: HLIcon.clock)
-                        .font(.system(size: 12))
+                        .font(.system(size: min(participantsIconSize, 16)))
                         .foregroundColor(.hlTextTertiary)
 
                     Text("\(challenge.daysRemaining)d left")

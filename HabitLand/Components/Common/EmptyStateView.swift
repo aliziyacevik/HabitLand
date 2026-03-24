@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - Empty State View
 
 struct EmptyStateView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var emptyIconSize: CGFloat = 48
     let icon: String
     let title: String
     let subtitle: String
@@ -26,7 +27,7 @@ struct EmptyStateView: View {
     var body: some View {
         VStack(spacing: HLSpacing.md) {
             Image(systemName: icon)
-                .font(.system(size: 48, weight: .light))
+                .font(.system(size: min(emptyIconSize, 56), weight: .light))
                 .foregroundColor(.hlTextTertiary)
                 .padding(.bottom, HLSpacing.xs)
 

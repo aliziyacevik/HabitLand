@@ -344,14 +344,19 @@ struct StaggeredAppearanceModifier: ViewModifier {
     let index: Int
     let baseDelay: Double
     @State private var isVisible = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
         content
             .opacity(isVisible ? 1 : 0)
-            .offset(y: isVisible ? 0 : 12)
+            .offset(y: isVisible ? 0 : (reduceMotion ? 0 : 12))
             .onAppear {
-                withAnimation(HLAnimation.slideIn.delay(baseDelay + Double(index) * 0.06)) {
+                if reduceMotion {
                     isVisible = true
+                } else {
+                    withAnimation(HLAnimation.slideIn.delay(baseDelay + Double(index) * 0.06)) {
+                        isVisible = true
+                    }
                 }
             }
     }
@@ -584,6 +589,7 @@ struct AnimatedCheckmark: View {
 // MARK: - Celebration Confetti Overlay (Full Screen)
 
 struct CelebrationOverlay: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var celebrationIconSize: CGFloat = 44
     @Binding var isActive: Bool
     var message: String = ""
     var icon: String = "star.fill"
@@ -617,7 +623,7 @@ struct CelebrationOverlay: View {
                 if !message.isEmpty {
                     VStack(spacing: HLSpacing.sm) {
                         Image(systemName: icon)
-                            .font(.system(size: 44))
+                            .font(.system(size: min(celebrationIconSize, 52)))
                             .foregroundStyle(Color.hlGold)
 
                         Text(message)
@@ -706,6 +712,7 @@ struct CelebrationOverlay: View {
 // MARK: - Achievement Celebration Overlay
 
 struct AchievementCelebrationOverlay: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var achieveIconSize: CGFloat = 44
     @Binding var achievement: AchievementCelebrationData?
 
     @State private var confettiPieces: [CelebrationOverlay.ConfettiPiece] = []
@@ -746,7 +753,7 @@ struct AchievementCelebrationOverlay: View {
                             .frame(width: 100, height: 100)
 
                         Image(systemName: data.icon)
-                            .font(.system(size: 44))
+                            .font(.system(size: min(achieveIconSize, 52)))
                             .foregroundStyle(Color.hlGold)
                             .scaleEffect(iconScale)
                     }
@@ -920,6 +927,8 @@ struct AchievementCelebrationData: Equatable {
 // MARK: - Level Up Celebration Overlay
 
 struct LevelUpCelebrationOverlay: View {
+    @ScaledMetric(relativeTo: .footnote) private var titleBadgeIconSize: CGFloat = 16
+    @ScaledMetric(relativeTo: .footnote) private var arrowIconSize: CGFloat = 14
     @Binding var levelUpData: LevelUpData?
 
     @State private var showCard = false
@@ -1040,7 +1049,7 @@ struct LevelUpCelebrationOverlay: View {
                         // Title badge
                         HStack(spacing: HLSpacing.xs) {
                             Image(systemName: levelIcon(for: data.newLevel))
-                                .font(.system(size: 16))
+                                .font(.system(size: min(titleBadgeIconSize, 20)))
                                 .foregroundStyle(Color.hlGold)
                             Text(data.newTitle)
                                 .font(HLFont.title3(.bold))
@@ -1098,7 +1107,7 @@ struct LevelUpCelebrationOverlay: View {
                     } label: {
                         HStack(spacing: HLSpacing.xs) {
                             Image(systemName: "arrow.right")
-                                .font(.system(size: 14, weight: .bold))
+                                .font(.system(size: min(arrowIconSize, 18), weight: .bold))
                             Text("Keep Going!")
                                 .font(HLFont.headline())
                         }
@@ -1268,6 +1277,8 @@ struct Triangle: Shape {
 // MARK: - Streak Fire Animation
 
 struct StreakFireView: View {
+    @ScaledMetric(relativeTo: .title3) private var glowFlameSize: CGFloat = 28
+    @ScaledMetric(relativeTo: .title3) private var mainFlameSize: CGFloat = 22
     let streak: Int
     @State private var flameScale: CGFloat = 1.0
     @State private var flameGlow: Double = 0.3
@@ -1294,14 +1305,14 @@ struct StreakFireView: View {
         ZStack {
             // Glow
             Image(systemName: "flame.fill")
-                .font(.system(size: 28))
+                .font(.system(size: min(glowFlameSize, 32)))
                 .foregroundStyle(flameColor.opacity(flameGlow))
                 .blur(radius: 6)
                 .scaleEffect(flameScale * 1.2)
 
             // Main flame
             Image(systemName: "flame.fill")
-                .font(.system(size: 22))
+                .font(.system(size: min(mainFlameSize, 26)))
                 .foregroundStyle(flameColor)
                 .scaleEffect(flameScale)
         }

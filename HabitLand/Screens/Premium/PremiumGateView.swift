@@ -1,8 +1,10 @@
 import SwiftUI
+import SwiftData
 
 // MARK: - Premium Gate Overlay
 
 struct PremiumGateView: View {
+    @ScaledMetric(relativeTo: .title) private var gateIconSize: CGFloat = 32
     let feature: String
     let icon: String
     var comingSoon: Bool = false
@@ -19,7 +21,7 @@ struct PremiumGateView: View {
                         .frame(width: 80, height: 80)
 
                     Image(systemName: comingSoon ? icon : "lock.fill")
-                        .font(.system(size: 32))
+                        .font(.system(size: min(gateIconSize, 36)))
                         .foregroundStyle(comingSoon ? Color.hlGold : Color.hlPrimary)
                 }
 
@@ -141,10 +143,15 @@ struct ProBadge: View {
 // MARK: - Blurred Premium Gate (shows content behind blur)
 
 struct BlurredPremiumGateModifier: ViewModifier {
+    @ScaledMetric(relativeTo: .caption) private var statIconSize: CGFloat = 12
+    @ScaledMetric(relativeTo: .title3) private var lockIconSize: CGFloat = 28
     let feature: String
     let icon: String
     let paywallContext: PaywallContext
     @ObservedObject private var proManager = ProManager.shared
+    @Query private var habits: [Habit]
+    @Query private var sleepLogs: [SleepLog]
+    @Query private var friends: [Friend]
     @State private var showPaywall = false
 
     private var isScreenshotMode: Bool {
@@ -153,6 +160,10 @@ struct BlurredPremiumGateModifier: ViewModifier {
         #else
         return false
         #endif
+    }
+
+    private var hasTrialData: Bool {
+        sleepLogs.count > 0 || friends.count > 0 || habits.count > 0
     }
 
     func body(content: Content) -> some View {
@@ -170,7 +181,7 @@ struct BlurredPremiumGateModifier: ViewModifier {
                             .fill(Color.hlPrimary.opacity(0.12))
                             .frame(width: 72, height: 72)
                         Image(systemName: "lock.fill")
-                            .font(.system(size: 28))
+                            .font(.system(size: min(lockIconSize, 32)))
                             .foregroundStyle(Color.hlPrimary)
                     }
 
@@ -178,11 +189,15 @@ struct BlurredPremiumGateModifier: ViewModifier {
                         .font(HLFont.title2(.bold))
                         .foregroundStyle(Color.hlTextPrimary)
 
-                    Text(paywallContext.description)
-                        .font(HLFont.subheadline())
-                        .foregroundStyle(Color.hlTextSecondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, HLSpacing.md)
+                    if hasTrialData {
+                        personalizedLossCard
+                    } else {
+                        Text(paywallContext.description)
+                            .font(HLFont.subheadline())
+                            .foregroundStyle(Color.hlTextSecondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, HLSpacing.md)
+                    }
 
                     Button {
                         showPaywall = true
@@ -212,6 +227,61 @@ struct BlurredPremiumGateModifier: ViewModifier {
                 PaywallView(context: paywallContext)
                     .hlSheetContent()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var personalizedLossCard: some View {
+        VStack(spacing: HLSpacing.sm) {
+            Text("Don't lose your progress")
+                .font(HLFont.subheadline(.semibold))
+                .foregroundStyle(Color.hlFlame)
+
+            VStack(spacing: HLSpacing.xs) {
+                if sleepLogs.count > 0 {
+                    let avgHours = sleepLogs.map(\.durationHours).reduce(0, +) / Double(sleepLogs.count)
+                    lossRow(
+                        icon: "moon.fill",
+                        color: .hlSleep,
+                        text: "\(sleepLogs.count) nights logged · \(String(format: "%.1f", avgHours))h avg"
+                    )
+                }
+                if habits.count > 0 {
+                    let totalCompletions = habits.reduce(0) { $0 + $1.totalCompletions }
+                    let bestStreak = habits.map(\.bestStreak).max() ?? 0
+                    lossRow(
+                        icon: "checkmark.circle.fill",
+                        color: .hlPrimary,
+                        text: "\(habits.count) habits · \(totalCompletions) completions · \(bestStreak)d streak"
+                    )
+                }
+                if friends.count > 0 {
+                    lossRow(
+                        icon: "person.2.fill",
+                        color: .hlFitness,
+                        text: "\(friends.count) friends connected"
+                    )
+                }
+            }
+        }
+        .padding(HLSpacing.md)
+        .background(Color.hlFlame.opacity(0.06))
+        .cornerRadius(HLRadius.md)
+        .padding(.horizontal, HLSpacing.sm)
+    }
+
+    private func lossRow(icon: String, color: Color, text: String) -> some View {
+        HStack(spacing: HLSpacing.xs) {
+            Image(systemName: icon)
+                .font(.system(size: min(statIconSize, 14)))
+                .foregroundStyle(color)
+                .frame(width: 18)
+            Text(text)
+                .font(HLFont.caption())
+                .foregroundStyle(Color.hlTextSecondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+            Spacer()
         }
     }
 }

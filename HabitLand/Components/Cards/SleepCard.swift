@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct SleepCard: View {
+    @ScaledMetric(relativeTo: .footnote) private var moonIconSize: CGFloat = 14
     let durationFormatted: String
     let bedTimeFormatted: String
     let wakeTimeFormatted: String
@@ -98,8 +99,9 @@ struct SleepCard: View {
     private func timeLabel(icon: String, label: String, time: String) -> some View {
         HStack(spacing: HLSpacing.xs) {
             Image(systemName: icon)
-                .font(.system(size: 14))
+                .font(.system(size: min(moonIconSize, 18)))
                 .foregroundColor(.hlSleep)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                 Text(label)
