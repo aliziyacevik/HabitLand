@@ -113,9 +113,7 @@ struct OnboardingView: View {
             HStack {
                 if currentPage > 0 {
                     Button {
-                        withAnimation(HLAnimation.standard) {
-                            currentPage -= 1
-                        }
+                        currentPage -= 1
                     } label: {
                         HStack(spacing: HLSpacing.xxs) {
                             Image(systemName: "chevron.left")
@@ -183,9 +181,7 @@ struct OnboardingView: View {
                 isFullWidth: true
             ) {
                 if currentPage < pages.count - 1 {
-                    withAnimation(HLAnimation.standard) {
-                        currentPage += 1
-                    }
+                    currentPage += 1
                 } else {
                     saveName()
                     withAnimation(HLAnimation.gentleSpring) {

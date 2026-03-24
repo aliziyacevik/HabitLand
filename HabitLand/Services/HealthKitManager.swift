@@ -249,30 +249,41 @@ final class HealthKitManager: ObservableObject {
 
     func syncHealthHabits(context: ModelContext) async {
         let descriptor = FetchDescriptor<Habit>()
-        guard let habits = try? context.fetch(descriptor) else { return }
+        guard let habits = try? context.fetch(descriptor) else {
+            HLLogger.healthkit.info("[HK-SYNC] No habits found")
+            return
+        }
 
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
+        let healthHabits = habits.filter { $0.healthKitMetric != nil }
+        HLLogger.healthkit.info("[HK-SYNC] Found \(healthHabits.count) HealthKit habits out of \(habits.count) total")
 
-        for habit in habits {
+        for habit in healthHabits {
             guard let metricRaw = habit.healthKitMetric,
                   let metric = HealthKitMetric(rawValue: metricRaw) else { continue }
 
             let value = await todayValue(for: metric)
-            guard value > 0 else { continue }
+            HLLogger.healthkit.info("[HK-SYNC] \(habit.name): metric=\(metricRaw), value=\(value), goal=\(habit.goalCount)")
+
+            guard value > 0 else {
+                HLLogger.healthkit.info("[HK-SYNC] \(habit.name): value is 0, skipping")
+                continue
+            }
 
             let goal = Double(habit.goalCount)
             let isComplete = value >= goal
 
-            // Find existing today's completion to update
             let existingCompletion = habit.safeCompletions.first { c in
                 calendar.startOfDay(for: c.date) == today
             }
 
             if let existing = existingCompletion {
+                HLLogger.healthkit.info("[HK-SYNC] \(habit.name): updating existing completion count=\(Int(value)) complete=\(isComplete)")
                 existing.count = Int(value)
                 existing.isCompleted = isComplete
             } else {
+                HLLogger.healthkit.info("[HK-SYNC] \(habit.name): creating new completion count=\(Int(value)) complete=\(isComplete)")
                 let completion = HabitCompletion(date: Date(), isCompleted: isComplete, count: Int(value))
                 completion.habit = habit
                 context.insert(completion)
@@ -281,8 +292,9 @@ final class HealthKitManager: ObservableObject {
 
         do {
             try context.save()
+            HLLogger.healthkit.info("[HK-SYNC] Save successful")
         } catch {
-            HLLogger.healthkit.error("Failed to save HealthKit sync: \(error.localizedDescription, privacy: .public)")
+            HLLogger.healthkit.error("[HK-SYNC] Failed to save: \(error.localizedDescription, privacy: .public)")
         }
     }
 }
