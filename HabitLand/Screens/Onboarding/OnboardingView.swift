@@ -471,11 +471,6 @@ struct OnboardingView: View {
                 .padding(.horizontal, HLSpacing.xl)
                 .focused($nameFieldFocused)
                 .submitLabel(.done)
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        nameFieldFocused = true
-                    }
-                }
 
             Spacer()
         }

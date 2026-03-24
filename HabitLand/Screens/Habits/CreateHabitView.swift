@@ -609,14 +609,18 @@ struct CreateHabitView: View {
             )
         }
 
-        // Request HealthKit authorization if needed
+        // Request HealthKit authorization if needed, then sync initial data
         if let metric = selectedHealthMetric {
             Task {
-                _ = await healthKit.requestAuthorization(for: [metric])
+                let authorized = await healthKit.requestAuthorization(for: [metric])
+                if authorized {
+                    await healthKit.syncHealthHabits(context: modelContext)
+                }
+                await MainActor.run { dismiss() }
             }
+        } else {
+            dismiss()
         }
-
-        dismiss()
     }
 }
 
