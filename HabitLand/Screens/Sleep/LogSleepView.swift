@@ -1,10 +1,14 @@
 import SwiftUI
 import SwiftData
+import HealthKit
 
 struct LogSleepView: View {
     @ScaledMetric(relativeTo: .title) private var moonIconSize: CGFloat = 40
+    @ScaledMetric(relativeTo: .footnote) private var healthIconSize: CGFloat = 14
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @State private var isImporting = false
+    @State private var importSuccess = false
 
     @State private var bedTime: Date = {
         let calendar = Calendar.current
@@ -45,6 +49,7 @@ struct LogSleepView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: HLSpacing.lg) {
+                    importFromHealthButton
                     durationDisplay
                     timePickersSection
                     qualitySection
@@ -281,6 +286,118 @@ struct LogSleepView: View {
         default: return ""
         }
     }
+
+    // MARK: - Import from Apple Health
+
+    private var importFromHealthButton: some View {
+        Button {
+            Task { await importFromHealth() }
+        } label: {
+            HStack(spacing: HLSpacing.sm) {
+                Image(systemName: "heart.fill")
+                    .font(.system(size: min(healthIconSize, 16), weight: .semibold))
+                    .foregroundStyle(.red)
+                Text(importSuccess ? "Imported from Apple Health" : "Import from Apple Health")
+                    .font(HLFont.subheadline(.medium))
+                    .foregroundStyle(importSuccess ? Color.hlSuccess : Color.hlTextPrimary)
+                Spacer()
+                if isImporting {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                } else if importSuccess {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Color.hlSuccess)
+                } else {
+                    Image(systemName: "arrow.down.circle")
+                        .foregroundStyle(Color.hlTextTertiary)
+                }
+            }
+            .padding(.horizontal, HLSpacing.md)
+            .padding(.vertical, HLSpacing.sm)
+            .background(Color.hlSurface)
+            .cornerRadius(HLRadius.lg)
+            .overlay(
+                RoundedRectangle(cornerRadius: HLRadius.lg)
+                    .stroke(importSuccess ? Color.hlSuccess.opacity(0.3) : Color.hlCardBorder, lineWidth: 1)
+            )
+        }
+        .disabled(isImporting || importSuccess)
+    }
+
+    private func importFromHealth() async {
+        isImporting = true
+        let store = HKHealthStore()
+
+        guard HKHealthStore.isHealthDataAvailable() else {
+            isImporting = false
+            return
+        }
+
+        let sleepType = HKCategoryType(.sleepAnalysis)
+        do {
+            try await store.requestAuthorization(toShare: [], read: [sleepType])
+        } catch {
+            isImporting = false
+            return
+        }
+
+        let calendar = Calendar.current
+        let now = Date()
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: calendar.startOfDay(for: now)) ?? now
+        let predicate = HKQuery.predicateForSamples(withStart: yesterday, end: now, options: .strictStartDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            let query = HKSampleQuery(
+                sampleType: sleepType,
+                predicate: predicate,
+                limit: 10,
+                sortDescriptors: [sortDescriptor]
+            ) { _, samples, _ in
+                guard let samples = samples as? [HKCategorySample],
+                      !samples.isEmpty else {
+                    Task { @MainActor in
+                        isImporting = false
+                    }
+                    continuation.resume()
+                    return
+                }
+
+                let inBedSamples = samples.filter {
+                    $0.value == HKCategoryValueSleepAnalysis.inBed.rawValue ||
+                    $0.value == HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue ||
+                    $0.value == HKCategoryValueSleepAnalysis.asleepCore.rawValue ||
+                    $0.value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue ||
+                    $0.value == HKCategoryValueSleepAnalysis.asleepREM.rawValue
+                }
+
+                guard !inBedSamples.isEmpty else {
+                    Task { @MainActor in
+                        isImporting = false
+                    }
+                    continuation.resume()
+                    return
+                }
+
+                let earliest = inBedSamples.map(\.startDate).min() ?? now
+                let latest = inBedSamples.map(\.endDate).max() ?? now
+
+                Task { @MainActor in
+                    bedTime = earliest
+                    wakeTime = latest
+                    isImporting = false
+                    withAnimation(HLAnimation.standard) {
+                        importSuccess = true
+                    }
+                    HLHaptics.success()
+                }
+                continuation.resume()
+            }
+            store.execute(query)
+        }
+    }
+
+    // MARK: - Save
 
     private func saveSleep() {
         let log = SleepLog(

@@ -193,13 +193,12 @@ struct HomeDashboardView: View {
                                 .hlStaggeredAppear(index: 1)
                         }
 
-                        if !habits.isEmpty {
+                        if habits.isEmpty {
+                            emptyState
+                                .hlStaggeredAppear(index: 1)
+                        } else {
                             dailyProgressCard
                                 .hlStaggeredAppear(index: 1)
-                            if completedCount == 0 && totalCount > 0 {
-                                firstDayProgressionCard
-                                    .hlStaggeredAppear(index: 2)
-                            }
                             todaysHabitsSection
                                 .hlStaggeredAppear(index: 2)
                             compactStatsRow
@@ -622,15 +621,6 @@ struct HomeDashboardView: View {
                     detail: streakDays > 0 ? "Best: \(bestStreak)d" : nil
                 )
 
-                // Quests pill
-                compactStatPill(
-                    icon: "scroll.fill",
-                    iconColor: .hlGold,
-                    value: "\(questManager.quests.filter(\.isCompleted).count)/\(questManager.quests.count)",
-                    label: "Quests",
-                    detail: nil
-                )
-
                 // Weekly average pill
                 compactStatPill(
                     icon: "chart.bar.fill",
@@ -947,8 +937,17 @@ struct HomeDashboardView: View {
                 try? modelContext.save()
                 let justCompleted = !wasCompleted && habit.todayCompleted
                 if !wasCompleted && !habit.todayCompleted {
-                    // Progressive increment — not yet complete
-                    HLHaptics.light()
+                    // Progressive increment — not yet complete, but reward progress
+                    HLHaptics.completionSuccess()
+                    let perStepXP = max(1, 10 / habit.goalCount)
+                    gainXP(perStepXP)
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        xpGainHabitID = habit.id.uuidString
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                        xpGainHabitID = nil
+                    }
+                    showAchievementIfNeeded(AchievementManager.checkAll(context: modelContext))
                 } else if justCompleted {
                     HLHaptics.completionSuccess()
                     ReviewManager.trackCompletion()

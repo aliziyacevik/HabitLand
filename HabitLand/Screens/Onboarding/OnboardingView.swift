@@ -66,16 +66,9 @@ struct OnboardingView: View {
     private let pages: [OnboardingPage] = [
         OnboardingPage(
             systemImage: "",
-            emoji: "😩",
-            title: "Always giving up\non habits?",
-            subtitle: "You're not lazy. You just didn't have the right system. Until now.",
-            accentColor: .hlPrimary
-        ),
-        OnboardingPage(
-            systemImage: "",
             emoji: "🔥",
-            title: "This time is different",
-            subtitle: "Streaks keep you accountable. XP makes it fun. Friends make it social.",
+            title: "Building habits\nmade fun",
+            subtitle: "Streaks keep you accountable. XP makes it fun. Friends make it social. You're not lazy — you just didn't have the right system.",
             accentColor: .hlFlame,
             isStreakPreview: true
         ),
@@ -93,18 +86,18 @@ struct OnboardingView: View {
         Group {
             switch currentStep {
             case 1:
-                ThemeOnboardingView {
-                    withAnimation(HLAnimation.gentleSpring) {
-                        currentStep = 2
+                VStack(spacing: 0) {
+                    stepIndicator(step: 3)
+                    ThemeOnboardingView {
+                        withAnimation(HLAnimation.gentleSpring) {
+                            currentStep = 2
+                        }
                     }
                 }
             case 2:
-                trialWelcomeStep
-            case 3:
-                OnboardingCompleteView(
-                    habitsCreated: 0
-                ) {
-                    onComplete()
+                VStack(spacing: 0) {
+                    stepIndicator(step: 4)
+                    trialWelcomeStep
                 }
             default:
                 pagesView
@@ -185,7 +178,7 @@ struct OnboardingView: View {
 
             // Next / Choose My Habits button
             HLButton(
-                currentPage == pages.count - 1 ? "Let's Go" : "Next",
+                currentPage == pages.count - 1 ? "Continue" : "Next",
                 icon: "arrow.right",
                 style: .primary,
                 size: .lg,
@@ -208,11 +201,11 @@ struct OnboardingView: View {
         }
     }
 
-    // MARK: - Progress Bar
+    // MARK: - Step Indicator (for theme/trial steps)
 
-    private var progressBar: some View {
+    private func stepIndicator(step: Int) -> some View {
         VStack(spacing: HLSpacing.xxs) {
-            Text("Step \(currentPage + 1) of \(pages.count)")
+            Text("Step \(step) of 4")
                 .font(HLFont.caption(.medium))
                 .foregroundColor(.hlTextTertiary)
 
@@ -230,7 +223,40 @@ struct OnboardingView: View {
                                 endPoint: .trailing
                             )
                         )
-                        .frame(width: geo.size.width * CGFloat(currentPage + 1) / CGFloat(pages.count), height: 4)
+                        .frame(width: geo.size.width * CGFloat(step) / 4.0, height: 4)
+                        .animation(HLAnimation.standard, value: step)
+                }
+            }
+            .frame(height: 4)
+            .padding(.horizontal, HLSpacing.xl)
+        }
+        .padding(.top, HLSpacing.lg)
+        .padding(.bottom, HLSpacing.sm)
+    }
+
+    // MARK: - Progress Bar
+
+    private var progressBar: some View {
+        VStack(spacing: HLSpacing.xxs) {
+            Text("Step \(currentPage + 1) of 4")
+                .font(HLFont.caption(.medium))
+                .foregroundColor(.hlTextTertiary)
+
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: HLRadius.full)
+                        .fill(Color.hlDivider)
+                        .frame(height: 4)
+
+                    RoundedRectangle(cornerRadius: HLRadius.full)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.hlPrimary, Color.hlPrimary.opacity(0.7)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(width: geo.size.width * CGFloat(currentPage + 1) / 4.0, height: 4)
                         .animation(HLAnimation.standard, value: currentPage)
                 }
             }
@@ -595,9 +621,7 @@ struct OnboardingView: View {
             Spacer()
 
             Button {
-                withAnimation(HLAnimation.gentleSpring) {
-                    currentStep = 3
-                }
+                onComplete()
             } label: {
                 Text("Start My Free Trial")
                     .font(HLFont.headline())
