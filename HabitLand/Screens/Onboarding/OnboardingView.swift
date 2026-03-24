@@ -38,7 +38,10 @@ struct OnboardingView: View {
     @ScaledMetric(relativeTo: .footnote) private var sectionIconSize: CGFloat = 16
     @ScaledMetric(relativeTo: .body) private var cardIconSize: CGFloat = 18
     @ScaledMetric(relativeTo: .body) private var mediumIconSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .title3) private var selectorEmojiSize: CGFloat = 22
+    @ScaledMetric(relativeTo: .title3) private var podiumEmojiSize: CGFloat = 24
     @ScaledMetric(relativeTo: .title3) private var playIconSize: CGFloat = 28
+    @ScaledMetric(relativeTo: .largeTitle) private var avatarEmojiSize: CGFloat = 40
     @ScaledMetric(relativeTo: .largeTitle) private var heroIconSize: CGFloat = 60
     @Environment(\.modelContext) private var modelContext
     @Query private var profiles: [UserProfile]
@@ -46,7 +49,7 @@ struct OnboardingView: View {
 
     // Page state
     @State private var currentPage = 0
-    // Steps: 0=pages, 1=reminder+notif, 2=theme, 3=trial, 4=complete
+    // Steps: 0=pages, 1=trial, 2=complete
     @State private var currentStep = 0
 
     // Data collected
@@ -74,27 +77,6 @@ struct OnboardingView: View {
             isStreakPreview: true
         ),
         OnboardingPage(
-            systemImage: "moon.stars.fill",
-            title: "Sleep better,\ndo more",
-            subtitle: "Track your sleep and discover how rest affects your habits.",
-            accentColor: .hlSleep,
-            isSleepPreview: true
-        ),
-        OnboardingPage(
-            systemImage: "person.2.fill",
-            title: "Compete with\nfriends",
-            subtitle: "Challenge your friends, climb the leaderboard, and nudge each other when motivation drops.",
-            accentColor: .hlFitness,
-            isLeaderboardPreview: true
-        ),
-        OnboardingPage(
-            systemImage: "trophy.fill",
-            title: "Level Up Your Life",
-            subtitle: "Every habit you complete earns XP. Unlock achievements, new themes, and watch yourself grow.",
-            accentColor: .hlGold,
-            isLevelUpPage: true
-        ),
-        OnboardingPage(
             systemImage: "person.crop.circle.badge.plus",
             title: "What's your name?",
             subtitle: "This is how your friends will see you on the leaderboard.",
@@ -108,16 +90,14 @@ struct OnboardingView: View {
         Group {
             switch currentStep {
             case 1:
-                reminderSetupStep
-            case 2:
                 ThemeOnboardingView {
                     withAnimation(HLAnimation.gentleSpring) {
-                        currentStep = 3
+                        currentStep = 2
                     }
                 }
-            case 3:
+            case 2:
                 trialWelcomeStep
-            case 4:
+            case 3:
                 OnboardingCompleteView(
                     habitsCreated: 0
                 ) {
@@ -333,7 +313,7 @@ struct OnboardingView: View {
                     .fill(color.opacity(0.2))
                     .frame(width: rank == 1 ? 52 : 40, height: rank == 1 ? 52 : 40)
                 Text(emoji)
-                    .font(.system(size: rank == 1 ? 24 : 18))
+                    .font(.system(size: rank == 1 ? min(podiumEmojiSize, 32) : min(cardIconSize, 24)))
             }
 
             Text(name)
@@ -408,7 +388,7 @@ struct OnboardingView: View {
                     .frame(width: 96, height: 96)
 
                 Text(selectedAvatar)
-                    .font(.system(size: 40))
+                    .font(.system(size: min(avatarEmojiSize, 56)))
             }
 
             Text(page.title)
@@ -429,7 +409,7 @@ struct OnboardingView: View {
                             HLHaptics.selection()
                         } label: {
                             Text(avatar)
-                                .font(.system(size: 22))
+                                .font(.system(size: min(selectorEmojiSize, 30)))
                                 .frame(width: 48, height: 48)
                                 .background(
                                     selectedAvatar == avatar
@@ -613,7 +593,7 @@ struct OnboardingView: View {
 
             Button {
                 withAnimation(HLAnimation.gentleSpring) {
-                    currentStep = 4
+                    currentStep = 3
                 }
             } label: {
                 Text("Start My Free Trial")
