@@ -24,7 +24,9 @@ struct ChallengeCard: View {
                     Text(challenge.name)
                         .font(HLFont.headline())
                         .foregroundColor(.hlTextPrimary)
-                        .lineLimit(1)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.75)
+
 
                     Text(challenge.descriptionText)
                         .font(HLFont.caption())

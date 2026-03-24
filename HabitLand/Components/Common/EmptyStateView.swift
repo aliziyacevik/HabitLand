@@ -36,6 +36,8 @@ struct EmptyStateView: View {
                     .font(HLFont.title3())
                     .foregroundColor(.hlTextPrimary)
                     .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.75)
 
                 Text(subtitle)
                     .font(HLFont.subheadline())

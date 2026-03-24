@@ -52,7 +52,8 @@ struct AchievementCard: View {
                 Text(name)
                     .font(HLFont.headline())
                     .foregroundColor(isUnlocked ? .hlTextPrimary : .hlTextTertiary)
-                    .lineLimit(1)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.75)
 
                 Text(descriptionText)
                     .font(HLFont.caption())

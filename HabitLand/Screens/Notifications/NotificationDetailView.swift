@@ -85,6 +85,8 @@ struct NotificationDetailView: View {
             Text(notification.title)
                 .font(HLFont.title3())
                 .foregroundColor(.hlTextPrimary)
+                .lineLimit(2)
+                .minimumScaleFactor(0.75)
 
             Text(notification.body)
                 .font(HLFont.body())
