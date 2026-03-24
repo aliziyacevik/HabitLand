@@ -316,6 +316,7 @@ struct HomeDashboardView: View {
                     onUndo: {
                         if let completion = undoCompletion {
                             modelContext.delete(completion)
+                            try? modelContext.save()
                             removeXP(10)
                             HLHaptics.light()
                         }

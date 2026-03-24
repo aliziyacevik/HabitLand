@@ -106,19 +106,19 @@ final class Habit {
 
     var todayCompleted: Bool {
         let today = Calendar.current.startOfDay(for: Date())
-        let todayCount = safeCompletions.filter { completion in
-            Calendar.current.startOfDay(for: completion.date) == today && completion.isCompleted
-        }.count
-        return todayCount >= goalCount
+        let todaySum = safeCompletions
+            .filter { Calendar.current.startOfDay(for: $0.date) == today && $0.isCompleted }
+            .reduce(0) { $0 + $1.count }
+        return todaySum >= goalCount
     }
 
     var todayProgress: Double {
         guard goalCount > 0 else { return 0 }
         let today = Calendar.current.startOfDay(for: Date())
-        let todayCount = safeCompletions.filter { completion in
-            Calendar.current.startOfDay(for: completion.date) == today && completion.isCompleted
-        }.count
-        return min(Double(todayCount) / Double(goalCount), 1.0)
+        let todaySum = safeCompletions
+            .filter { Calendar.current.startOfDay(for: $0.date) == today && $0.isCompleted }
+            .reduce(0) { $0 + $1.count }
+        return min(Double(todaySum) / Double(goalCount), 1.0)
     }
 
     var weekCompletionRate: Double {
