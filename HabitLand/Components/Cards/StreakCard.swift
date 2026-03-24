@@ -35,7 +35,7 @@ struct StreakCard: View {
         VStack(spacing: HLSpacing.md) {
             // Animated flame
             Image(systemName: HLIcon.flame)
-                .font(.system(size: flameSize, weight: .semibold))
+                .font(.system(size: min(flameSize, 52), weight: .semibold))
                 .foregroundStyle(
                     LinearGradient(
                         colors: [.hlFlame, .hlGold],

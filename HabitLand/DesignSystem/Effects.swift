@@ -516,7 +516,7 @@ struct AnimatedCheckmark: View {
 
             // Main checkmark
             Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
-                .font(.system(size: size))
+                .font(.system(size: min(size, 36)))
                 .foregroundStyle(isCompleted ? color : Color.hlTextTertiary)
                 .scaleEffect(checkScale)
         }
@@ -1004,7 +1004,7 @@ struct LevelUpCelebrationOverlay: View {
                         ForEach(0..<8, id: \.self) { i in
                             let angle = Double(i) * 45.0
                             Image(systemName: "sparkle")
-                                .font(.system(size: starBurst ? 10 : 4))
+                                .font(.system(size: min(starBurst ? 10 : 4, 14)))
                                 .foregroundStyle(Color.hlGold)
                                 .offset(
                                     x: CGFloat(cos(angle * .pi / 180)) * (starBurst ? 75 : 55),

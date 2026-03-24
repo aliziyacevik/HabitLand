@@ -36,7 +36,7 @@ struct AchievementBadge: View {
 
                 // Icon
                 Image(systemName: isUnlocked ? icon : "lock.fill")
-                    .font(.system(size: iconSize, weight: .semibold))
+                    .font(.system(size: min(iconSize, 36), weight: .semibold))
                     .foregroundStyle(isUnlocked ? Color.hlGold : Color.hlTextTertiary)
                     .accessibilityHidden(true)
             }

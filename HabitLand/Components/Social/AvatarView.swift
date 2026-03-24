@@ -52,7 +52,7 @@ struct AvatarView: View {
                 .frame(width: size, height: size)
 
             Text(initial)
-                .font(.system(size: size * 0.42, weight: .bold, design: .rounded))
+                .font(.system(size: min(size * 0.42, 36), weight: .bold, design: .rounded))
                 .foregroundColor(.white)
         }
     }
@@ -72,7 +72,7 @@ struct AvatarView: View {
                 .frame(width: size, height: size)
 
             Image(systemName: animal.sfSymbol)
-                .font(.system(size: size * 0.45, weight: .semibold))
+                .font(.system(size: min(size * 0.45, 36), weight: .semibold))
                 .foregroundColor(.white)
         }
     }
@@ -93,7 +93,7 @@ struct AvatarView: View {
                 .frame(width: size - 6, height: size - 6)
 
             Text(initial)
-                .font(.system(size: (size - 6) * 0.42, weight: .bold, design: .rounded))
+                .font(.system(size: min((size - 6) * 0.42, 36), weight: .bold, design: .rounded))
                 .foregroundColor(.white)
 
             // Animated gradient border

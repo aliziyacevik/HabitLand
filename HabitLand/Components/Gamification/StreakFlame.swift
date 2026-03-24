@@ -49,7 +49,7 @@ struct StreakFlame: View {
     var body: some View {
         HStack(spacing: size.spacing) {
             Image(systemName: HLIcon.flame)
-                .font(.system(size: size.iconSize, weight: .semibold))
+                .font(.system(size: min(size.iconSize, 44), weight: .semibold))
                 .foregroundStyle(isActive ? Color.hlFlame : Color.hlTextTertiary)
                 .accessibilityHidden(true)
                 .shadow(

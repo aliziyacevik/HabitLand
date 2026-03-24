@@ -70,7 +70,7 @@ struct MilestoneBadge: View {
                 // Content
                 VStack(spacing: 1) {
                     Image(systemName: isAchieved ? HLIcon.medal : "lock.fill")
-                        .font(.system(size: iconSize, weight: .semibold))
+                        .font(.system(size: min(iconSize, 32), weight: .semibold))
                         .foregroundStyle(isAchieved ? tier.primaryColor : Color.hlTextTertiary)
                         .accessibilityHidden(true)
 

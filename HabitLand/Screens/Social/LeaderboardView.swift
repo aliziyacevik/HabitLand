@@ -13,6 +13,8 @@ private enum TimePeriod: String, CaseIterable {
 
 struct LeaderboardView: View {
     @ScaledMetric(relativeTo: .largeTitle) private var emptyIconSize: CGFloat = 48
+    @ScaledMetric(relativeTo: .title3) private var crownIconSize: CGFloat = 28
+    @ScaledMetric(relativeTo: .body) private var crownSmallSize: CGFloat = 20
     @ScaledMetric(relativeTo: .caption) private var rankBadgeSize: CGFloat = 10
     @Query(sort: \Friend.level, order: .reverse) private var friends: [Friend]
     @Query private var profiles: [UserProfile]
@@ -155,7 +157,7 @@ struct LeaderboardView: View {
         return VStack(spacing: HLSpacing.xs) {
             if let crown = crownIcon {
                 Image(systemName: crown)
-                    .font(.system(size: isFirst ? 28 : 20, weight: .semibold))
+                    .font(.system(size: isFirst ? min(crownIconSize, 36) : min(crownSmallSize, 26), weight: .semibold))
                     .foregroundColor(.hlGold)
                     .accessibilityHidden(true)
             }

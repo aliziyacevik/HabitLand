@@ -607,7 +607,7 @@ struct ProgressRing: View {
                 .animation(HLAnimation.progressFill, value: progress)
             if progress >= 1.0 {
                 Image(systemName: HLIcon.checkmark)
-                    .font(.system(size: lineWidth * 2.5, weight: .bold))
+                    .font(.system(size: min(lineWidth * 2.5, 24), weight: .bold))
                     .foregroundStyle(color)
             }
         }

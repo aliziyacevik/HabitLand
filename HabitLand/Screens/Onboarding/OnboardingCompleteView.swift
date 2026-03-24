@@ -17,7 +17,7 @@ struct OnboardingCompleteView: View {
             // Confetti layer
             ForEach(confettiItems) { item in
                 Image(systemName: "checkmark")
-                    .font(.system(size: item.size, weight: .bold))
+                    .font(.system(size: min(item.size, 24), weight: .bold))
                     .foregroundColor(item.color.opacity(item.opacity))
                     .position(item.position)
                     .rotationEffect(.degrees(item.rotation))

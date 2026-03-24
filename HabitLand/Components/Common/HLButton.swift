@@ -96,7 +96,7 @@ struct HLButton: View {
                         .scaleEffect(0.8)
                 } else if let icon {
                     Image(systemName: icon)
-                        .font(.system(size: size.iconSize, weight: .semibold))
+                        .font(.system(size: min(size.iconSize, 22), weight: .semibold))
                 }
 
                 Text(title)
