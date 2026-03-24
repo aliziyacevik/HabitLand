@@ -4,6 +4,7 @@ import SwiftData
 // MARK: - Weekly Analytics View
 
 struct WeeklyAnalyticsView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var chartRingSize: CGFloat = 160
     @Query(filter: #Predicate<Habit> { !$0.isArchived }) private var habits: [Habit]
     @State private var animateRing = false
     @State private var animateBars = false
@@ -223,7 +224,7 @@ struct WeeklyAnalyticsView: View {
             ZStack {
                 Circle()
                     .stroke(Color.hlDivider, lineWidth: 14)
-                    .frame(width: 160, height: 160)
+                    .frame(width: min(chartRingSize, 200), height: min(chartRingSize, 200))
 
                 Circle()
                     .trim(from: 0, to: animateRing ? overallRate : 0)
@@ -234,7 +235,7 @@ struct WeeklyAnalyticsView: View {
                         ),
                         style: StrokeStyle(lineWidth: 14, lineCap: .round)
                     )
-                    .frame(width: 160, height: 160)
+                    .frame(width: min(chartRingSize, 200), height: min(chartRingSize, 200))
                     .rotationEffect(.degrees(-90))
 
                 VStack(spacing: HLSpacing.xxs) {

@@ -43,6 +43,9 @@ struct OnboardingView: View {
     @ScaledMetric(relativeTo: .title3) private var playIconSize: CGFloat = 28
     @ScaledMetric(relativeTo: .largeTitle) private var avatarEmojiSize: CGFloat = 40
     @ScaledMetric(relativeTo: .largeTitle) private var heroIconSize: CGFloat = 60
+    @ScaledMetric(relativeTo: .body) private var iconButtonSize: CGFloat = 40
+    @ScaledMetric(relativeTo: .body) private var avatarPickerSize: CGFloat = 48
+    @ScaledMetric(relativeTo: .title) private var avatarDisplaySize: CGFloat = 96
     @Environment(\.modelContext) private var modelContext
     @Query private var profiles: [UserProfile]
     private var profile: UserProfile? { profiles.first }
@@ -385,7 +388,7 @@ struct OnboardingView: View {
             ZStack {
                 Circle()
                     .fill(page.accentColor.opacity(0.12))
-                    .frame(width: 96, height: 96)
+                    .frame(width: min(avatarDisplaySize, 128), height: min(avatarDisplaySize, 128))
 
                 Text(selectedAvatar)
                     .font(.system(size: min(avatarEmojiSize, 56)))
@@ -410,7 +413,7 @@ struct OnboardingView: View {
                         } label: {
                             Text(avatar)
                                 .font(.system(size: min(selectorEmojiSize, 30)))
-                                .frame(width: 48, height: 48)
+                                .frame(width: min(avatarPickerSize, 64), height: min(avatarPickerSize, 64))
                                 .background(
                                     selectedAvatar == avatar
                                         ? Color.hlPrimary.opacity(0.15)
@@ -759,6 +762,7 @@ private struct StreakPreviewContent: View {
     @ScaledMetric(relativeTo: .caption) private var smallIconSize: CGFloat = 12
     @ScaledMetric(relativeTo: .body) private var cardIconSize: CGFloat = 18
     @ScaledMetric(relativeTo: .title3) private var playIconSize: CGFloat = 28
+    @ScaledMetric(relativeTo: .body) private var iconButtonSize: CGFloat = 40
     let isActive: Bool
 
     // Animation phases
@@ -780,7 +784,7 @@ private struct StreakPreviewContent: View {
                     ZStack {
                         Circle()
                             .fill(Color.hlMindfulness.opacity(0.15))
-                            .frame(width: 40, height: 40)
+                            .frame(width: min(iconButtonSize, 56), height: min(iconButtonSize, 56))
                         Image(systemName: "brain.head.profile")
                             .font(.system(size: min(cardIconSize, 22)))
                             .foregroundStyle(Color.hlMindfulness)
@@ -1321,6 +1325,8 @@ private struct AnimatedOnboardingPage: View {
 private struct LevelUpPreviewPage: View {
     @ScaledMetric(relativeTo: .largeTitle) private var heroIconSize: CGFloat = 60
     @ScaledMetric(relativeTo: .body) private var mediumIconSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .body) private var badgeSize: CGFloat = 44
+    @ScaledMetric(relativeTo: .title) private var celebrationCircleSize: CGFloat = 140
     let page: OnboardingPage
     let isActive: Bool
     @State private var animateXP = false
@@ -1335,7 +1341,7 @@ private struct LevelUpPreviewPage: View {
             ZStack {
                 Circle()
                     .fill(page.accentColor.opacity(0.12))
-                    .frame(width: 140, height: 140)
+                    .frame(width: min(celebrationCircleSize, 180), height: min(celebrationCircleSize, 180))
                     .hlGlow(page.accentColor, radius: 20, isActive: true)
 
                 Image(systemName: page.systemImage)
@@ -1459,7 +1465,7 @@ private struct LevelUpPreviewPage: View {
             Image(systemName: icon)
                 .font(.system(size: min(mediumIconSize, 24), weight: .semibold))
                 .foregroundColor(color)
-                .frame(width: 44, height: 44)
+                .frame(width: min(badgeSize, 56), height: min(badgeSize, 56))
                 .background(color.opacity(0.12))
                 .clipShape(Circle())
 

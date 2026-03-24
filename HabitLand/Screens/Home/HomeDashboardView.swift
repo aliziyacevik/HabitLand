@@ -16,6 +16,10 @@ struct HomeDashboardView: View {
     @ScaledMetric(relativeTo: .title3) private var sparklesIconSize: CGFloat = 24
     @ScaledMetric(relativeTo: .title3) private var flameIconSize: CGFloat = 26
     @ScaledMetric(relativeTo: .title3) private var playIconSize: CGFloat = 28
+    @ScaledMetric(relativeTo: .body) private var iconButtonSize: CGFloat = 40
+    @ScaledMetric(relativeTo: .body) private var touchTargetSize: CGFloat = 44
+    @ScaledMetric(relativeTo: .body) private var streakCircleSize: CGFloat = 52
+    @ScaledMetric(relativeTo: .title3) private var fabSize: CGFloat = 56
     @Query(filter: #Predicate<Habit> { !$0.isArchived }, sort: \Habit.name) private var habits: [Habit]
     @Query private var profiles: [UserProfile]
     @Environment(\.modelContext) private var modelContext
@@ -189,10 +193,7 @@ struct HomeDashboardView: View {
                                 .hlStaggeredAppear(index: 1)
                         }
 
-                        if habits.isEmpty {
-                            emptyState
-                                .hlStaggeredAppear(index: 1)
-                        } else {
+                        if !habits.isEmpty {
                             dailyProgressCard
                                 .hlStaggeredAppear(index: 1)
                             if completedCount == 0 && totalCount > 0 {
@@ -231,7 +232,7 @@ struct HomeDashboardView: View {
                     Image(systemName: HLIcon.add)
                         .font(.title2.weight(.semibold))
                         .foregroundStyle(.white)
-                        .frame(width: 56, height: 56)
+                        .frame(width: min(fabSize, 72), height: min(fabSize, 72))
                         .background(
                             LinearGradient(
                                 colors: [Color.hlPrimary, Color.hlPrimaryDark],
@@ -677,7 +678,7 @@ struct HomeDashboardView: View {
             ZStack {
                 Circle()
                     .fill(Color.hlFlame.opacity(0.15))
-                    .frame(width: 52, height: 52)
+                    .frame(width: min(streakCircleSize, 68), height: min(streakCircleSize, 68))
                 Image(systemName: HLIcon.flame)
                     .font(.system(size: min(flameIconSize, 30)))
                     .foregroundStyle(Color.hlFlame)
@@ -864,7 +865,7 @@ struct HomeDashboardView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: HLRadius.sm)
                     .fill(habit.color.opacity(0.12))
-                    .frame(width: 40, height: 40)
+                    .frame(width: min(iconButtonSize, 56), height: min(iconButtonSize, 56))
                 Image(systemName: habit.icon)
                     .font(.system(size: min(bodyIconSize, 22)))
                     .foregroundStyle(habit.color)
@@ -881,7 +882,7 @@ struct HomeDashboardView: View {
                         .accessibilityHidden(true)
                 }
             }
-            .frame(width: 40, height: 40)
+            .frame(width: min(iconButtonSize, 56), height: min(iconButtonSize, 56))
 
             VStack(alignment: .leading, spacing: HLSpacing.xxxs) {
                 HStack(spacing: HLSpacing.xs) {
@@ -1398,7 +1399,7 @@ struct HomeDashboardView: View {
                 ZStack {
                     Circle()
                         .fill(Color.hlFlame.opacity(0.12))
-                        .frame(width: 44, height: 44)
+                        .frame(width: min(touchTargetSize, 56), height: min(touchTargetSize, 56))
                     Image(systemName: "timer")
                         .font(.system(size: min(mediumIconSize, 24), weight: .semibold))
                         .foregroundStyle(Color.hlFlame)
@@ -1521,7 +1522,7 @@ struct HomeDashboardView: View {
                 Image(systemName: "xmark")
                     .font(.system(size: min(tinyIconSize, 14), weight: .bold))
                     .foregroundStyle(Color.hlTextTertiary)
-                    .frame(width: 44, height: 44)
+                    .frame(width: min(touchTargetSize, 56), height: min(touchTargetSize, 56))
                     .contentShape(Rectangle())
             }
             .accessibilityLabel("Dismiss bonus banner")
@@ -1554,7 +1555,7 @@ struct HomeDashboardView: View {
                     Image(systemName: "xmark")
                         .font(.system(size: min(smallIconSize, 16), weight: .bold))
                         .foregroundStyle(Color.hlTextTertiary)
-                        .frame(width: 44, height: 44)
+                        .frame(width: min(touchTargetSize, 56), height: min(touchTargetSize, 56))
                         .contentShape(Rectangle())
                 }
                 .accessibilityLabel("Dismiss invite card")

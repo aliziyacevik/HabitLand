@@ -5,6 +5,9 @@ struct HabitChainView: View {
     @ScaledMetric(relativeTo: .largeTitle) private var habitIconSize: CGFloat = 48
     @ScaledMetric(relativeTo: .largeTitle) private var completeIconSize: CGFloat = 56
     @ScaledMetric(relativeTo: .footnote) private var chainStepIconSize: CGFloat = 16
+    @ScaledMetric(relativeTo: .body) private var closeButtonSize: CGFloat = 40
+    @ScaledMetric(relativeTo: .title) private var habitCircleSize: CGFloat = 120
+    @ScaledMetric(relativeTo: .title) private var celebrationCircleSize: CGFloat = 140
     let habits: [Habit]
     let chainName: String
     @Environment(\.modelContext) private var modelContext
@@ -41,7 +44,7 @@ struct HabitChainView: View {
                             Image(systemName: "xmark")
                                 .font(.system(size: min(chainStepIconSize, 20), weight: .semibold))
                                 .foregroundStyle(Color.hlTextSecondary)
-                                .frame(width: 40, height: 40)
+                                .frame(width: min(closeButtonSize, 56), height: min(closeButtonSize, 56))
                                 .background(Color.hlSurface)
                                 .clipShape(Circle())
                         }
@@ -50,7 +53,7 @@ struct HabitChainView: View {
                             .font(HLFont.headline())
                             .foregroundStyle(Color.hlTextPrimary)
                         Spacer()
-                        Color.clear.frame(width: 40, height: 40)
+                        Color.clear.frame(width: min(closeButtonSize, 56), height: min(closeButtonSize, 56))
                     }
                     .padding(.horizontal, HLSpacing.lg)
 
@@ -82,7 +85,7 @@ struct HabitChainView: View {
                         ZStack {
                             Circle()
                                 .fill(habit.color.opacity(0.12))
-                                .frame(width: 120, height: 120)
+                                .frame(width: min(habitCircleSize, 160), height: min(habitCircleSize, 160))
 
                             Image(systemName: habit.icon)
                                 .font(.system(size: min(habitIconSize, 56), weight: .medium))
@@ -181,7 +184,7 @@ struct HabitChainView: View {
             ZStack {
                 Circle()
                     .fill(Color.hlPrimary.opacity(0.12))
-                    .frame(width: 140, height: 140)
+                    .frame(width: min(celebrationCircleSize, 180), height: min(celebrationCircleSize, 180))
 
                 Image(systemName: "checkmark.seal.fill")
                     .font(.system(size: min(completeIconSize, 64), weight: .medium))
