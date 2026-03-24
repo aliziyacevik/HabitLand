@@ -161,7 +161,7 @@ struct CreateHabitView: View {
                                     if selectedColorHex == hex {
                                         Circle()
                                             .stroke(.white, lineWidth: 3)
-                                            .padding(2)
+                                            .padding(HLSpacing.xxxs)
                                         Circle()
                                             .stroke(Color(hex: hex) ?? .gray, lineWidth: 2)
                                     }

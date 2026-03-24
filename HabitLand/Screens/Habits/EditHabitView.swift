@@ -171,7 +171,7 @@ struct EditHabitView: View {
                                 .frame(width: min(iconButtonSize, 56), height: min(iconButtonSize, 56))
                                 .overlay {
                                     if selectedColorHex == hex {
-                                        Circle().stroke(.white, lineWidth: 3).padding(2)
+                                        Circle().stroke(.white, lineWidth: 3).padding(HLSpacing.xxxs)
                                         Circle().stroke(Color(hex: hex) ?? .gray, lineWidth: 2)
                                     }
                                 }
