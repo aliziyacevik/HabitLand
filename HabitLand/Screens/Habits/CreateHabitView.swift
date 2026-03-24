@@ -7,6 +7,7 @@ struct CreateHabitView: View {
     @ScaledMetric(relativeTo: .footnote) private var previewIconSize: CGFloat = 14
     @ScaledMetric(relativeTo: .body) private var categoryIconSize: CGFloat = 20
     @ScaledMetric(relativeTo: .title3) private var selectedIconSize: CGFloat = 22
+    @ScaledMetric(relativeTo: .body) private var iconButtonSize: CGFloat = 40
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
@@ -155,7 +156,7 @@ struct CreateHabitView: View {
                         } label: {
                             Circle()
                                 .fill(Color(hex: hex) ?? .gray)
-                                .frame(width: 40, height: 40)
+                                .frame(width: min(iconButtonSize, 56), height: min(iconButtonSize, 56))
                                 .overlay {
                                     if selectedColorHex == hex {
                                         Circle()
@@ -231,7 +232,7 @@ struct CreateHabitView: View {
                             Text(dayLabels[day])
                                 .font(HLFont.subheadline(.semibold))
                                 .foregroundStyle(customDays.contains(day) ? .white : Color.hlTextSecondary)
-                                .frame(width: 40, height: 40)
+                                .frame(width: min(iconButtonSize, 56), height: min(iconButtonSize, 56))
                                 .background(customDays.contains(day) ? selectedColor : Color.hlSurface)
                                 .clipShape(Circle())
                                 .overlay(
@@ -363,6 +364,13 @@ struct CreateHabitView: View {
                     }
                 }
                 .tint(Color.hlPrimary)
+                .onChange(of: reminderEnabled) { _, enabled in
+                    if enabled {
+                        Task {
+                            _ = await NotificationManager.shared.requestPermission()
+                        }
+                    }
+                }
 
                 if reminderEnabled {
                     DatePicker("Time", selection: $reminderTime, displayedComponents: .hourAndMinute)
@@ -484,7 +492,7 @@ struct CreateHabitView: View {
                 Image(systemName: "rectangle.stack.fill")
                     .font(.system(size: min(categoryIconSize, 24), weight: .semibold))
                     .foregroundColor(.hlGold)
-                    .frame(width: 40, height: 40)
+                    .frame(width: min(iconButtonSize, 56), height: min(iconButtonSize, 56))
                     .background(Color.hlGold.opacity(0.12))
                     .cornerRadius(HLRadius.sm)
 
