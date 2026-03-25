@@ -50,12 +50,15 @@ Kullanıcıların alışkanlıklarını eğlenceli ve sosyal bir deneyimle kalı
 - ✓ UI edge cases — habit name truncation, sleep empty state, dark mode — Phase 4
 - ✓ Release build verified, automated quality audit passed — Phase 4
 
+- ✓ Streak milestone celebration (7/14/30 gün confetti + Pro CTA) — Phase 5
+- ✓ Sleep tab crown badge (non-Pro users, existing blurred gate) — Phase 5
+- ✓ Paywall "Got a referral?" footer link + benefit-focused copy — Phase 5
+- ✓ Profile statistics locked behind Pro with upgrade CTA — Phase 5
+- ✓ Onboarding Pro offer screen (dedicated step, Start Pro / Maybe Later) — Phase 5
+
 ### Active
 
-- [ ] Streak milestone'larında pro nudge (7 gün streak kutlama + teşvik)
-- [ ] Sleep tab'da lock badge (tab bar'da kilit ikonu, tıklayınca blurred pro gate)
-- [ ] Paywall'da daha güçlü CTA ve net değer teklifi
-- [ ] Profile ekranında belirgin "Upgrade to Pro" CTA
+(No active requirements — v1.1 milestone complete)
 
 ### Out of Scope
 
@@ -117,4 +120,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-25 after milestone v1.1 start*
+*Last updated: 2026-03-25 after Phase 5 completion (v1.1 milestone complete)*
