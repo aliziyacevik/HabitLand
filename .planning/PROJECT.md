@@ -52,10 +52,10 @@ Kullanıcıların alışkanlıklarını eğlenceli ve sosyal bir deneyimle kalı
 
 ### Active
 
-- [ ] Referral Pro sistemi güncelleme (1 hafta pro, aktivasyon şartı, max 5 referral)
 - [ ] Streak milestone'larında pro nudge (7 gün streak kutlama + teşvik)
 - [ ] Sleep tab'da lock badge (tab bar'da kilit ikonu, tıklayınca blurred pro gate)
-- [ ] Paywall ve Profile'da referral CTA ("Arkadaşını davet et, 1 hafta Pro kazan")
+- [ ] Paywall'da daha güçlü CTA ve net değer teklifi
+- [ ] Profile ekranında belirgin "Upgrade to Pro" CTA
 
 ### Out of Scope
 
@@ -68,10 +68,10 @@ Kullanıcıların alışkanlıklarını eğlenceli ve sosyal bir deneyimle kalı
 **Goal:** Pro dönüşüm oranını artırmak — referral sistemi iyileştirmesi, doğal pro nudge'lar ve daha görünür upgrade CTA'ları
 
 **Target features:**
-- Referral Pro sistemi güncelleme (1 hafta pro, aktivasyon şartı, max 5 referral)
 - Streak milestone'larında pro nudge (7 gün streak kutlama + teşvik)
 - Sleep tab'da lock badge (tab bar'da kilit ikonu, tıklayınca blurred pro gate)
-- Paywall ve Profile'da referral CTA ("Arkadaşını davet et, 1 hafta Pro kazan")
+- Paywall'da daha güçlü CTA ve net değer teklifi
+- Profile ekranında belirgin "Upgrade to Pro" CTA
 
 ## Context
 
