@@ -106,8 +106,12 @@ Plans:
   5. Profile screen statistics section is locked behind Pro with an upgrade CTA visible to free users
   6. Paywall displays a compelling value proposition with benefit-focused copy and stronger call-to-action
   7. New user completing onboarding sees a dedicated Pro offer screen with feature highlights and option to proceed or skip
-**Plans**: TBD
+**Plans**: 2 plans
 **UI hint**: yes
+
+Plans:
+- [ ] 05-01-PLAN.md -- Streak milestone celebration + Sleep tab crown badge + profile statistics lock
+- [ ] 05-02-PLAN.md -- Paywall referral link + value proposition copy + onboarding Pro offer screen
 
 ## Progress
 
@@ -120,4 +124,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. Referral System | v1.0 | 3/3 | Complete | 2026-03-21 |
 | 3. App Store Readiness | v1.0 | 2/2 | Complete | 2026-03-21 |
 | 4. Quality Hardening & Launch | v1.0 | 3/3 | Complete | 2026-03-21 |
-| 5. Pro Visibility & Conversion Touchpoints | v1.1 | 0/0 | Not started | - |
+| 5. Pro Visibility & Conversion Touchpoints | v1.1 | 0/2 | In progress | - |
