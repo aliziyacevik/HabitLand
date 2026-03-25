@@ -32,13 +32,15 @@ enum HLTab: Int, CaseIterable, Identifiable {
 
 struct TabBarView: View {
     @Binding var selectedTab: HLTab
+    @ObservedObject private var proManager = ProManager.shared
 
     var body: some View {
         HStack(spacing: 0) {
             ForEach(HLTab.allCases) { tab in
                 TabBarItem(
                     tab: tab,
-                    isSelected: selectedTab == tab
+                    isSelected: selectedTab == tab,
+                    isPro: proManager.isPro
                 ) {
                     withAnimation(HLAnimation.spring) {
                         selectedTab = tab
@@ -61,16 +63,29 @@ struct TabBarView: View {
 
 private struct TabBarItem: View {
     @ScaledMetric(relativeTo: .title3) private var tabIconSize: CGFloat = 22
+    @ScaledMetric(relativeTo: .caption2) private var crownSize: CGFloat = 8
+
     let tab: HLTab
     let isSelected: Bool
+    let isPro: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             VStack(spacing: HLSpacing.xxs) {
-                Image(systemName: tab.icon)
-                    .font(.system(size: min(tabIconSize, 26), weight: isSelected ? .semibold : .regular))
-                    .scaleEffect(isSelected ? 1.1 : 1.0)
+                ZStack(alignment: .topTrailing) {
+                    Image(systemName: tab.icon)
+                        .font(.system(size: min(tabIconSize, 26), weight: isSelected ? .semibold : .regular))
+                        .scaleEffect(isSelected ? 1.1 : 1.0)
+
+                    if tab == .sleep && !isPro {
+                        Image(systemName: "crown.fill")
+                            .font(.system(size: min(crownSize, 10)))
+                            .foregroundStyle(Color.hlGold)
+                            .offset(x: 6, y: -2)
+                            .accessibilityHidden(true)
+                    }
+                }
 
                 Text(tab.title)
                     .font(HLFont.caption2(isSelected ? .semibold : .regular))

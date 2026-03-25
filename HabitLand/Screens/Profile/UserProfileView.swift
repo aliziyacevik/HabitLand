@@ -13,6 +13,7 @@ struct UserProfileView: View {
     @Query private var habits: [Habit]
 
     @State private var showEditProfile = false
+    @State private var showStatisticsPaywall = false
 
     private var profile: UserProfile? { profiles.first }
 
@@ -266,7 +267,12 @@ struct UserProfileView: View {
             if ProManager.shared.canAccessAnalytics {
                 quickLink(icon: "chart.bar.fill", title: "Personal Statistics", destination: AnyView(PersonalStatisticsView()))
             } else {
-                quickLink(icon: "chart.bar.fill", title: "Personal Statistics", destination: AnyView(PremiumGateView(feature: "Unlock Detailed Analytics", icon: "chart.line.uptrend.xyaxis")))
+                Button {
+                    showStatisticsPaywall = true
+                } label: {
+                    quickLinkContent(icon: "chart.bar.fill", title: "Personal Statistics", showLock: true)
+                }
+                .buttonStyle(.plain)
             }
             quickLink(icon: "trophy.fill", title: "Achievements", destination: AnyView(AchievementsShowcaseView()))
             quickLink(icon: "gearshape", title: "Settings", destination: AnyView(GeneralSettingsView()))
@@ -274,6 +280,10 @@ struct UserProfileView: View {
                 quickLinkContent(icon: "square.and.arrow.up", title: "Share Profile")
             }
             .buttonStyle(.plain)
+        }
+        .sheet(isPresented: $showStatisticsPaywall) {
+            PaywallView(context: .analytics)
+                .hlSheetContent()
         }
     }
 
@@ -292,7 +302,7 @@ struct UserProfileView: View {
         .buttonStyle(.plain)
     }
 
-    private func quickLinkContent(icon: String, title: String) -> some View {
+    private func quickLinkContent(icon: String, title: String, showLock: Bool = false) -> some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: icon)
                 .font(.system(size: min(linkIconSize, 20)))
@@ -305,6 +315,10 @@ struct UserProfileView: View {
             Text(title)
                 .font(HLFont.body())
                 .foregroundColor(.hlTextPrimary)
+
+            if showLock {
+                ProBadge()
+            }
 
             Spacer()
 

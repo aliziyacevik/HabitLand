@@ -46,6 +46,7 @@ struct HomeDashboardView: View {
     @State private var undoCompletion: HabitCompletion?
     @State private var achievementCelebration: AchievementCelebrationData?
     @State private var levelUpData: LevelUpData?
+    @State private var streakMilestoneToShow: Int?
     @ObservedObject private var proManager = ProManager.shared
     @ObservedObject private var questManager = WeeklyQuestManager.shared
     @ObservedObject private var bonusManager = DailyBonusManager.shared
@@ -359,6 +360,21 @@ struct HomeDashboardView: View {
             }
             .overlay {
                 LevelUpCelebrationOverlay(levelUpData: $levelUpData)
+            }
+            .sheet(isPresented: Binding(
+                get: { streakMilestoneToShow != nil },
+                set: { if !$0 { streakMilestoneToShow = nil } }
+            )) {
+                if let milestone = streakMilestoneToShow {
+                    StreakMilestoneView(
+                        streakDays: milestone,
+                        isPro: proManager.isPro
+                    ) {
+                        StreakMilestoneView.markShown(milestone)
+                        streakMilestoneToShow = nil
+                    }
+                    .hlSheetContent()
+                }
             }
         }
     }
@@ -986,7 +1002,12 @@ struct HomeDashboardView: View {
                     }
                     // Streak milestones
                     let newStreak = habit.currentStreak + 1
-                    if [7, 14, 30, 50, 100, 365].contains(newStreak) {
+                    if StreakMilestoneView.shouldShow(for: newStreak) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            streakMilestoneToShow = newStreak
+                        }
+                        ReviewManager.requestIfAppropriate()
+                    } else if [50, 100, 365].contains(newStreak) {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                             celebrationMessage = "\(newStreak)-day streak!\nYou're on fire!"
                             showCelebration = true
