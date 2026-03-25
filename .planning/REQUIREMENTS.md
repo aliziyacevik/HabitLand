@@ -9,13 +9,13 @@ Requirements for Pro Growth & Conversion milestone. Each maps to roadmap phases.
 
 ### Pro Visibility
 
-- [ ] **PRO-01**: User sees a pro nudge banner when reaching 7-day streak milestone
-- [ ] **PRO-02**: Sleep tab shows a lock badge icon in the tab bar for non-Pro users
-- [ ] **PRO-03**: Tapping locked Sleep tab shows blurred premium gate overlay
-- [ ] **PRO-04**: Paywall includes "Got a referral?" button for code entry + stronger CTA
-- [ ] **PRO-05**: Profile screen statistics section locked behind Pro with upgrade CTA
-- [ ] **PRO-06**: Paywall shows compelling benefit-focused value proposition
-- [ ] **PRO-07**: User sees a Pro offer screen at the end of onboarding flow
+- [x] **PRO-01**: User sees a pro nudge banner when reaching 7-day streak milestone
+- [x] **PRO-02**: Sleep tab shows a lock badge icon in the tab bar for non-Pro users
+- [x] **PRO-03**: Tapping locked Sleep tab shows blurred premium gate overlay
+- [x] **PRO-04**: Paywall includes "Got a referral?" button for code entry + stronger CTA
+- [x] **PRO-05**: Profile screen statistics section locked behind Pro with upgrade CTA
+- [x] **PRO-06**: Paywall shows compelling benefit-focused value proposition
+- [x] **PRO-07**: User sees a Pro offer screen at the end of onboarding flow
 
 ## v1.0 Requirements (Completed)
 
@@ -66,13 +66,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PRO-01 | Phase 5 | Pending |
-| PRO-02 | Phase 5 | Pending |
-| PRO-03 | Phase 5 | Pending |
-| PRO-04 | Phase 5 | Pending |
-| PRO-05 | Phase 5 | Pending |
-| PRO-06 | Phase 5 | Pending |
-| PRO-07 | Phase 5 | Pending |
+| PRO-01 | Phase 5 | Complete |
+| PRO-02 | Phase 5 | Complete |
+| PRO-03 | Phase 5 | Complete |
+| PRO-04 | Phase 5 | Complete |
+| PRO-05 | Phase 5 | Complete |
+| PRO-06 | Phase 5 | Complete |
+| PRO-07 | Phase 5 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 7 total

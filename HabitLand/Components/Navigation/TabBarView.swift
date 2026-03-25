@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Tab Definition
 
 enum HLTab: Int, CaseIterable, Identifiable {
-    case home, habits, sleep, social, profile
+    case home, habits, sleep, profile
 
     var id: Int { rawValue }
 
@@ -12,7 +12,6 @@ enum HLTab: Int, CaseIterable, Identifiable {
         case .home: return "Home"
         case .habits: return "Habits"
         case .sleep: return "Sleep"
-        case .social: return "Social"
         case .profile: return "Profile"
         }
     }
@@ -22,7 +21,6 @@ enum HLTab: Int, CaseIterable, Identifiable {
         case .home: return HLIcon.home
         case .habits: return HLIcon.habits
         case .sleep: return HLIcon.sleep
-        case .social: return HLIcon.social
         case .profile: return HLIcon.profile
         }
     }
