@@ -37,8 +37,10 @@ struct OnboardingView: View {
 
     // Page state
     @State private var currentPage = 0
-    // Steps: 0=pages, 1=habits, 2=reminder+notif, 3=theme, 4=trial, 5=complete
+    // Steps: 0=pages, 1=habits, 2=reminder+notif, 3=theme, 4=pro offer, 5=complete
     @State private var currentStep = 0
+    @State private var showProPaywall = false
+    @ObservedObject private var proManager = ProManager.shared
 
     // Data collected
     @State private var userName = ""
@@ -115,7 +117,7 @@ struct OnboardingView: View {
                     }
                 }
             case 4:
-                trialWelcomeStep
+                proOfferStep
             case 5:
                 OnboardingCompleteView(
                     habitsCreated: habitsCreatedCount
@@ -567,9 +569,9 @@ struct OnboardingView: View {
         UserDefaults.standard.set(components.minute ?? 0, forKey: "dailyReminderMinute")
     }
 
-    // MARK: - Trial Welcome Step
+    // MARK: - Pro Offer Step
 
-    private var trialWelcomeStep: some View {
+    private var proOfferStep: some View {
         VStack(spacing: HLSpacing.xl) {
             Spacer()
 
@@ -581,46 +583,76 @@ struct OnboardingView: View {
                 Image(systemName: "crown.fill")
                     .font(.system(size: 64))
                     .foregroundStyle(Color.hlGold)
+                    .accessibilityHidden(true)
             }
 
             VStack(spacing: HLSpacing.sm) {
-                Text("7 Days of Pro\nOn Us!")
+                Text("Ready to go Pro?")
                     .font(HLFont.title1())
                     .foregroundStyle(Color.hlTextPrimary)
                     .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.75)
 
-                Text("You get full access to everything for 7 days:")
+                Text("Get the most out of HabitLand")
                     .font(HLFont.body())
                     .foregroundStyle(Color.hlTextSecondary)
                     .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.75)
             }
 
             VStack(alignment: .leading, spacing: HLSpacing.sm) {
                 trialFeatureRow(icon: "infinity", text: "Unlimited habits", color: .hlPrimary)
                 trialFeatureRow(icon: "moon.stars.fill", text: "Sleep tracking & insights", color: .hlSleep)
-                trialFeatureRow(icon: "person.2.fill", text: "Friends, leaderboard & challenges", color: .hlFitness)
                 trialFeatureRow(icon: "chart.line.uptrend.xyaxis", text: "Detailed analytics", color: .hlGold)
-                trialFeatureRow(icon: "paintpalette.fill", text: "All themes & customization", color: .hlFlame)
+                trialFeatureRow(icon: "trophy.fill", text: "All achievements", color: .hlFlame)
             }
             .padding(.horizontal, HLSpacing.xl)
 
             Spacer()
 
-            Button {
-                withAnimation(HLAnimation.gentleSpring) {
-                    currentStep = 5
+            VStack(spacing: HLSpacing.sm) {
+                Button {
+                    showProPaywall = true
+                } label: {
+                    Text("Start Pro")
+                        .font(HLFont.headline())
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, HLSpacing.md)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.hlPrimary, Color.hlPrimaryDark],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .cornerRadius(HLRadius.lg)
                 }
-            } label: {
-                Text("Start My Free Trial")
-                    .font(HLFont.headline())
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, HLSpacing.md)
-                    .background(Color.hlPrimary)
-                    .cornerRadius(HLRadius.lg)
+                .accessibilityLabel("Start Pro subscription")
+
+                Button {
+                    if !proManager.hasTrialBeenOffered {
+                        proManager.startInAppTrial()
+                    }
+                    onComplete()
+                } label: {
+                    Text("Maybe Later")
+                        .font(HLFont.callout(.medium))
+                        .foregroundStyle(Color.hlTextSecondary)
+                }
+                .accessibilityLabel("Skip Pro offer and continue")
             }
             .padding(.horizontal, HLSpacing.xl)
             .padding(.bottom, HLSpacing.xxxl)
+        }
+        .sheet(isPresented: $showProPaywall) {
+            PaywallView()
+                .hlSheetContent()
+        }
+        .onChange(of: proManager.isPro) { _, newValue in
+            if newValue {
+                onComplete()
+            }
         }
     }
 
