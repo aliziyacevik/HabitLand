@@ -1,8 +1,9 @@
 # Roadmap: HabitLand
 
-## Overview
+## Milestones
 
-HabitLand is a feature-complete iOS habit tracker that needs monetization, growth mechanics, App Store metadata, and launch polish to ship. The work progresses from revenue foundation (StoreKit 2 IAP + platform activation) through viral growth (referral system), App Store presence (ASO, screenshots, localization), and final quality hardening before submission. Apple Developer account approval is the critical external gate -- it unlocks sandbox IAP testing, CloudKit, HealthKit, and push notifications.
+- [x] **v1.0 MVP** - Phases 1-4 (shipped 2026-03-21)
+- [ ] **v1.1 Pro Growth & Conversion** - Phase 5 (in progress)
 
 ## Phases
 
@@ -12,12 +13,13 @@ HabitLand is a feature-complete iOS habit tracker that needs monetization, growt
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Monetization & Platform Activation** - Wire up real StoreKit 2 IAP, harden paywall for Apple review, enable iCloud/HealthKit/Push
-- [ ] **Phase 2: Referral System** - Build viral growth loop with referral codes, CloudKit tracking, and Pro rewards
-- [ ] **Phase 3: App Store Readiness** - Create ASO-optimized listing with screenshots, keywords, localization, and custom product pages
-- [x] **Phase 4: Quality Hardening & Launch** - Strip debug artifacts, fix crash paths, test free tier, polish UI, and submit (completed 2026-03-21)
+<details>
+<summary>v1.0 MVP (Phases 1-4) - SHIPPED 2026-03-21</summary>
 
-## Phase Details
+- [x] **Phase 1: Monetization & Platform Activation** - Wire up real StoreKit 2 IAP, harden paywall for Apple review, enable iCloud/HealthKit/Push
+- [x] **Phase 2: Referral System** - Build viral growth loop with referral codes, CloudKit tracking, and Pro rewards
+- [x] **Phase 3: App Store Readiness** - Create ASO-optimized listing with screenshots, keywords, localization, and custom product pages
+- [x] **Phase 4: Quality Hardening & Launch** - Strip debug artifacts, fix crash paths, test free tier, polish UI, and submit
 
 ### Phase 1: Monetization & Platform Activation
 **Goal**: Users can purchase Pro via real IAP and the app runs with all platform capabilities (iCloud, HealthKit, Push) enabled
@@ -82,14 +84,39 @@ Plans:
 - [x] 04-02-PLAN.md -- Sheet transition polish (HLSheetContent modifier) + empty states + edge case fixes
 - [x] 04-03-PLAN.md -- Automated quality audits + manual free tier QA + performance verification
 
+</details>
+
+### v1.1 Pro Growth & Conversion (In Progress)
+
+**Milestone Goal:** Increase Pro conversion rate by placing compelling upgrade touchpoints at natural engagement moments throughout the app
+
+- [ ] **Phase 5: Pro Visibility & Conversion Touchpoints** - Add streak nudges, tab lock badges, enhanced paywall CTA, and profile upgrade prompts for free users
+
+## Phase Details
+
+### Phase 5: Pro Visibility & Conversion Touchpoints
+**Goal**: Free users encounter compelling, contextually relevant Pro upgrade prompts at key engagement moments -- streak milestones, tab navigation, and profile viewing
+**Depends on**: Phase 4
+**Requirements**: PRO-01, PRO-02, PRO-03, PRO-04, PRO-05, PRO-06
+**Success Criteria** (what must be TRUE):
+  1. Free user reaching a 7-day streak sees a congratulatory banner that highlights Pro benefits and links to the paywall
+  2. Free user sees a lock badge icon on the Sleep tab in the tab bar, clearly indicating premium content
+  3. Free user tapping the Sleep tab sees a blurred premium gate overlay with a clear path to upgrade
+  4. Paywall includes a "Got a referral?" button that opens the referral code entry flow
+  5. Profile screen statistics section is locked behind Pro with an upgrade CTA visible to free users
+  6. Paywall displays a compelling value proposition with benefit-focused copy and stronger call-to-action
+**Plans**: TBD
+**UI hint**: yes
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Monetization & Platform Activation | 0/3 | Planning complete | - |
-| 2. Referral System | 0/3 | Gap closure planned | - |
-| 3. App Store Readiness | 0/2 | Planning complete | - |
-| 4. Quality Hardening & Launch | 3/3 | Complete   | 2026-03-21 |
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1. Monetization & Platform Activation | v1.0 | 3/3 | Complete | 2026-03-21 |
+| 2. Referral System | v1.0 | 3/3 | Complete | 2026-03-21 |
+| 3. App Store Readiness | v1.0 | 2/2 | Complete | 2026-03-21 |
+| 4. Quality Hardening & Launch | v1.0 | 3/3 | Complete | 2026-03-21 |
+| 5. Pro Visibility & Conversion Touchpoints | v1.1 | 0/0 | Not started | - |

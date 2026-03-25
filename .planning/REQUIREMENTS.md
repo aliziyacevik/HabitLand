@@ -12,8 +12,9 @@ Requirements for Pro Growth & Conversion milestone. Each maps to roadmap phases.
 - [ ] **PRO-01**: User sees a pro nudge banner when reaching 7-day streak milestone
 - [ ] **PRO-02**: Sleep tab shows a lock badge icon in the tab bar for non-Pro users
 - [ ] **PRO-03**: Tapping locked Sleep tab shows blurred premium gate overlay
-- [ ] **PRO-04**: Paywall includes more compelling CTA and clearer value proposition
-- [ ] **PRO-05**: Profile screen shows prominent "Upgrade to Pro" CTA for non-Pro users
+- [ ] **PRO-04**: Paywall includes "Got a referral?" button for code entry + stronger CTA
+- [ ] **PRO-05**: Profile screen statistics section locked behind Pro with upgrade CTA
+- [ ] **PRO-06**: Paywall shows compelling benefit-focused value proposition
 
 ## v1.0 Requirements (Completed)
 
@@ -64,17 +65,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PRO-01 | TBD | Pending |
-| PRO-02 | TBD | Pending |
-| PRO-03 | TBD | Pending |
-| PRO-04 | TBD | Pending |
-| PRO-05 | TBD | Pending |
+| PRO-01 | Phase 5 | Pending |
+| PRO-02 | Phase 5 | Pending |
+| PRO-03 | Phase 5 | Pending |
+| PRO-04 | Phase 5 | Pending |
+| PRO-05 | Phase 5 | Pending |
+| PRO-06 | Phase 5 | Pending |
 
 **Coverage:**
-- v1.1 requirements: 5 total
-- Mapped to phases: 0
-- Unmapped: 5
+- v1.1 requirements: 6 total
+- Mapped to phases: 6
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-25*
-*Last updated: 2026-03-25 after initial definition*
+*Last updated: 2026-03-25 after roadmap creation*
