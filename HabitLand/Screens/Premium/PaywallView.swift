@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 import StoreKit
 
 struct PaywallView: View {
@@ -14,6 +15,8 @@ struct PaywallView: View {
     @State private var errorMessage = ""
     @State private var showTerms = false
     @State private var showPrivacy = false
+    @State private var showReferralEntry = false
+    @Query private var profiles: [UserProfile]
 
     var body: some View {
         NavigationStack {
@@ -27,6 +30,7 @@ struct PaywallView: View {
                     plansSection
                     purchaseButton
                     promoCodeButton
+                    referralButton
                     restoreButton
                     legalSection
                 }
@@ -105,7 +109,7 @@ struct PaywallView: View {
                     .font(HLFont.title1(.bold))
                     .foregroundStyle(Color.hlTextPrimary)
 
-                Text("Unlock your full potential")
+                Text("Build habits that actually stick")
                     .font(HLFont.body())
                     .foregroundStyle(Color.hlTextSecondary)
             }
@@ -117,12 +121,12 @@ struct PaywallView: View {
 
     private var featuresSection: some View {
         VStack(spacing: 0) {
-            featureRow(icon: "infinity", color: .hlPrimary, title: "Unlimited Habits", subtitle: "Create as many habits as you want")
-            featureRow(icon: "chart.bar.fill", color: .hlInfo, title: "Advanced Analytics", subtitle: "Monthly trends, insights & reports")
-            featureRow(icon: "person.2.fill", color: .hlSocial, title: "Social Features", subtitle: "Friends, leaderboard & challenges")
-            featureRow(icon: "moon.fill", color: .hlSleep, title: "Sleep Tracking", subtitle: "Track and improve your sleep")
-            featureRow(icon: "trophy.fill", color: .hlFlame, title: "All Achievements", subtitle: "Unlock every achievement & badge")
-            featureRow(icon: "paintpalette.fill", color: .hlMindfulness, title: "Custom Themes", subtitle: "All icons, colors & personalizations")
+            featureRow(icon: "infinity", color: .hlPrimary, title: "Unlimited Habits", subtitle: "No limits on your growth")
+            featureRow(icon: "chart.bar.fill", color: .hlInfo, title: "Advanced Analytics", subtitle: "See what's working and improve")
+            featureRow(icon: "person.2.fill", color: .hlSocial, title: "Social Features", subtitle: "Stay accountable with friends")
+            featureRow(icon: "moon.fill", color: .hlSleep, title: "Sleep Tracking", subtitle: "Wake up feeling your best")
+            featureRow(icon: "trophy.fill", color: .hlFlame, title: "All Achievements", subtitle: "Celebrate every milestone")
+            featureRow(icon: "paintpalette.fill", color: .hlMindfulness, title: "Custom Themes", subtitle: "Make the app truly yours")
         }
         .hlCard()
         .padding(.horizontal, HLSpacing.md)
@@ -323,6 +327,36 @@ struct PaywallView: View {
             .foregroundStyle(Color.hlPrimary)
         }
         .padding(.bottom, HLSpacing.xxs)
+    }
+
+    // MARK: - Referral
+
+    private var referralButton: some View {
+        Button {
+            showReferralEntry = true
+        } label: {
+            HStack(spacing: HLSpacing.xs) {
+                Image(systemName: "gift.fill")
+                    .accessibilityHidden(true)
+                Text("Got a referral?")
+            }
+            .font(HLFont.subheadline())
+            .foregroundStyle(Color.hlTextSecondary)
+        }
+        .padding(.bottom, HLSpacing.xxs)
+        .sheet(isPresented: $showReferralEntry) {
+            if let profile = profiles.first {
+                NavigationStack {
+                    ReferralCodeEntryView(profile: profile) {
+                        showReferralEntry = false
+                    }
+                    .padding(HLSpacing.lg)
+                    .navigationTitle("Enter Referral Code")
+                    .navigationBarTitleDisplayMode(.inline)
+                }
+                .hlSheetContent()
+            }
+        }
     }
 
     // MARK: - Restore

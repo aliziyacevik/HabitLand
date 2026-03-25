@@ -47,9 +47,9 @@ struct ContentView: View {
                     withAnimation(HLAnimation.gentleSpring) {
                         hasCompletedOnboarding = true
                     }
-                    // Start 7-day Pro trial on first onboarding completion
-                    if !proManager.hasTrialBeenOffered {
-                        proManager.startInAppTrial()
+                    // Trial start is now handled by OnboardingView's "Maybe Later" button
+                    // Show welcome banner if trial was just started
+                    if proManager.hasTrialBeenOffered && !proManager.isPro {
                         showTrialWelcomeBanner = true
                     }
                 }
