@@ -97,7 +97,7 @@ Plans:
 ### Phase 5: Pro Visibility & Conversion Touchpoints
 **Goal**: Free users encounter compelling, contextually relevant Pro upgrade prompts at key engagement moments -- streak milestones, tab navigation, and profile viewing
 **Depends on**: Phase 4
-**Requirements**: PRO-01, PRO-02, PRO-03, PRO-04, PRO-05, PRO-06
+**Requirements**: PRO-01, PRO-02, PRO-03, PRO-04, PRO-05, PRO-06, PRO-07
 **Success Criteria** (what must be TRUE):
   1. Free user reaching a 7-day streak sees a congratulatory banner that highlights Pro benefits and links to the paywall
   2. Free user sees a lock badge icon on the Sleep tab in the tab bar, clearly indicating premium content
@@ -105,6 +105,7 @@ Plans:
   4. Paywall includes a "Got a referral?" button that opens the referral code entry flow
   5. Profile screen statistics section is locked behind Pro with an upgrade CTA visible to free users
   6. Paywall displays a compelling value proposition with benefit-focused copy and stronger call-to-action
+  7. New user completing onboarding sees a dedicated Pro offer screen with feature highlights and option to proceed or skip
 **Plans**: TBD
 **UI hint**: yes
 

@@ -15,6 +15,7 @@ Requirements for Pro Growth & Conversion milestone. Each maps to roadmap phases.
 - [ ] **PRO-04**: Paywall includes "Got a referral?" button for code entry + stronger CTA
 - [ ] **PRO-05**: Profile screen statistics section locked behind Pro with upgrade CTA
 - [ ] **PRO-06**: Paywall shows compelling benefit-focused value proposition
+- [ ] **PRO-07**: User sees a Pro offer screen at the end of onboarding flow
 
 ## v1.0 Requirements (Completed)
 
@@ -71,10 +72,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PRO-04 | Phase 5 | Pending |
 | PRO-05 | Phase 5 | Pending |
 | PRO-06 | Phase 5 | Pending |
+| PRO-07 | Phase 5 | Pending |
 
 **Coverage:**
-- v1.1 requirements: 6 total
-- Mapped to phases: 6
+- v1.1 requirements: 7 total
+- Mapped to phases: 7
 - Unmapped: 0
 
 ---
