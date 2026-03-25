@@ -51,10 +51,11 @@ Kullanıcıların alışkanlıklarını eğlenceli ve sosyal bir deneyimle kalı
 - ✓ Release build verified, automated quality audit passed — Phase 4
 
 ### Active
-- [ ] Sosyal medya pazarlama stratejisi — pain point odaklı mesajlar
-- [ ] iCloud sync aktifleştirme (Apple Developer hesabı onayı sonrası)
-- [ ] HealthKit ve Push notification izinlerinin aktifleştirilmesi
-- [ ] GitHub Pages deployment for legal URLs (pre-submission)
+
+- [ ] Referral Pro sistemi güncelleme (1 hafta pro, aktivasyon şartı, max 5 referral)
+- [ ] Streak milestone'larında pro nudge (7 gün streak kutlama + teşvik)
+- [ ] Sleep tab'da lock badge (tab bar'da kilit ikonu, tıklayınca blurred pro gate)
+- [ ] Paywall ve Profile'da referral CTA ("Arkadaşını davet et, 1 hafta Pro kazan")
 
 ### Out of Scope
 
@@ -62,20 +63,30 @@ Kullanıcıların alışkanlıklarını eğlenceli ve sosyal bir deneyimle kalı
 - Backend/server altyapısı — CloudKit kullanılıyor, custom backend gereksiz
 - Yapay zeka tabanlı coaching — karmaşıklık ve maliyet nedeniyle ertelendi
 
+## Current Milestone: v1.1 Pro Growth & Conversion
+
+**Goal:** Pro dönüşüm oranını artırmak — referral sistemi iyileştirmesi, doğal pro nudge'lar ve daha görünür upgrade CTA'ları
+
+**Target features:**
+- Referral Pro sistemi güncelleme (1 hafta pro, aktivasyon şartı, max 5 referral)
+- Streak milestone'larında pro nudge (7 gün streak kutlama + teşvik)
+- Sleep tab'da lock badge (tab bar'da kilit ikonu, tıklayınca blurred pro gate)
+- Paywall ve Profile'da referral CTA ("Arkadaşını davet et, 1 hafta Pro kazan")
+
 ## Context
 
-- Apple Developer hesabı onay bekliyor — iCloud, HealthKit ve Push şu anda devre dışı
-- ProManager ve StoreKit 2 altyapısı mevcut ama gerçek ürünlere bağlı değil
+- Apple Developer hesabı aktif — iCloud, HealthKit, Push enabled
+- v1.0 milestone tamamlandı: StoreKit 2 IAP, referral sistemi, ASO, quality hardening
+- Mevcut referral altyapısı var (6 haneli kod, CloudKit tracking, 1 hafta pro reward)
+- Pro CTA'lar şu an pasif — sadece Settings'te upgrade butonu, kilitli içerik blur'lu
 - Codebase olgun: 50+ Swift dosyası, design system, component library, test altyapısı
 - Gamification güçlü: streak, rozet, XP, seviye sistemi, leaderboard
-- Sosyal özellikler CloudKit public database üzerinden çalışıyor
-- Pazarlama mesajı: kullanıcının duygusal noktasına dokunmak — "Alışkanlıklarını hep yarıda mı bırakıyorsun?", "Bu sefer farklı olacak"
 
 ## Constraints
 
 - **Platform**: iOS 17+ only, SwiftUI + SwiftData
 - **Backend**: CloudKit only — no custom server
-- **Developer Account**: Pending approval — iCloud/HealthKit/Push disabled until then
+- **Developer Account**: Active — iCloud/HealthKit/Push enabled
 - **Monetization**: Apple IAP only (StoreKit 2)
 - **Language**: Swift 5.0, no third-party dependencies (pure Apple stack)
 
@@ -106,4 +117,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-21 after Phase 4 completion (v1.0 milestone complete)*
+*Last updated: 2026-03-25 after milestone v1.1 start*
