@@ -186,19 +186,19 @@ struct HabitLandApp: App {
         }
 
         // Create profile with good XP/level
-        let profile = UserProfile(name: "Alex", username: "alexj", avatarEmoji: "🌿", bio: "Building better habits daily")
+        let profile = UserProfile(name: "Alex", username: "alexj", avatarEmoji: "🦊", bio: "Building better habits daily")
         profile.level = 8
         profile.xp = 520
-        profile.avatarType = .animal(.owl)
+        profile.avatarType = .animal(.fox)
         context.insert(profile)
 
         // Create habits with realistic streaks
         let habitsData: [(name: String, icon: String, color: String, category: HabitCategory, streakDays: Int, completedToday: Bool, sortOrder: Int)] = [
-            ("Morning Meditation", "brain.head.profile", "#9966E6", .mindfulness, 32, true, 0),
-            ("Drink Water", "drop.fill", "#338FFF", .health, 21, true, 1),
-            ("Exercise", "figure.run", "#F24D4D", .fitness, 14, true, 2),
-            ("Read 30 min", "book.fill", "#FFC207", .learning, 18, true, 3),
-            ("Healthy Eating", "leaf.fill", "#34C759", .nutrition, 7, false, 4),
+            ("Morning Meditation", "brain.head.profile", "#9966E6", .mindfulness, 33, true, 0),
+            ("Drink Water", "drop.fill", "#338FFF", .health, 24, true, 1),
+            ("Exercise", "figure.run", "#F24D4D", .fitness, 15, true, 2),
+            ("Read 30 min", "book.fill", "#FFC207", .learning, 21, true, 3),
+            ("Healthy Eating", "leaf.fill", "#34C759", .nutrition, 8, true, 4),
         ]
 
         let today = calendar.startOfDay(for: Date())

@@ -30,7 +30,9 @@ struct HabitReminderView: View {
                     repeatSection
                     messageSection
                     #if DEBUG
-                    testButton
+                    if !ProcessInfo.processInfo.arguments.contains("-screenshotMode") {
+                        testButton
+                    }
                     #endif
                 }
                 saveButton
