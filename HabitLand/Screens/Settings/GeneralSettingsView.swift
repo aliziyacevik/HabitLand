@@ -238,6 +238,7 @@ struct GeneralSettingsView: View {
                 .listRowBackground(Color.clear)
             }
         }
+        .hlAdaptiveWidth()
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.large)
         .sheet(isPresented: $showPaywall) {

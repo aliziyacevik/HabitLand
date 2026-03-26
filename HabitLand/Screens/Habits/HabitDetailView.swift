@@ -28,6 +28,7 @@ struct HabitDetailView: View {
             }
             .padding(.horizontal, HLSpacing.md)
             .padding(.bottom, HLSpacing.xl)
+            .hlAdaptiveWidth()
         }
         .background(Color.hlBackground.ignoresSafeArea())
         .navigationTitle(habit.name)

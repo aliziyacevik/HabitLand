@@ -28,6 +28,7 @@ struct EditProfileView: View {
             }
             .padding(.horizontal, HLSpacing.md)
             .padding(.vertical, HLSpacing.md)
+            .hlAdaptiveWidth()
         }
         .background(Color.hlBackground)
         .navigationTitle("Edit Profile")

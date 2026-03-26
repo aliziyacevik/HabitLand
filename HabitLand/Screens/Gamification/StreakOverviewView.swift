@@ -33,6 +33,7 @@ struct StreakOverviewView: View {
             }
             .padding(.horizontal, HLSpacing.md)
             .padding(.bottom, HLSpacing.xl)
+            .hlAdaptiveWidth()
         }
         .refreshable {}
         .background(Color.hlBackground)

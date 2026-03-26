@@ -297,6 +297,30 @@ static let leaderboard = "list.number"
     static let brain = "brain.head.profile"
 }
 
+// MARK: - Adaptive Container (iPad Support)
+
+struct HLAdaptiveContainer: ViewModifier {
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
+    var maxWidth: CGFloat = 700
+
+    func body(content: Content) -> some View {
+        if sizeClass == .regular {
+            content
+                .frame(maxWidth: maxWidth)
+                .frame(maxWidth: .infinity)
+        } else {
+            content
+        }
+    }
+}
+
+extension View {
+    func hlAdaptiveWidth(_ maxWidth: CGFloat = 700) -> some View {
+        self.modifier(HLAdaptiveContainer(maxWidth: maxWidth))
+    }
+}
+
 // MARK: - Animation Constants
 
 struct HLAnimation {

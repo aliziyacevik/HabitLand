@@ -53,6 +53,7 @@ struct LogSleepView: View {
                 }
                 .padding(.horizontal, HLSpacing.md)
                 .padding(.bottom, HLSpacing.xxxl)
+                .hlAdaptiveWidth()
             }
             .background(Color.hlBackground)
             .navigationTitle("Log Sleep")

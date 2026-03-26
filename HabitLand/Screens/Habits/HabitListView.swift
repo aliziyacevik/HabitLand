@@ -119,6 +119,7 @@ struct HabitListView: View {
                         }
                     }
                     .padding(.bottom, HLSpacing.xxxl + HLSpacing.xl)
+                    .hlAdaptiveWidth()
                 }
                 .refreshable {
                     try? await Task.sleep(for: .milliseconds(300))

@@ -77,6 +77,7 @@ struct SleepHistoryView: View {
                 }
             }
             .padding(.bottom, HLSpacing.xl)
+            .hlAdaptiveWidth()
         }
         .refreshable {
             try? await Task.sleep(for: .milliseconds(300))

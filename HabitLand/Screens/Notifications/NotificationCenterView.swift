@@ -70,6 +70,7 @@ struct NotificationCenterView: View {
             }
             .padding(.horizontal, HLSpacing.md)
             .padding(.vertical, HLSpacing.sm)
+            .hlAdaptiveWidth()
         }
     }
 
