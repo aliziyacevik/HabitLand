@@ -109,6 +109,7 @@ struct HabitSuccessTrendsView: View {
             .padding(.bottom, HLSpacing.xxxl)
         }
         .background(Color.hlBackground.ignoresSafeArea())
+        .refreshable {}
         .navigationTitle("Success Trends")
         .navigationBarTitleDisplayMode(.large)
         .onAppear {

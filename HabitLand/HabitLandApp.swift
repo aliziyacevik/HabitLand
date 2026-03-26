@@ -131,7 +131,7 @@ struct HabitLandApp: App {
             return
         }
         if profileCount == 0 {
-            let profile = UserProfile(name: "User", username: "@user", avatarEmoji: "🌱")
+            let profile = UserProfile(name: "User", username: "user", avatarEmoji: "🌱")
             context.insert(profile)
         }
 
@@ -286,7 +286,7 @@ struct HabitLandApp: App {
         let todayDone = [4, 3, 2, 1, 0]
 
         for (i, f) in friends.enumerated() {
-            let friend = Friend(name: f.name, username: "@\(f.name.lowercased())", avatarEmoji: f.emoji, level: f.level, currentStreak: f.streak)
+            let friend = Friend(name: f.name, username: f.name.lowercased(), avatarEmoji: f.emoji, level: f.level, currentStreak: f.streak)
             if i < avatarTypes.count {
                 friend.avatarType = avatarTypes[i]
             }

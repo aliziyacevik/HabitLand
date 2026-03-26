@@ -47,6 +47,7 @@ struct AchievementsView: View {
             .padding(.horizontal, HLSpacing.md)
             .padding(.bottom, HLSpacing.xl)
         }
+        .refreshable {}
         .background(Color.hlBackground)
         .navigationTitle("Achievements")
         .navigationBarTitleDisplayMode(.inline)

@@ -30,6 +30,7 @@ struct LevelProgressView: View {
             .padding(.horizontal, HLSpacing.md)
             .padding(.bottom, HLSpacing.xl)
         }
+        .refreshable {}
         .background(Color.hlBackground)
         .navigationTitle("Level Progress")
         .navigationBarTitleDisplayMode(.inline)

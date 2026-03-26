@@ -53,24 +53,26 @@ struct HLHaptics {
 // MARK: - Enhanced Motion System
 
 extension HLAnimation {
+    private static var rm: Bool { UIAccessibility.isReduceMotionEnabled }
+
     // Interaction springs (buttons, toggles)
-    static let microSpring = Animation.spring(response: 0.28, dampingFraction: 0.68)
-    static let gentleSpring = Animation.spring(response: 0.45, dampingFraction: 0.78)
+    static var microSpring: Animation { rm ? .linear(duration: 0.01) : .spring(response: 0.28, dampingFraction: 0.68) }
+    static var gentleSpring: Animation { rm ? .linear(duration: 0.01) : .spring(response: 0.45, dampingFraction: 0.78) }
 
     // Entry/exit
-    static let fadeIn = Animation.easeOut(duration: 0.25)
-    static let slideIn = Animation.spring(response: 0.4, dampingFraction: 0.82)
+    static var fadeIn: Animation { rm ? .linear(duration: 0.01) : .easeOut(duration: 0.25) }
+    static var slideIn: Animation { rm ? .linear(duration: 0.01) : .spring(response: 0.4, dampingFraction: 0.82) }
 
     // Progress & rings
-    static let progressFill = Animation.easeOut(duration: 0.8)
-    static let ringGlow = Animation.easeInOut(duration: 1.5).repeatForever(autoreverses: true)
+    static var progressFill: Animation { rm ? .linear(duration: 0.01) : .easeOut(duration: 0.8) }
+    static var ringGlow: Animation { rm ? .linear(duration: 0.01) : .easeInOut(duration: 1.5).repeatForever(autoreverses: true) }
 
     // Gamification
-    static let celebration = Animation.spring(response: 0.35, dampingFraction: 0.55)
-    static let shimmerLoop = Animation.linear(duration: 1.8).repeatForever(autoreverses: false)
+    static var celebration: Animation { rm ? .linear(duration: 0.01) : .spring(response: 0.35, dampingFraction: 0.55) }
+    static var shimmerLoop: Animation { rm ? .linear(duration: 0.01) : .linear(duration: 1.8).repeatForever(autoreverses: false) }
 
     // MARK: - Sheet Transitions
-    static let sheetContentAppear = Animation.easeOut(duration: 0.3)
+    static var sheetContentAppear: Animation { rm ? .linear(duration: 0.01) : .easeOut(duration: 0.3) }
 }
 
 // MARK: - Shimmer Effect

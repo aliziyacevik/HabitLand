@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import UserNotifications
 
 @MainActor
@@ -78,11 +79,64 @@ final class NotificationManager: ObservableObject {
         content.body = customMessage.isEmpty ? "Time for \(habitName)!" : customMessage
         content.sound = .default
 
+        if !icon.isEmpty, let attachment = createIconAttachment(systemName: icon, identifier: habitId.uuidString) {
+            content.attachments = [attachment]
+        }
+
         let components = Calendar.current.dateComponents([.hour, .minute], from: time)
         let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
 
         let request = UNNotificationRequest(
             identifier: "habit-\(habitId.uuidString)",
+            content: content,
+            trigger: trigger
+        )
+        center.add(request)
+    }
+
+    private func createIconAttachment(systemName: String, identifier: String) -> UNNotificationAttachment? {
+        let size: CGFloat = 100
+        let config = UIImage.SymbolConfiguration(pointSize: size * 0.6, weight: .medium)
+        guard let symbol = UIImage(systemName: systemName, withConfiguration: config) else { return nil }
+
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
+        let image = renderer.image { ctx in
+            UIColor.systemBackground.setFill()
+            ctx.fill(CGRect(origin: .zero, size: CGSize(width: size, height: size)))
+
+            let symbolSize = symbol.size
+            let origin = CGPoint(x: (size - symbolSize.width) / 2, y: (size - symbolSize.height) / 2)
+            symbol.withTintColor(.label, renderingMode: .alwaysOriginal)
+                .draw(at: origin)
+        }
+
+        guard let pngData = image.pngData() else { return nil }
+
+        let tempDir = FileManager.default.temporaryDirectory
+        let fileURL = tempDir.appendingPathComponent("habit-icon-\(identifier).png")
+        do {
+            try pngData.write(to: fileURL)
+            return try UNNotificationAttachment(identifier: "icon-\(identifier)", url: fileURL, options: [
+                UNNotificationAttachmentOptionsThumbnailHiddenKey: false
+            ])
+        } catch {
+            return nil
+        }
+    }
+
+    func scheduleTestNotification(habitId: UUID, habitName: String, icon: String, customMessage: String) {
+        let content = UNMutableNotificationContent()
+        content.title = "Time for \(habitName)"
+        content.body = customMessage.isEmpty ? "Time for \(habitName)!" : customMessage
+        content.sound = .default
+
+        if !icon.isEmpty, let attachment = createIconAttachment(systemName: icon, identifier: "test-\(habitId.uuidString)") {
+            content.attachments = [attachment]
+        }
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 3, repeats: false)
+        let request = UNNotificationRequest(
+            identifier: "test-\(habitId.uuidString)",
             content: content,
             trigger: trigger
         )

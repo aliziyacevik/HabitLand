@@ -29,7 +29,9 @@ struct HabitReminderView: View {
                     timeSection
                     repeatSection
                     messageSection
+                    #if DEBUG
                     testButton
+                    #endif
                 }
                 saveButton
             }
@@ -185,18 +187,13 @@ struct HabitReminderView: View {
 
     private var testButton: some View {
         Button {
-            // Send actual test notification
-            let content = UNMutableNotificationContent()
-            content.title = "Time for \(habit.name)"
-            content.body = customMessage.isEmpty ? "Time for \(habit.name)!" : customMessage
-            content.sound = .default
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 3, repeats: false)
-            let request = UNNotificationRequest(
-                identifier: "test-\(habit.id.uuidString)",
-                content: content,
-                trigger: trigger
+            // Send actual test notification with icon attachment
+            NotificationManager.shared.scheduleTestNotification(
+                habitId: habit.id,
+                habitName: habit.name,
+                icon: habit.icon,
+                customMessage: customMessage
             )
-            UNUserNotificationCenter.current().add(request)
 
             withAnimation(HLAnimation.spring) {
                 showTestConfirmation = true

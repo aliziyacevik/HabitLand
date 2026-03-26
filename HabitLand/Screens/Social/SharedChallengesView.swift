@@ -292,7 +292,7 @@ struct SharedChallengesView: View {
     }
 
     private var challengeShareURL: String {
-        let baseURL = "https://apps.apple.com/app/habitland/id000000000"
+        let baseURL = "https://apps.apple.com/app/habitland/id6744066498"
         if let code = profile?.referralCode {
             return "\(baseURL)?ref=\(code)"
         }

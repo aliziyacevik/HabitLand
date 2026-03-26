@@ -312,7 +312,7 @@ struct FriendProfileView: View {
     NavigationStack {
         FriendProfileView(
             friend: {
-                let f = Friend(name: "Alex Rivera", username: "@alexr", avatarEmoji: "🦊", level: 12, currentStreak: 23)
+                let f = Friend(name: "Alex Rivera", username: "alexr", avatarEmoji: "🦊", level: 12, currentStreak: 23)
                 f.totalCompletions = 156
                 f.habitsCompletedToday = 3
                 f.lastActive = Date()

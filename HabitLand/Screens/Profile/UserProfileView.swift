@@ -300,7 +300,7 @@ struct UserProfileView: View {
                 }
             }
             quickLink(icon: "trophy.fill", title: "Achievements", destination: AnyView(AchievementsShowcaseView()))
-            ShareLink(item: "Check out my profile on HabitLand! I'm Level \(profile?.level ?? 1) with a \(profile?.xp ?? 0) XP streak. Download: https://apps.apple.com/app/habitland/id0000000000") {
+            ShareLink(item: "Check out my profile on HabitLand! I'm Level \(profile?.level ?? 1) with a \(profile?.xp ?? 0) XP streak. Download: https://apps.apple.com/app/habitland/id6744066498") {
                 quickLinkContent(icon: "square.and.arrow.up", title: "Share Profile")
             }
             .buttonStyle(.plain)

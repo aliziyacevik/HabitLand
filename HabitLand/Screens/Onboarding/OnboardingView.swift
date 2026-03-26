@@ -419,7 +419,7 @@ struct OnboardingView: View {
 
         if !trimmed.isEmpty {
             profile.name = trimmed
-            profile.username = "@\(trimmed.lowercased().replacingOccurrences(of: " ", with: ""))"
+            profile.username = trimmed.lowercased().replacingOccurrences(of: " ", with: "")
         }
         profile.avatarEmoji = selectedAvatar
         try? modelContext.save()

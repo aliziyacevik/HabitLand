@@ -35,7 +35,7 @@ struct EditProfileView: View {
         .onAppear {
             guard !didLoad, let p = profile else { return }
             name = p.name
-            username = p.username
+            username = p.username.hasPrefix("@") ? String(p.username.dropFirst()) : p.username
             bio = p.bio
             selectedEmoji = p.avatarEmoji
             selectedAvatarType = p.avatarType

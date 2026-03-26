@@ -31,6 +31,7 @@ struct NotificationCenterView: View {
                     notificationList
                 }
             }
+            .refreshable {}
             .navigationTitle("Notifications")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

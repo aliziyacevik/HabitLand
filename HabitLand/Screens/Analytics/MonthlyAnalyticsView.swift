@@ -200,6 +200,7 @@ struct MonthlyAnalyticsView: View {
             .padding(.bottom, HLSpacing.xxxl)
         }
         .background(Color.hlBackground.ignoresSafeArea())
+        .refreshable {}
         .navigationTitle("Monthly Analytics")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {

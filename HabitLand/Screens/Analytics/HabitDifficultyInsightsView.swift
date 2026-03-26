@@ -130,6 +130,7 @@ struct HabitDifficultyInsightsView: View {
             .padding(.bottom, HLSpacing.xxxl)
         }
         .background(Color.hlBackground.ignoresSafeArea())
+        .refreshable {}
         .navigationTitle("Difficulty Insights")
         .navigationBarTitleDisplayMode(.large)
         .onAppear {

@@ -20,10 +20,13 @@ struct InviteFriendsView: View {
     @StateObject private var cloudKit = CloudKitManager.shared
     @Environment(\.dismiss) private var dismiss
 
-    private let appStoreURL = "https://apps.apple.com/app/habitland/id000000000"
-    // Safe fallback URL — guaranteed valid, avoids force unwrap
-    // swiftlint:disable:next force_unwrapping
-    private static let fallbackURL = URL(string: "https://apps.apple.com")!
+    private let appStoreURL = "https://apps.apple.com/app/habitland/id6744066498"
+    private static let fallbackURL: URL = {
+        guard let url = URL(string: "https://apps.apple.com") else {
+            return URL(fileURLWithPath: "/")
+        }
+        return url
+    }()
 
     var body: some View {
         NavigationStack {

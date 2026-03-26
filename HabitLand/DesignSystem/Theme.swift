@@ -300,9 +300,11 @@ static let leaderboard = "list.number"
 // MARK: - Animation Constants
 
 struct HLAnimation {
-    static let quick = Animation.easeInOut(duration: 0.2)
-    static let standard = Animation.easeInOut(duration: 0.3)
-    static let slow = Animation.easeInOut(duration: 0.5)
-    static let spring = Animation.spring(response: 0.4, dampingFraction: 0.75)
-    static let bouncy = Animation.spring(response: 0.5, dampingFraction: 0.6)
+    private static var reduceMotion: Bool { UIAccessibility.isReduceMotionEnabled }
+
+    static var quick: Animation { reduceMotion ? .linear(duration: 0.01) : .easeInOut(duration: 0.2) }
+    static var standard: Animation { reduceMotion ? .linear(duration: 0.01) : .easeInOut(duration: 0.3) }
+    static var slow: Animation { reduceMotion ? .linear(duration: 0.01) : .easeInOut(duration: 0.5) }
+    static var spring: Animation { reduceMotion ? .linear(duration: 0.01) : .spring(response: 0.4, dampingFraction: 0.75) }
+    static var bouncy: Animation { reduceMotion ? .linear(duration: 0.01) : .spring(response: 0.5, dampingFraction: 0.6) }
 }

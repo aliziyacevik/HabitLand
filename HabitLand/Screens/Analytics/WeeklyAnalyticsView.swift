@@ -171,6 +171,7 @@ struct WeeklyAnalyticsView: View {
             .padding(.bottom, HLSpacing.xxxl)
         }
         .background(Color.hlBackground.ignoresSafeArea())
+        .refreshable {}
         .navigationTitle("Weekly Analytics")
         .navigationBarTitleDisplayMode(.large)
         .onAppear {

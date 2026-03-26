@@ -1354,7 +1354,7 @@ struct HomeDashboardView: View {
             ("arrow.triangle.2.circlepath", "Never Miss Twice", "Missing one day is an accident. Missing two is the start of a new habit. Get back on track today.", .hlFlame),
             ("moon.stars.fill", "Sleep & Performance", "Studies show 7-8 hours of sleep increases habit adherence by 40%. Protect your sleep.", .hlSleep),
             ("figure.run", "Motion Before Motivation", "Don't wait to feel motivated. Start the habit — motivation follows action.", .hlFitness),
-            ("person.2.fill", "Social Accountability", "People who share their goals with friends are 65% more likely to achieve them.", .hlPrimary),
+            ("target", "Small Wins Compound", "Completing just one habit a day builds 365 completions in a year. Every check mark matters.", .hlPrimary),
             ("chart.line.uptrend.xyaxis", "Track to Transform", "What gets measured gets managed. Tracking habits makes you 2x more likely to succeed.", .hlGold),
         ]
 

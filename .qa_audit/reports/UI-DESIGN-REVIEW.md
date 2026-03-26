@@ -1,22 +1,16 @@
 # UI/UX Design Review
 
-**Date:** 2026-03-24
+**Date:** 2026-03-26
 **Project:** HabitLand
-**Screens Analyzed:** 65 SwiftUI view files across 11 feature domains
-**Screenshots Reviewed:** 40 PNG screenshots (21 unique screens visible; 19 showed wrong screens due to XCUITest navigation issues)
+**Screens Analyzed:** 28 (across 5 feature domains)
+**Screenshots Reviewed:** 35
 **Previous Review:** N/A
 
 ---
 
-## Overall Score: 31/40 -- Grade: B
+## Overall Score: 32/40 -- Grade: B
 
-| Grade | Range |
-|-------|-------|
-| A | 36-40 |
-| B | 30-35 |
-| C | 24-29 |
-| D | 18-23 |
-| F | <18 |
+This is a well-crafted iOS habit tracker with a solid design system foundation, consistent use of design tokens, and a polished card-based visual language. The app feels native and purposeful. The main gaps are in accessibility depth (Dynamic Type coverage is shallow despite good ScaledMetric usage for icons), some inconsistency in premium gate presentation, and a few copywriting opportunities. Compared to best-in-class apps like Streaks or Things 3, HabitLand is in solid B territory -- good execution with clear paths to excellence.
 
 ---
 
@@ -30,9 +24,9 @@
 | Spacing & Layout | 4/5 |
 | Copywriting & UX Writing | 4/5 |
 | Interaction Design | 4/5 |
-| HIG Compliance | 4/5 |
+| HIG Compliance | 5/5 |
 | Accessibility | 3/5 |
-| **Overall** | **31/40** |
+| **Overall** | **32/40** |
 
 ---
 
@@ -40,43 +34,37 @@
 
 | Domain | VH | C&T | Typo | S&L | Copy | IX | HIG | A11y | Avg |
 |--------|----|-----|------|-----|------|----|-----|------|-----|
-| Home | 4 | 4 | 4 | 4 | 5 | 4 | 4 | 3 | 4.0 |
-| Habits | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 3 | 3.9 |
-| Sleep | 4 | 5 | 4 | 4 | 4 | 4 | 4 | 3 | 4.0 |
-| Social | 4 | 4 | 4 | 4 | 4 | 3 | 4 | 3 | 3.8 |
-| Profile | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 3 | 3.9 |
-| Settings | 3 | 4 | 4 | 4 | 4 | 4 | 5 | 3 | 3.9 |
-| Onboarding | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 3 | 3.9 |
-| Premium | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 3 | 3.9 |
-| Analytics | 4 | 4 | 4 | 4 | 3 | 3 | 4 | 3 | 3.6 |
-| Discovery | 4 | 4 | 4 | 4 | 4 | 3 | 4 | 3 | 3.8 |
-| Notifications | 3 | 4 | 4 | 4 | 4 | 3 | 4 | 3 | 3.6 |
+| Home | 4 | 4 | 4 | 4 | 4 | 5 | 5 | 3 | 4.1 |
+| Habits | 4 | 4 | 4 | 4 | 4 | 4 | 5 | 3 | 4.0 |
+| Sleep | 4 | 5 | 4 | 4 | 4 | 4 | 5 | 3 | 4.1 |
+| Profile | 4 | 4 | 4 | 5 | 4 | 3 | 5 | 3 | 4.0 |
+| Premium | 4 | 4 | 4 | 4 | 3 | 4 | 4 | 3 | 3.8 |
 
 ---
 
 ## Top 5 Quick Wins
 
-1. **Add Dynamic Type support** -- Zero usage of `.dynamicTypeSize()` environment across the entire app. Adding `@Environment(\.dynamicTypeSize)` checks for layout adaptations at accessibility sizes would dramatically improve accessibility for a small code change.
+1. **Add `.minimumScaleFactor(0.75)` to stat numbers** -- The "33d streak", "95% This Week", and profile stat numbers (35, 109, 33, 8) will truncate at larger Dynamic Type sizes. Adding `.minimumScaleFactor(0.75)` to these takes 1 minute per file and prevents text clipping.
 
-2. **Add `.minimumScaleFactor(0.75)` to stat labels** -- The "33d Streak", "0/3 Quests", "90% This Week" labels on the home dashboard and similar stat displays across Profile, Sleep, and Social would truncate at larger dynamic type sizes. Only 21 occurrences of `minimumScaleFactor` across 9 files; should be 60+ across all stat cards.
+2. **Add `.accessibilityHidden(true)` to all decorative emoji in Sleep quality/mood rows** -- The emoji faces in LogSleepView quality and mood pickers (terrible, poor, fair, good, excellent) are decorative because the text labels are adjacent. Hiding them from VoiceOver removes redundant announcements.
 
-3. **Replace placeholder emoji icons in Sleep History/Log Sleep** -- The sleep quality/mood icons show as "?" placeholders in screenshots (03_log_sleep_form.png, 03_sleep_history.png). Either the SF Symbol names are wrong or the emojis are not rendering. This is immediately visible to every user of the Sleep tab.
+3. **Replace "Don't lose your progress" with specific user stats in PremiumGateView** -- The sleep premium gate shows partially obscured text "Don't lose your progress" but the actual stats below are hard to read against the blur. Making the gate text larger and more prominent improves conversion.
 
-4. **Add VoiceOver labels to chart components** -- The weekly sleep chart (03_sleep_dashboard.png), bar charts in analytics, and circular progress ring have no `.accessibilityLabel()` on chart bars/data points. Screen reader users get no data from these visuals.
+4. **Add haptic feedback to Profile "Edit Profile" and "Share Profile" buttons** -- These interactive elements lack any tactile feedback, unlike the rest of the app which has excellent haptic coverage.
 
-5. **Add `.accessibilityHidden(true)` to remaining decorative icons** -- 54 occurrences of `.accessibilityHidden(true)` is good but many decorative icons in Settings rows (crown, gear, bell icons), Social friend cards (flame icons for streak), and Analytics views still lack this modifier.
+5. **Fix hardcoded spacing `2` in GeneralSettingsView.swift:70** -- `spacing: 2` should be `spacing: HLSpacing.xxxs` for design system compliance.
 
 ## Top 5 Major Improvements
 
-1. **Implement Dynamic Type layout adaptation** -- When Dynamic Type is set to Accessibility XL, the three-column stat rows (Home dashboard "33d / 0/3 / 90%", Sleep "7.4h / 76% / 100%", Profile stats "42 / 210 / Lvl 12") will overflow horizontally. These should switch to a 2x2 or vertical stack layout at larger text sizes using `@Environment(\.dynamicTypeSize)`.
+1. **Expand Dynamic Type support beyond icon scaling** -- While `@ScaledMetric` is used extensively for icon sizes (289 occurrences across 80 files, excellent), only 4 views check `dynamicTypeSize` environment. Fixed-dimension cards, stat grids, and achievement rows will break at Accessibility text sizes. The profile stats row (4 columns) needs a flow layout fallback.
 
-2. **Reduce `.font(.system(size:))` usage** -- 298 occurrences of hardcoded `.font(.system(size: N))` across 83 files. While most are wrapped with `min()` caps from `@ScaledMetric`, the pattern itself bypasses the `HLFont` design system. Icon sizes are appropriately using `@ScaledMetric`, but the `min()` caps (e.g., `min(flameSize, 16)`) create a ceiling that limits scaling for users who need larger text. Consider removing or raising the caps.
+2. **Unify premium gate visual language** -- The sleep premium gate (`PremiumGateView`) uses a blur overlay with a lock icon, while the stats paywall uses a sheet modal with a different icon and layout. The habit limit uses a yellow banner. These three premium touchpoints should share a consistent visual pattern for brand coherence.
 
-3. **Add loading/error states to Social and Analytics** -- The Leaderboard, Social Feed, and Analytics views fetch data but show no loading skeleton or spinner during fetch. The empty states are well-designed (e.g., "No challenges yet" with CTA), but the transition from loading to loaded has no intermediate visual state.
+3. **Add loading states to data-dependent views** -- Sleep Dashboard, Personal Statistics, and Achievements all show computed data but lack skeleton/loading states during initial data fetch. When the app launches fresh, these screens flash empty briefly before data appears.
 
-4. **Improve contrast for secondary text elements** -- `hlTextTertiary` in dark mode is #6E6E73 on #1C1C1E background, which yields approximately 3.2:1 contrast ratio -- below the WCAG AA minimum of 4.5:1 for normal text. This affects timestamps, subtle labels, and inactive tab bar items.
+4. **Implement Reduce Motion support** -- The app uses staggered appear animations (`hlStaggeredAppear`) extensively, and celebration animations for streaks/achievements. There is no check for `accessibilityReduceMotion` in the animation system, which is an accessibility requirement.
 
-5. **Add pull-to-refresh to more screens** -- Only 5 screens have `.refreshable` (Home, Habits List, Sleep Dashboard, Social Hub, Profile). Sub-screens like Sleep History, Sleep Analytics, Leaderboard, Personal Statistics, and Achievements should also support pull-to-refresh for data freshness.
+5. **Add error recovery to the Paywall** -- The PaywallView has an error alert with "Try Again" and "Cancel", but no explanation of common failure reasons (network, payment method, parental controls). Best-in-class paywall error handling guides users to Settings or explains the specific issue.
 
 ---
 
@@ -84,396 +72,323 @@
 
 ### 1. Visual Hierarchy (4/5)
 
-The app demonstrates strong visual hierarchy overall. The home dashboard has a clear focal point with the 80% circular progress ring drawing the eye immediately. Cards are well-grouped with consistent use of the `.hlCard()` modifier. The level bar (LV8 with XP progress) creates a strong top-to-bottom reading flow.
+The Home Dashboard has excellent visual hierarchy. The greeting text is the clear focal point at the top, followed by the XP progress bar, then the circular daily progress card, then the habit list. The eye naturally flows in an F-pattern. Each card uses the `hlCard()` modifier consistently for depth and separation.
 
 ### Visual Hierarchy -- Major
 
-**Problem:** HomeDashboardView.swift -- The "Focus Timer" and "Track to Transform" cards at the bottom of the home screen have equal visual weight, making neither stand out. Both use the same card style with icon + text layout.
+**Problem:** HomeDashboardView.swift -- The "Getting Started" card and "Daily Progress" card compete for attention when both are visible. The getting started card uses the same visual weight (hlCard modifier) as the progress card.
 
-**Impact:** Users may miss the Focus Timer feature since it blends in with the motivational tip card below it.
+**Impact:** New users see two cards of equal prominence fighting for their attention, diluting the primary action.
 
-**Fix:** Give the Focus Timer card a slight accent background tint or a colored left border to distinguish interactive features from static content cards. The play button (orange circle) helps but the surrounding card style matches everything else.
-
-### Visual Hierarchy -- Minor
-
-**Problem:** SocialHubView.swift -- The segment picker (Friends / Leaderboard / Challenges / Feed) uses a horizontally scrolling pill-style selector. On the Challenges tab, the empty state pushes below the fold with no visual anchor near the segment picker.
-
-**Impact:** The large gap between the segment picker and "No challenges yet" content feels disconnected.
-
-**Fix:** Reduce the top padding of the empty state or add a subtle divider below the segment picker to create visual continuity.
+**Fix:** Give the getting started card a distinct visual treatment -- use a colored border (`Color.hlPrimary` stroke) or a subtle gradient background to differentiate it from content cards, making it clear this is an onboarding prompt, not data.
 
 ### Visual Hierarchy -- Minor
 
-**Problem:** NotificationCenterView.swift (01_notifications.png) -- The empty notification screen has a centered icon and text but no visual weight at the top. The "Notifications" title is left-aligned in large title style while the empty state is centered, creating a split visual axis.
+**Problem:** HabitListView.swift -- The sort menu overlay (visible in `02_habits_sort_menu.png`) obscures habit cards behind it but lacks a dimming backdrop.
 
-**Impact:** The screen feels sparse and disconnected. Users may think the app is broken.
+**Impact:** The popover feels slightly disconnected from the list it controls.
 
-**Fix:** Consider adding a subtle illustration or a more prominent empty state with a suggested action like "Enable notifications" or a link back to settings.
+**Fix:** Add a semi-transparent backdrop or use the native `.menu` modifier which provides system-standard presentation.
 
 ---
 
 ### 2. Color & Theme (4/5)
 
-The color system is well-implemented with a comprehensive palette. The emerald/green primary with orange flame accents follows a clear hierarchy. Semantic colors are correctly applied (red for errors, green for success, purple for sleep). The 60/30/10 rule is generally followed with hlBackground (60%), hlSurface cards (30%), and hlPrimary accents (10%).
-
-### Color & Theme -- Major
-
-**Problem:** Theme.swift:43-47 -- `hlTextTertiary` uses the same hex value (#737380) for both light and dark modes, while `hlTextSecondary` uses different values. In dark mode, `hlTextTertiary` (#6E6E73) on `hlSurface` (#1C1C1E) yields approximately 3.2:1 contrast.
-
-**Impact:** Tertiary text (timestamps, inactive states, tab bar labels) may be difficult to read in dark mode for users with low vision.
-
-**Fix:** Lighten `hlTextTertiary` dark mode value to at least #8E8E93 (matching iOS system gray 2) to achieve 4.5:1 contrast ratio.
+The color system is well-designed. The emerald green primary with warm orange flame accents follows a clear 60/30/10 distribution: white/surface backgrounds (60%), green primary and gray text (30%), orange/red status colors (10%). Category colors (health red, fitness blue, mindfulness purple, etc.) are distinct and purposeful. Semantic colors are correct -- red for errors/missed, green for success/completed, orange for streaks/warnings.
 
 ### Color & Theme -- Minor
 
-**Problem:** LeaderboardView (04_leaderboard.png) -- The #1 podium position uses a yellow/gold background that has low contrast with the white text/numbers inside. The #2 and #3 positions use lighter tints that work better.
+**Problem:** Theme.swift:60-63 -- Status colors (`hlSuccess`, `hlWarning`, `hlError`, `hlInfo`) are not adaptive for dark mode. They use fixed RGB values.
 
-**Impact:** The most important ranking position has the weakest text readability.
+**Impact:** In dark mode, these status colors may have slightly reduced contrast against the dark surface background. The warning yellow (`#FFC207`) particularly can appear washed out against dark backgrounds.
 
-**Fix:** Darken the gold background slightly or use dark text on the gold podium to improve contrast.
+**Fix:** Make status colors adaptive using `UIColor { traits in }` pattern, slightly brightening them in dark mode (e.g., warning yellow to `#FFD130` in dark mode).
 
 ### Color & Theme -- Minor
 
-**Problem:** Sleep domain uses purple (`hlSleep`: #665ACC) consistently, but the "Log Sleep" CTA button uses `hlPrimary` (green) instead of the sleep accent color, creating a visual disconnect.
+**Problem:** The completed checkmark circle in HabitCard uses `color` (the habit's category color) for the fill, but some category colors (hlProductivity orange `#FF9A1A`, hlWarning `#FFC207`) have poor contrast against the white checkmark icon.
 
-**Impact:** The green CTA on the purple-themed sleep dashboard breaks the color story.
+**Impact:** The white checkmark may be hard to distinguish on light yellow/orange filled circles.
 
-**Fix:** Consider using `hlSleep` for the Log Sleep CTA to maintain the sleep domain's visual identity, or keep green if the intent is to make all primary CTAs consistent app-wide. Either approach is valid but should be a deliberate choice.
+**Fix:** Add a contrast check in the checkmark view. If the category color luminance is above 0.6, use a dark checkmark icon instead of white.
 
 ---
 
 ### 3. Typography (4/5)
 
-The typography system is excellent. `HLFont` provides a comprehensive set of text styles using `.rounded` design consistently. The hierarchy from `largeTitle` down to `caption2` is clear and well-used across screens. Font weights are appropriately limited (regular, medium, semibold, bold).
-
-### Typography -- Major
-
-**Problem:** Multiple files -- The `@ScaledMetric` pattern for icon sizes is applied extensively (excellent), but the `min()` caps create inconsistent scaling behavior. For example, `min(flameSize, 16)` in HabitCard.swift:103 means the flame icon stops scaling at 16pt regardless of user preference.
-
-**Impact:** Users who set larger Dynamic Type sizes will see text scale but icons will hit their caps and stop, creating visual misalignment between text and icons.
-
-**Fix:** Raise `min()` caps by 50% (e.g., `min(flameSize, 24)` instead of 16) or remove caps for icons that are purely decorative. Keep caps only for icons that would break layout at extreme sizes.
+Typography is consistent and well-structured. All fonts use the `HLFont` design system with `.rounded` design, creating a friendly, approachable feel appropriate for a gamified app. The hierarchy is clear: `largeTitle` for screen titles, `title2` for section headers, `headline` for card titles, `body` for content, `caption` for metadata. The rounded font family is used consistently across all 82+ view files.
 
 ### Typography -- Minor
 
-**Problem:** PomodoroView (01_pomodoro.png) -- The "25:00" timer display appears to use a large system font. The "Session 1 of 4" subtitle and "Focus" label are well-sized, but the timer digits could benefit from a monospaced design to prevent layout shifts as digits change.
+**Problem:** Multiple files use `.font(.system(size: N))` with hardcoded sizes (286 occurrences across 82 files), though these are always wrapped with `min(scaledValue, maxCap)` using `@ScaledMetric` values.
 
-**Impact:** During countdown, the timer width will fluctuate slightly as digits change (e.g., "25:00" vs "11:11") causing subtle visual jitter.
+**Impact:** While the `@ScaledMetric` + `min()` pattern does support Dynamic Type scaling, it caps the maximum size. At Accessibility XXL sizes, all icons will hit their caps, creating a ceiling effect where text scales but icons stop.
 
-**Fix:** Use `.monospacedDigit()` modifier on the timer display font: `.font(HLFont.display()).monospacedDigit()`.
+**Fix:** This is an acceptable pattern per the CLAUDE.md guidelines. The caps prevent layout breakage. Consider raising some caps slightly for critical interactive icons (checkmark button caps at 18pt, could go to 22pt).
+
+### Typography -- Minor
+
+**Problem:** The Sleep Dashboard "7h 42m" duration display uses `HLFont.display()` which maps to `.largeTitle`. This is the same text style as the Home screen greeting, creating ambiguity in the type hierarchy.
+
+**Impact:** Minimal -- the context is different enough that users won't be confused, but a dedicated display size would be more intentional.
+
+**Fix:** Consider adding a dedicated `.display` style that uses `@ScaledMetric` with a base of ~40pt for hero numbers, distinct from largeTitle.
 
 ---
 
 ### 4. Spacing & Layout (4/5)
 
-Spacing is remarkably consistent across the app. The 8-point grid system (`HLSpacing`) is used extensively (3,428 design system token references across 109 files). Hardcoded padding values are minimal (12 occurrences in 8 files). Cards have consistent internal padding via `.hlCard()`.
+Spacing is consistently drawn from the `HLSpacing` 8-point grid system. The card modifier (`hlCard`) standardizes internal padding at 16pt. Horizontal margins are consistently `HLSpacing.md` (16pt). Section spacing uses `HLSpacing.lg` (24pt) between major sections and `HLSpacing.md` (16pt) between cards within sections. Safe areas are properly respected -- content does not extend under the notch or home indicator.
 
 ### Spacing & Layout -- Major
 
-**Problem:** HomeDashboardView.swift -- The home dashboard has 12+ hardcoded `padding()` values alongside `HLSpacing` usage. At lines where stat cards (33d Streak / 0/3 Quests / 90% This Week) are arranged in a horizontal 3-column layout, there is no adaptive layout for larger text sizes.
+**Problem:** UserProfileView.swift -- The stats row (Days Active, Completions, Streak, Level) uses a 4-column HStack. At large Dynamic Type sizes or on iPhone SE, these columns will compress and text will truncate.
 
-**Impact:** At Accessibility XL text sizes, the three stat values will horizontally overflow or truncate.
+**Impact:** Users with larger text sizes or smaller devices lose access to their stat values.
 
-**Fix:** Use a `ViewThatFits` or `@Environment(\.dynamicTypeSize)` check to switch from HStack to a 2-column or VStack layout when text size exceeds `.accessibility1`.
-
-### Spacing & Layout -- Minor
-
-**Problem:** CreateChallengeView (04_create_challenge.png) -- The "Create Challenge" button at the bottom appears partially obscured by the home indicator safe area. The gray background behind the button suggests it may not have proper bottom padding.
-
-**Impact:** The primary CTA is partially hidden, reducing discoverability.
-
-**Fix:** Ensure the Create Challenge button has `.padding(.bottom, HLSpacing.xxxl)` or is placed in a sticky footer with safe area inset handling.
+**Fix:** Wrap the stats row in a `ViewThatFits` or a 2x2 grid layout that reflows to two rows when horizontal space is insufficient.
 
 ### Spacing & Layout -- Minor
 
-**Problem:** SleepHistoryView (03_sleep_history.png) -- Sleep log entries use consistent card spacing, but the bottom of the list gets cut off by the tab bar. The last entry ("Thursday, Mar 19 - 7h 30m") is partially visible.
+**Problem:** HabitCard.swift:101 -- The icon circle uses `iconSize + 8` for its frame, adding a magic number offset instead of a spacing token.
 
-**Impact:** Users may not realize there is more content below.
+**Impact:** The `+8` is not from the design system grid. It should use `HLSpacing.xs` (8pt) but as a named value.
 
-**Fix:** Add `.padding(.bottom, HLSpacing.xxxl)` to the ScrollView content to ensure the last item clears the tab bar.
+**Fix:** Replace `iconSize + 8` with `iconSize + HLSpacing.xs` to maintain design system compliance.
+
+### Spacing & Layout -- Minor
+
+**Problem:** HomeDashboardView.swift:212 -- Bottom padding is `HLSpacing.xxxl + HLSpacing.xl` (48 + 32 = 80pt). This compound spacing value is not a single token.
+
+**Impact:** If the FAB size changes, this padding must be manually recalculated.
+
+**Fix:** Define a `fabClearance` spacing constant that accounts for FAB height + safe margin.
 
 ---
 
 ### 5. Copywriting & UX Writing (4/5)
 
-The app's copy is generally strong. Empty states are motivating ("No challenges yet -- Create a challenge and invite friends to stay accountable together"), CTAs are specific ("Create Challenge", "Log Sleep", "Share Invite Link"), and the tone is encouraging throughout.
+The app has thoughtful, encouraging copy throughout. The home greeting is time-aware ("Good morning/afternoon/evening"). Progress status messages are motivational ("On track today!", "Keep going!", "All done!"). Empty states are handled with the `EmptyStateView` component (56 occurrences across 25 files). The sleep correlation insight ("Your habits stay consistent regardless of sleep -- impressive discipline!") is a standout piece of contextual copy.
+
+### Copywriting & UX Writing -- Major
+
+**Problem:** PremiumGateView.swift:44 -- The gate shows "Pro Feature" as the title for all gated features. This is generic and doesn't tell the user what specific value they're missing.
+
+**Impact:** Every premium gate feels identical regardless of context. The user doesn't know if unlocking gives them sleep tracking, analytics, or unlimited habits.
+
+**Fix:** The `feature` parameter is passed but only used in the subtitle. Move the feature name into the title: "Unlock Sleep Tracking" instead of "Pro Feature", matching the contextual paywall which already does this (`context.title`).
 
 ### Copywriting & UX Writing -- Minor
 
-**Problem:** HomeDashboardView.swift -- The "Track to Transform" motivational card uses generic copy: "What gets measured gets managed. Tracking habits makes you 2x more likely to succeed." This reads like a textbook quote, not a personal message.
+**Problem:** HabitListView -- The habit limit banner says "Habit limit reached" with an "Upgrade" button. This is functional but doesn't communicate value.
 
-**Impact:** After seeing this card daily, users will start ignoring it. It does not provide personalized value.
+**Impact:** Users feel restricted rather than motivated to upgrade.
 
-**Fix:** Make this card contextual: show a tip relevant to the user's current habits (e.g., "Your Morning Meditation streak is 33 days -- that's in the top 5% of HabitLand users!") or rotate through fresh tips. If dynamic content is not feasible, add a dismiss option.
-
-### Copywriting & UX Writing -- Minor
-
-**Problem:** InviteFriendsView (04_invite_friends.png) -- The referral code "HBT-3VJYVW" is displayed prominently but "Share your code, we both get 1 week of Pro!" uses "we" which feels impersonal. The "0 Friends Invited / 0 Weeks Pro" counters are discouraging for new users.
-
-**Impact:** Showing zero counters creates negative social proof. The copy could be warmer.
-
-**Fix:** When counters are zero, show encouraging copy instead: "Invite your first friend to unlock a free week of Pro!" rather than displaying "0".
+**Fix:** Change to "You've built 5 great habits! Upgrade to track unlimited habits and unlock your full potential." with the Upgrade button.
 
 ### Copywriting & UX Writing -- Minor
 
-**Problem:** SleepDashboardView -- The "Sleep & Habits" correlation card shows "85% Good sleep days / 93% Poor sleep days" (03_sleep_scrolled.png). Showing that habits are 93% consistent on poor sleep days is confusing -- it is unclear whether this is good or bad.
+**Problem:** LogSleepView.swift -- The "Save" button in the toolbar is generic. Other save actions in the app also use "Save".
 
-**Impact:** Users cannot interpret whether the data is positive or negative without context.
+**Impact:** The user doesn't get confirmation of what they're saving.
 
-**Fix:** Add interpretive labels: "Your habits stay strong even when sleep is poor -- impressive discipline!" or use color coding (green for the positive metric, neutral for the comparison).
+**Fix:** Change to "Log Sleep" or keep "Save" but add a confirmation toast after saving (e.g., "Sleep logged! Sweet dreams data added.").
 
 ---
 
 ### 6. Interaction Design (4/5)
 
-Interaction design is solid. The app uses haptic feedback extensively via `HLHaptics` (light, medium, heavy, success, selection, completionSuccess, achievementUnlocked). The undo toast for habit completion is a thoughtful touch. Button press animations via `HLCardPressStyle()` provide visual feedback. The Pomodoro timer has clear play/reset/skip controls.
-
-### Interaction Design -- Major
-
-**Problem:** Multiple screens -- Only 5 of 15+ scrollable main screens implement `.refreshable`. Sleep History, Sleep Analytics, Leaderboard, Achievements, Personal Statistics, and Friends List all show data but cannot be refreshed.
-
-**Impact:** Users have no way to refresh stale data without navigating away and back. This is especially problematic for social features where data changes frequently.
-
-**Fix:** Add `.refreshable` to all ScrollView-based screens that display data: SleepHistoryView, SleepAnalyticsView, LeaderboardView, AchievementsView, PersonalStatisticsView, FriendsListView.
+Interaction design is strong. The HabitCard completion button has a pulse ripple animation, haptic feedback (`HLHaptics.completionSuccess()`), and a satisfying completion sound. The tab bar uses spring animations on selection. Touch targets are generally 44pt+ (enforced by `@ScaledMetric` with base sizes of 44pt for interactive elements). Haptic feedback is used extensively (78 occurrences across 37 files). Pull-to-refresh is implemented on 11 main scroll views.
 
 ### Interaction Design -- Minor
 
-**Problem:** NotificationCenterView (01_notifications.png) -- The empty notification screen has no action. There is no way to configure notifications, no link to settings, and no pull-to-refresh.
+**Problem:** UserProfileView.swift -- The "Edit Profile", "Personal Statistics", "Achievements", and "Share Profile" navigation links lack haptic feedback on tap, unlike habit cards and other interactive elements.
 
-**Impact:** Dead-end screen with no user agency.
+**Impact:** The profile section feels less tactile and responsive compared to the Home and Habits tabs.
 
-**Fix:** Add a "Set Up Reminders" button that navigates to notification settings, or at minimum add pull-to-refresh to check for new notifications.
+**Fix:** Add `HLHaptics.selection()` to `NavigationLink` `onTap` or use a custom button wrapper that provides haptic feedback before navigation.
 
 ### Interaction Design -- Minor
 
-**Problem:** Social tab -- The four-segment picker (Friends / Leaderboard / Challenges / Feed) requires precise tapping on small text labels. There is no swipe gesture to switch between sections.
+**Problem:** The sort menu in HabitListView appears as a dropdown overlay. When the user selects a sort option, there is no animation showing the list reordering.
 
-**Impact:** Switching sections feels less fluid than iOS-native tab behavior.
+**Impact:** The connection between the sort selection and the resulting list change is not visually reinforced.
 
-**Fix:** Consider using a `TabView` with `.tabViewStyle(.page)` for swipe-to-switch, or use a segmented control (`.pickerStyle(.segmented)`) for the iOS-native feel.
+**Fix:** Add `.animation(HLAnimation.standard, value: sortOption)` to the habit list ForEach to animate the reordering transition.
 
 ---
 
-### 7. HIG Compliance (4/5)
+### 7. HIG Compliance (5/5)
 
-The app follows Apple HIG conventions well. Navigation uses NavigationStack properly, the custom tab bar mirrors the system tab bar behavior, SF Symbols are used consistently (via HLIcon constants), and sheets use the standard dismiss pattern. The `.hlSheetContent()` modifier suggests proper sheet sizing.
+The app follows Apple Human Interface Guidelines closely. Navigation uses a proper tab bar with 4 tabs (Home, Habits, Sleep, Profile). Each tab has its own NavigationStack. Modals use `.sheet()` with proper dismiss patterns. SF Symbols are used exclusively for icons through the `HLIcon` system (no custom icon images). The tab bar uses standard SF Symbols (`house.fill`, `checkmark.circle.fill`, `moon.fill`, `person.fill`). Swipe-back navigation works via NavigationStack. The Settings screen uses a `List` with proper section grouping. The paywall has a standard close button in the top-right toolbar position.
 
-### HIG Compliance -- Minor
-
-**Problem:** TabBarView.swift -- The app uses a fully custom tab bar instead of the system `TabView`. While visually polished, this means it does not support the standard iOS double-tap-to-scroll-to-top behavior that users expect.
-
-**Impact:** Users who rely on the double-tap-to-scroll-to-top gesture (a deeply ingrained iOS behavior) will be frustrated.
-
-**Fix:** Either implement scroll-to-top when the active tab is tapped again, or switch to the system `TabView` and customize its appearance. The custom tab bar already mirrors system styling closely, so this gap is noticeable.
-
-### HIG Compliance -- Minor
-
-**Problem:** HomeDashboardView -- The home screen uses a custom header ("HabitLand" with icons) instead of a standard `.navigationTitle`. This is acceptable for the home screen but differs from every other screen in the app which uses standard navigation titles.
-
-**Impact:** Minor inconsistency. The home screen header scrolls with content while other screens use the standard collapsing large title.
-
-**Fix:** This is intentional and acceptable for a home/dashboard screen. No change needed, noted for consistency tracking.
+No significant HIG violations were found. The app feels entirely native.
 
 ---
 
 ### 8. Accessibility (3/5)
 
-Accessibility has foundational support but significant gaps. The app has 71 `.accessibilityLabel()` usages and 54 `.accessibilityHidden(true)` usages, which shows awareness. `@ScaledMetric` is used extensively for icon sizing. However, Dynamic Type layout adaptation is absent, contrast ratios need work, and many interactive elements lack labels.
+Accessibility implementation is mixed. On the positive side: `accessibilityLabel` is used on 74 interactive elements across 36 files; `accessibilityHidden(true)` is applied to 68 decorative elements across 30 files; `@ScaledMetric` is used extensively (289 instances) for Dynamic Type icon scaling; semantic colors are used for text (hlTextPrimary, hlTextSecondary, hlTextTertiary). HabitCard has an excellent combined accessibility element with descriptive labels.
+
+However, significant gaps remain:
 
 ### Accessibility -- Critical
 
-**Problem:** All view files -- Zero usage of `@Environment(\.dynamicTypeSize)` or `.dynamicTypeSize()`. The app has no layout adaptation for Accessibility text sizes.
+**Problem:** Only 4 views check `dynamicTypeSize` environment, and none implement layout reflow for Accessibility text sizes. The profile stats row, sleep average stats row, and habit detail stats row (Current/Best/Total/Rate) are all rigid HStack layouts.
 
-**Impact:** Users with Accessibility XL or larger text sizes will experience overlapping text, truncated content, and broken layouts in stat rows, card layouts, and horizontal arrangements throughout the app.
+**Impact:** Users who rely on large text sizes (estimated 25-30% of iOS users use non-default text sizes) will experience truncated or overlapping content in stat-heavy areas.
 
-**Fix:** Add `@Environment(\.dynamicTypeSize) private var dynamicTypeSize` to views with horizontal layouts (stat rows, card grids, leaderboard podium). Switch from HStack to VStack when `dynamicTypeSize.isAccessibilitySize`.
+**Fix:** Add `@Environment(\.dynamicTypeSize) var typeSize` to stat row views and switch to VStack/Grid layout when `typeSize >= .accessibility1`. Example:
+```swift
+if typeSize.isAccessibilitySize {
+    VStack { /* vertical stat layout */ }
+} else {
+    HStack { /* horizontal stat layout */ }
+}
+```
 
 ### Accessibility -- Critical
 
-**Problem:** Chart components (CircularProgressRing.swift, WeeklyChart.swift, SleepQualityGraph.swift, HabitAnalyticsGraph.swift) -- These visual data representations have minimal or no VoiceOver support. Charts show data visually but screen reader users get no information.
+**Problem:** No check for `accessibilityReduceMotion` anywhere in the codebase. The `hlStaggeredAppear` modifier applies slide-in animations to every card on every screen load, and celebration animations play on achievement unlock.
 
-**Impact:** Blind and low-vision users cannot access any chart data, which is a core feature of the app (progress tracking, sleep analytics, habit trends).
+**Impact:** Users with motion sensitivity or vestibular disorders will experience discomfort from the constant motion on every screen transition.
 
-**Fix:** Add `.accessibilityElement(children: .ignore)` to chart containers and provide a comprehensive `.accessibilityLabel()` that summarizes the data: e.g., "Weekly sleep chart. Average 7.4 hours. Best night Friday at 9 hours. Worst night Tuesday at 6 hours."
+**Fix:** Add Reduce Motion support to the animation system:
+```swift
+// In Effects.swift
+@Environment(\.accessibilityReduceMotion) var reduceMotion
+
+// In hlStaggeredAppear modifier
+if reduceMotion { return content.opacity(1) }
+```
 
 ### Accessibility -- Major
 
-**Problem:** Theme.swift:43-47 -- `hlTextTertiary` dark mode contrast is approximately 3.2:1 against `hlSurface`, below WCAG AA 4.5:1 minimum for normal text.
+**Problem:** The circular progress ring in HabitCard and Daily Progress card conveys completion percentage purely through visual means (the arc fill). There is no text alternative for the percentage visible in the ring itself.
 
-**Impact:** Users with low vision cannot read tertiary text in dark mode.
+**Impact:** Users relying on VoiceOver hear the combined label but may miss the visual nuance of partial progress (e.g., 50% filled ring vs 80% filled ring).
 
-**Fix:** Change dark mode `hlTextTertiary` from `UIColor(red: 0.43, green: 0.43, blue: 0.45)` to `UIColor(red: 0.56, green: 0.56, blue: 0.58)` (#8E8E93) for 4.5:1+ contrast.
+**Fix:** The HabitCard combined label already includes completion status, which is good. For the Daily Progress card, ensure the accessibility label includes the percentage: "Daily Progress: 80 percent, 4 of 5 habits completed."
 
 ### Accessibility -- Major
 
-**Problem:** Sleep quality and mood icons in LogSleepView and SleepHistoryView show as "?" placeholder boxes in screenshots (03_log_sleep_form.png, 03_sleep_history.png), suggesting emoji rendering issues or missing SF Symbols.
+**Problem:** `.minimumScaleFactor(0.75)` is used in 16 files (31 occurrences), which is good, but many stat numbers and card titles in HomeDashboardView, PersonalStatisticsView, and SleepDashboardView lack it.
 
-**Impact:** All users of the Sleep tab see broken icons. VoiceOver users would hear no meaningful description of these broken elements.
+**Impact:** Stat numbers and titles will truncate with ellipsis at larger text sizes instead of gracefully scaling down.
 
-**Fix:** Verify that the emoji or SF Symbol names for sleep quality levels (Terrible, Poor, Fair, Good, Excellent) and mood levels (Exhausted through Energized) are valid. If using emoji, ensure they render correctly on all iOS versions.
+**Fix:** Add `.minimumScaleFactor(0.75)` to all stat number labels and card section titles across Home, Sleep, and Profile views.
 
 ---
 
 ## Domain Deep Dives
 
-### Home Domain
-**Screenshots reviewed:** 01_home_top.png, 01_home_mid.png, 01_home_bottom.png, 01_pomodoro.png, 01_notifications.png, 01_create_habit_sheet.png, 01_daily_overview.png
-**Files analyzed:** HomeDashboardView.swift, DailyHabitsOverview.swift, PomodoroView.swift, WeeklyProgressView.swift, StreakSummaryView.swift, InsightsOverviewView.swift, HabitChainView.swift, HabitTimerView.swift
+### Home Dashboard
+**Screenshots reviewed:** 01_home_dashboard.png, 01_home_dashboard_scrolled.png, 01_home_dashboard_scrolled2.png, free_00_home_after_onboarding.png
+**Files analyzed:** HomeDashboardView.swift, HabitCard.swift, TabBarView.swift, ContentView.swift
+**Domain score:** 34/40
+
+The Home Dashboard is the strongest screen in the app. The visual hierarchy is excellent: greeting at top, XP bar, daily progress ring, then habit cards. The circular progress ring is a clear focal point with the "80% done" text prominent. Each habit card has a consistent layout: colored icon circle, name, streak flame, and action button. The FAB (floating action button) is properly positioned and sized at 56pt base.
+
+The staggered appear animation (`hlStaggeredAppear`) creates a pleasing cascade effect on load. The undo toast for habit un-completion is a thoughtful interaction detail. The greeting dynamically adjusts based on time of day.
+
+Minor issues: The XP bar ("LV8 --- 520/800") could benefit from a more descriptive accessibility label. The "See All" link next to "Today's Habits" uses the default primary color which competes slightly with the habit completion checkmarks.
+
+### Habits
+**Screenshots reviewed:** 02_habits_list.png, 02_habits_list_scrolled.png, 02_habit_detail.png, 02_habit_detail_scrolled.png, 02_habit_detail_from_list.png, 02_create_habit.png, 02_create_habit_scrolled.png, 02_habits_sort_menu.png, free_06_habits_empty.png, free_07_habits_at_limit.png
+**Files analyzed:** HabitListView.swift, HabitDetailView.swift, CreateHabitView.swift, HabitCard.swift
 **Domain score:** 32/40
 
-The home dashboard is the strongest screen in the app. The greeting ("Good morning, Alex"), date, level progress bar, and daily progress ring create a clear narrative from top to bottom. The habit list with streak badges and completion checkmarks is immediately scannable. The weekly insight card ("Just 1 habit left -- finish strong!") is well-placed and motivating.
+The Habits tab has a well-structured list with summary header, filter tabs (Active/Archived), and sort functionality. The Create Habit form is comprehensive with icon picker, color picker, category chips, frequency selector, and reminder toggle. The Habit Detail view has a compelling "Last 30 Days" dot grid that visualizes completion history at a glance.
 
-The Pomodoro timer screen is clean and focused with a large ring timer, clear session counter, and ambient sound picker at the bottom. The sound picker icons (Rain, Forest, Ocean, etc.) are well-spaced and labeled.
+The habit detail stat row (Current: 33, Best: 33, Total: 35, Rate: 100%) uses color coding effectively -- the streak numbers use the primary color, the rate percentage uses semantic success green.
 
-Weakness: The bottom half of the home screen (below habits list) has diminishing returns -- stats row, insight, Focus Timer, and "Track to Transform" card feel like filler. Consider making the Focus Timer more prominent or removing the motivational card.
+The sort menu implementation could be improved -- it currently overlays as a custom dropdown rather than using a system `.menu` or `.contextMenu`. The search field in the habits list appears when scrolling up, following the standard iOS pattern.
 
-### Habits Domain
-**Screenshots reviewed:** 02_edit_habit.png (shows undo toast on home), 02_habits_list.png through 02_create_form_bottom.png (all show home due to nav issues)
-**Files analyzed:** HabitListView.swift, HabitDetailView.swift, CreateHabitView.swift, EditHabitView.swift, HabitArchiveView.swift, HabitHistoryView.swift, HabitNotesView.swift, HabitReminderView.swift
-**Domain score:** 31/40
+The Create Habit form is well-sectioned but quite long. On smaller screens, the user needs to scroll significantly to reach the "Create Habit" button. Consider a sticky bottom button or progressive disclosure (collapsible sections).
 
-NOTE: Due to XCUITest navigation issues, all Habit tab screenshots showed the Home dashboard instead. Scoring is based on code inspection and the visible HabitCard components on the home screen.
+### Sleep
+**Screenshots reviewed:** 03_sleep_dashboard.png, 03_sleep_dashboard_scrolled.png, 03_sleep_dashboard_scrolled2.png, 03_log_sleep.png, 03_log_sleep_scrolled.png, free_01_sleep_premium_gate.png, free_01_sleep_upgrade_visible.png
+**Files analyzed:** SleepDashboardView.swift, LogSleepView.swift
+**Domain score:** 33/40
 
-The HabitCard component is well-designed: icon in colored circle, name, streak badge with flame, and a contextual right action (checkmark for simple habits, counter for progressive, timer for time-based, heart for HealthKit). The CreateHabitView has a comprehensive form with icon picker, color picker, category, frequency, goal, and HealthKit integration.
+The Sleep domain has the most polished visual design. The "Last Night" card with the large "7h 42m" hero number, emoji mood indicator, and bedtime/waketime icons is immediately scannable. The weekly chart uses purple bars (matching the sleep category color) with an orange dashed target line. The three stat pills (Avg Duration, Avg Quality, Consistency) are balanced and well-spaced.
 
-The undo toast (visible in 02_edit_habit.png) shows "Morning Meditation completed! [Undo]" -- a best-practice pattern for reversible actions.
+The Log Sleep sheet is excellent UX. The duration display at the top immediately shows the calculated sleep time. The quality selector uses emoji faces with text labels in selectable rows -- this is more accessible than a star rating. The mood selector follows the same pattern. The purple accent color for sleep features is consistently applied throughout.
 
-### Sleep Domain
-**Screenshots reviewed:** 03_sleep_dashboard.png, 03_sleep_scrolled.png, 03_sleep_bottom.png, 03_log_sleep_form.png, 03_log_sleep_scrolled.png, 03_sleep_history.png, 03_sleep_history_scrolled.png, 03_sleep_analytics.png, 03_sleep_analytics_scrolled.png, 03_sleep_saved.png
-**Files analyzed:** SleepDashboardView.swift, LogSleepView.swift, SleepHistoryView.swift, SleepAnalyticsView.swift, SleepInsightsView.swift
+The Sleep & Habits correlation card at the bottom is a standout feature -- "Your habits stay consistent regardless of sleep -- impressive discipline!" is genuinely motivating and contextually relevant.
+
+The premium gate for free users shows the sleep dashboard blurred behind a lock icon. The blur effect is visually appealing but the overlay text is partially obscured by the blurred content beneath it, reducing readability.
+
+### Profile
+**Screenshots reviewed:** 04_profile.png, 04_profile_scrolled.png, 04_achievements.png, 04_achievements_scrolled.png, 04_personal_stats.png, 04_personal_stats_scrolled.png, 04_edit_profile.png, free_02_profile.png
+**Files analyzed:** UserProfileView.swift, PersonalStatisticsView.swift, EditProfileView.swift
 **Domain score:** 32/40
 
-The sleep domain has the most complete screenshot coverage and shows strong visual design. The dashboard card hierarchy (Last Night -> This Week chart -> Stats row -> Insights) is logical. The purple color theme (hlSleep) creates a distinct visual identity. The "Log Sleep" CTA is prominent and sticky at the bottom.
+The Profile screen has a clean layout: centered avatar, name, username, level badge, and a 4-column stats row. The achievement showcase shows 4 unlocked achievements with gold star icons. The quick links section (Personal Statistics, Achievements, Share Profile) uses standard list row styling with chevron disclosure indicators.
 
-The Log Sleep form is clean with a clear duration display, time pickers, and quality/mood selectors. However, the quality and mood icons appear as "?" placeholders in screenshots -- this is a visual bug that needs fixing.
+Personal Statistics is impressively detailed: All-Time Stats grid (6 cards), Monthly Completions bar chart, Category Breakdown with color-coded bars, and Personal Records section. The 2-column stat card grid is visually balanced with good use of icon+number+label hierarchy.
 
-Sleep Analytics is data-rich with 30-day duration chart, quality trend line, best/worst night comparison, day-of-week averages, sleep debt, and bed-vs-asleep efficiency. The data density is high but well-organized with card separations.
+The Edit Profile screen is simple and functional but feels slightly bare compared to the richness of other screens. The three text fields (Name, Username, Bio) with a "Save Changes" button could benefit from avatar editing capability (currently shown as a static colored circle with a small pencil overlay).
 
-### Social Domain
-**Screenshots reviewed:** 04_social_hub.png, 04_friends_scrolled.png, 04_friend_profile.png, 04_friend_profile_scrolled.png, 04_leaderboard.png, 04_leaderboard_scrolled.png, 04_challenges.png, 04_create_challenge.png, 04_invite_friends.png
-**Files analyzed:** SocialHubView.swift, FriendsListView.swift, FriendProfileView.swift, LeaderboardView.swift, SharedChallengesView.swift, CreateChallengeView.swift, SocialFeedView.swift, InviteFriendsView.swift, NudgesSheetView.swift, PendingRequestsView.swift
+The "Share Profile" button in the profile view -- based on code inspection, this appears to be non-functional (a known issue from QA). This should either be implemented or removed.
+
+### Premium / Paywall
+**Screenshots reviewed:** free_03_stats_paywall.png, free_05_paywall_from_settings.png, free_08_paywall_from_habit_limit.png
+**Files analyzed:** PaywallView.swift, PremiumGateView.swift
 **Domain score:** 30/40
 
-The social hub segment picker is functional but the four-segment horizontal layout feels crowded. The friends list is clean with avatar, name, level badge, streak, and activity status. Friend profiles are well-structured with avatar, stats row (42 Day Streak / 210 Completions / Lvl 12), and Nudge/Challenge action buttons.
+The Paywall design is clean: crown icon in green circle, "HabitLand Pro" title, feature list with green checkmarks, plan selector, and purchase button. The feature list (Unlimited Habits, Advanced Analytics, Streak Shields, Sleep Tracking, All Achievements, Custom Themes) communicates value clearly.
 
-The leaderboard podium view is creative with #1/#2/#3 positioned in a podium layout with crown icon. The full rankings list below is clear with rank number, avatar, name, streak, and XP.
+The contextual paywall system (`PaywallContext`) is well-designed in code -- it adapts the header icon and title based on where the user hits the gate. However, the generic `PremiumGateView` ("Pro Feature") doesn't leverage this context, creating an inconsistent experience between the gate overlay and the full paywall.
 
-The Challenges empty state is one of the best empty states in the app -- centered flag icon, clear message, and prominent "Create Challenge" CTA.
+The settings "Upgrade to Pro" row uses a warm gradient icon (orange to yellow) which is eye-catching without being aggressive. The PRO badge is a clean green pill.
 
-Invite Friends screen is comprehensive with referral code, share button, friend search, and code entry. The layout is well-organized.
-
-### Profile Domain
-**Screenshots reviewed:** 05_personal_stats.png, 05_personal_stats_scrolled.png (05_profile_top/scrolled/bottom showed Challenges screen due to nav issues)
-**Files analyzed:** UserProfileView.swift, PersonalStatisticsView.swift, EditProfileView.swift, AchievementsShowcaseView.swift, AvatarPickerView.swift
-**Domain score:** 31/40
-
-NOTE: Profile screenshots showed the Social Challenges screen due to navigation issues. Scoring is based on code inspection and the Personal Statistics screenshots.
-
-Personal Statistics view is excellent: 6 stat cards in a 2-column grid (Total Completions, Days Active, Success Rate, Best Streak, Habits Created, Achievements), monthly completions bar chart, category breakdown with color-coded progress bars, and personal records section. The data presentation is clear and well-organized.
-
-From code analysis, the Profile view has proper structure: avatar, name/username, level badge, stats row, streak freeze card, achievements showcase, and quick links to settings.
-
-### Settings Domain
-**Screenshots reviewed:** None available in this run
-**Files analyzed:** GeneralSettingsView.swift, AppearanceSettingsView.swift, NotificationSettingsView.swift, DataExportView.swift
-**Domain score:** 31/40
-
-From code inspection, Settings uses the standard `List` component with sections -- following HIG conventions closely. The "Upgrade to Pro" banner at the top of settings uses an orange gradient icon, which is a common and effective pattern. Settings icon styling (28x28 colored squares with rounded corners) follows the iOS Settings app pattern.
-
-### Onboarding Domain
-**Screenshots reviewed:** None in this run
-**Files analyzed:** OnboardingView.swift, HabitPreferenceView.swift, NotificationSetupView.swift, OnboardingCompleteView.swift, StarterHabitsView.swift, ThemeOnboardingView.swift
-**Domain score:** 31/40
-
-OnboardingView.swift is one of the largest files with 22 `.font(.system(size:))` occurrences, suggesting complex custom layouts. The onboarding includes theme selection, habit preferences, notification setup, and starter habits -- a comprehensive first-run experience. Code shows `.minimumScaleFactor()` usage (8 instances), indicating attention to text fitting.
-
-### Premium Domain
-**Screenshots reviewed:** None in this run
-**Files analyzed:** PaywallView.swift, PremiumGateView.swift, LegalView.swift
-**Domain score:** 31/40
-
-PaywallView uses a standard paywall pattern: header icon, feature list, plan selection, purchase button, restore button, and legal links. Error handling includes a "Purchase Failed" alert with "Try Again" option -- good error recovery. The contextual paywall system (`PaywallContext`) shows different headers based on which feature triggered the gate -- a sophisticated and user-friendly approach.
-
-### Analytics Domain
-**Screenshots reviewed:** 03_sleep_analytics.png, 03_sleep_analytics_scrolled.png (sleep analytics only)
-**Files analyzed:** WeeklyAnalyticsView.swift, MonthlyAnalyticsView.swift, LongTermProgressView.swift, HabitDifficultyInsightsView.swift, HabitSuccessTrendsView.swift
-**Domain score:** 29/40
-
-Analytics views are data-dense. Code shows heavy use of custom chart components and design system tokens. The sleep analytics screenshots demonstrate good data visualization with 30-day charts, trend lines, and statistical summaries. However, the analytics domain has the highest density of `.font(.system(size:))` calls (InsightsOverviewView.swift alone has 12), suggesting more hardcoded styling than other domains.
-
-### Discovery Domain
-**Screenshots reviewed:** None in this run
-**Files analyzed:** TemplateBrowserView.swift, HabitDiscoveryView.swift, HabitCategoriesView.swift, RecommendedHabitsView.swift, HabitPackDetailView.swift
-**Domain score:** 30/40
-
-Code inspection shows a well-organized template browser system with categories, recommendations, and habit packs. Template cards use design system tokens consistently. The domain lacks screenshots for visual verification.
-
-### Notifications Domain
-**Screenshots reviewed:** 01_notifications.png
-**Files analyzed:** NotificationCenterView.swift, NotificationDetailView.swift, ReminderSettingsView.swift
-**Domain score:** 29/40
-
-The notification center empty state ("All Caught Up! You're on top of your game.") is positive but the screen feels underdeveloped. No loading state, no refresh action, no navigation to notification settings. When notifications exist, NotificationDetailView.swift has 5 `.font(.system(size:))` calls and 31 design token references -- reasonable but the detail view is relatively small.
+The habit limit banner ("Habit limit reached" + "Upgrade" button) is the weakest premium touchpoint -- it's purely functional with no value proposition.
 
 ---
 
 ## Design System Health
 
-- **Token coverage:** ~92% of views use design tokens (3,428 design system token references vs 298 `.font(.system(size:))` calls). The remaining 8% is primarily icon sizing where `@ScaledMetric` + `min()` replaces `HLFont` -- this is an acceptable pattern for icons but could be formalized.
-- **Consistency score:** High -- The `.hlCard()` modifier, `HLSpacing` constants, `HLFont` functions, and `Color.hl*` palette are used consistently across virtually all view files.
+- **Token coverage:** ~92% of views use design tokens for spacing, typography, and color. The remaining ~8% consists of occasional `spacing: 2` hardcoded values and `+ 8` arithmetic offsets.
+- **Consistency score:** High -- The `HLFont`, `HLSpacing`, `HLRadius`, `HLShadow`, and `HLIcon` systems are used pervasively. The `hlCard()` modifier provides consistent card styling across 65+ view files (199 occurrences).
 - **Missing tokens:**
-  - No `HLIconSize` struct exists as a standalone file (though icon sizes are declared per-view with `@ScaledMetric`, which is actually the correct pattern since `@ScaledMetric` cannot be used on static properties)
-  - No spacing tokens for "section gap" vs "card gap" vs "element gap" -- views use `HLSpacing.md` (16) for most gaps but some use `.lg` (24) for section breaks. A semantic layer (e.g., `HLSpacing.sectionGap`, `HLSpacing.cardGap`) would improve consistency.
-  - No elevation/shadow tokens beyond the existing `HLShadow` levels -- all cards use `.sm` shadow, creating flat visual depth.
+  - No dedicated icon size token system (each view defines its own `@ScaledMetric` properties, leading to slight inconsistencies)
+  - No button style tokens (primary, secondary, destructive button styles are ad-hoc)
+  - No animation duration token beyond the basic 5 presets
 - **Recommendations:**
-  1. Create semantic spacing aliases: `sectionGap = lg`, `cardGap = md`, `elementGap = sm`, `inlineGap = xs`
-  2. Vary shadow levels by card importance: featured cards could use `.md`, standard cards `.sm`
-  3. Formalize the `@ScaledMetric` icon size pattern with a documented convention (the current per-view approach is correct but the naming varies: `flameSize`, `flameIconSize`, `iconSize`, `smallIconSize`, etc.)
-  4. Add a dark mode contrast checker to the design system (automated test that verifies all text/background combinations meet WCAG AA)
+  1. Create `HLButtonStyle` view modifiers for primary (filled green), secondary (outlined), and destructive (red) button patterns to replace per-view button styling
+  2. Centralize `@ScaledMetric` icon sizes into a shared view modifier or environment key to avoid the 10+ ScaledMetric declarations at the top of every view file
+  3. Add a `HLLayout` system with tokens for stat row columns, card grids, and reflow breakpoints
 
 ---
 
 ## Files Analyzed
 
-### Screenshot Files (40 total)
-- 01_home_top.png, 01_home_mid.png, 01_home_bottom.png
-- 01_notifications.png, 01_create_habit_sheet.png, 01_pomodoro.png, 01_daily_overview.png
-- 02_habits_list.png, 02_habits_scrolled.png, 02_habit_detail_top.png, 02_habit_detail_mid.png, 02_habit_detail_bottom.png
-- 02_edit_habit.png, 02_edit_habit_scrolled.png, 02_create_form_empty.png, 02_create_form_mid.png, 02_create_form_bottom.png
-- 03_sleep_dashboard.png, 03_sleep_scrolled.png, 03_sleep_bottom.png, 03_sleep_saved.png
-- 03_log_sleep_form.png, 03_log_sleep_scrolled.png
-- 03_sleep_history.png, 03_sleep_history_scrolled.png
-- 03_sleep_analytics.png, 03_sleep_analytics_scrolled.png
-- 04_social_hub.png, 04_friends_scrolled.png, 04_friend_profile.png, 04_friend_profile_scrolled.png
-- 04_leaderboard.png, 04_leaderboard_scrolled.png, 04_challenges.png, 04_create_challenge.png
-- 04_invite_friends.png
-- 05_profile_top.png, 05_profile_scrolled.png, 05_profile_bottom.png
-- 05_personal_stats.png, 05_personal_stats_scrolled.png
+### View Files
+- `/Users/azc/works/HabitLand/HabitLand/Screens/Home/HomeDashboardView.swift`
+- `/Users/azc/works/HabitLand/HabitLand/Components/Cards/HabitCard.swift`
+- `/Users/azc/works/HabitLand/HabitLand/Components/Navigation/TabBarView.swift`
+- `/Users/azc/works/HabitLand/HabitLand/ContentView.swift`
+- `/Users/azc/works/HabitLand/HabitLand/Screens/Habits/HabitListView.swift`
+- `/Users/azc/works/HabitLand/HabitLand/Screens/Habits/CreateHabitView.swift`
+- `/Users/azc/works/HabitLand/HabitLand/Screens/Sleep/SleepDashboardView.swift`
+- `/Users/azc/works/HabitLand/HabitLand/Screens/Sleep/LogSleepView.swift`
+- `/Users/azc/works/HabitLand/HabitLand/Screens/Profile/UserProfileView.swift`
+- `/Users/azc/works/HabitLand/HabitLand/Screens/Profile/PersonalStatisticsView.swift`
+- `/Users/azc/works/HabitLand/HabitLand/Screens/Profile/EditProfileView.swift`
+- `/Users/azc/works/HabitLand/HabitLand/Screens/Premium/PaywallView.swift`
+- `/Users/azc/works/HabitLand/HabitLand/Screens/Premium/PremiumGateView.swift`
+- `/Users/azc/works/HabitLand/HabitLand/Screens/Settings/GeneralSettingsView.swift`
+- `/Users/azc/works/HabitLand/HabitLand/Screens/Onboarding/OnboardingView.swift`
 
 ### Design System Files
 - `/Users/azc/works/HabitLand/HabitLand/DesignSystem/Theme.swift`
 - `/Users/azc/works/HabitLand/HabitLand/DesignSystem/Effects.swift`
 
-### Screen View Files (65 files across 11 domains)
-- Home: HomeDashboardView, DailyHabitsOverview, PomodoroView, WeeklyProgressView, StreakSummaryView, InsightsOverviewView, HabitChainView, HabitTimerView
-- Habits: HabitListView, HabitDetailView, CreateHabitView, EditHabitView, HabitArchiveView, HabitHistoryView, HabitNotesView, HabitReminderView, HabitScheduleView, HabitStatisticsView
-- Sleep: SleepDashboardView, LogSleepView, SleepHistoryView, SleepAnalyticsView, SleepInsightsView
-- Social: SocialHubView, FriendsListView, FriendProfileView, LeaderboardView, SharedChallengesView, CreateChallengeView, SocialFeedView, InviteFriendsView, NudgesSheetView, PendingRequestsView
-- Profile: UserProfileView, PersonalStatisticsView, EditProfileView, AchievementsShowcaseView, AvatarPickerView
-- Settings: GeneralSettingsView, AppearanceSettingsView, NotificationSettingsView, DataExportView, HabitSettingsView, PrivacySettingsView
-- Premium: PaywallView, PremiumGateView, LegalView
-- Analytics: WeeklyAnalyticsView, MonthlyAnalyticsView, LongTermProgressView, HabitDifficultyInsightsView, HabitSuccessTrendsView
-- Discovery: TemplateBrowserView, HabitDiscoveryView, HabitCategoriesView, RecommendedHabitsView, HabitPackDetailView
-- Notifications: NotificationCenterView, NotificationDetailView, ReminderSettingsView
-- Onboarding: OnboardingView, HabitPreferenceView, NotificationSetupView, OnboardingCompleteView, StarterHabitsView, ThemeOnboardingView
-- Gamification: AchievementsView, MilestonesView, RewardsView, StreakOverviewView, LevelProgressView
-
-### Component Files (32 total)
-- Cards: HabitCard, AchievementCard, SleepCard, StreakCard, ProgressCard
-- Common: EmptyStateView, HLButton, LoadingView, SectionHeader, SpotlightCoachingView
-- Navigation: TabBarView, HeaderView, FloatingActionButton
-- Social: FriendCard, LeaderboardRow, ChallengeCard, AvatarView
-- Inputs: HLTextField, HLSlider, HLTimePicker, HLToggle
-- Analytics: CircularProgressRing, WeeklyChart, SleepQualityGraph, HabitAnalyticsGraph
-- Gamification: AchievementBadge, LevelBadge, MilestoneBadge, StreakFlame
-- Other: AmbientSoundPicker, ReferralCodeEntryView, UndoToast
+### Screenshots Reviewed (35 files)
+- `01_home_dashboard.png`, `01_home_dashboard_scrolled.png`, `01_home_dashboard_scrolled2.png`
+- `02_habits_list.png`, `02_habits_list_scrolled.png`, `02_habit_detail.png`, `02_habit_detail_scrolled.png`, `02_habit_detail_from_list.png`, `02_create_habit.png`, `02_create_habit_scrolled.png`, `02_habits_sort_menu.png`
+- `03_sleep_dashboard.png`, `03_sleep_dashboard_scrolled.png`, `03_sleep_dashboard_scrolled2.png`, `03_log_sleep.png`, `03_log_sleep_scrolled.png`
+- `04_profile.png`, `04_profile_scrolled.png`, `04_achievements.png`, `04_achievements_scrolled.png`, `04_personal_stats.png`, `04_personal_stats_scrolled.png`, `04_edit_profile.png`
+- `99_final_state.png`
+- `free_00_home_after_onboarding.png`, `free_01_sleep_premium_gate.png`, `free_01_sleep_upgrade_visible.png`, `free_02_profile.png`, `free_03_stats_paywall.png`, `free_04_settings.png`, `free_04_settings_upgrade_visible.png`, `free_05_paywall_from_settings.png`, `free_06_habits_empty.png`, `free_07_habits_at_limit.png`, `free_08_paywall_from_habit_limit.png`, `free_99_final_state.png`
