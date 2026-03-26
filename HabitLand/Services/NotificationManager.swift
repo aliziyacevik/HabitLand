@@ -72,10 +72,10 @@ final class NotificationManager: ObservableObject {
         }
     }
 
-    func scheduleHabitReminder(habitId: UUID, habitName: String, icon: String, at time: Date) {
+    func scheduleHabitReminder(habitId: UUID, habitName: String, icon: String = "", at time: Date, customMessage: String = "") {
         let content = UNMutableNotificationContent()
         content.title = "Time for \(habitName)"
-        content.body = "Don't break the chain! Complete your habit now."
+        content.body = customMessage.isEmpty ? "Time for \(habitName)!" : customMessage
         content.sound = .default
         content.categoryIdentifier = "habitReminder"
 
@@ -95,9 +95,11 @@ final class NotificationManager: ObservableObject {
         center.removePendingNotificationRequests(withIdentifiers: ["habit-\(habitId.uuidString)"])
     }
 
-    func rescheduleAll(habits: [(id: UUID, name: String, icon: String, reminderTime: Date)]) {
+    func rescheduleAll(habits: [(id: UUID, name: String, icon: String, reminderTime: Date, customMessage: String)]) {
         center.removeAllPendingNotificationRequests()
-        scheduleHabitReminders(habits: habits)
+        for habit in habits {
+            scheduleHabitReminder(habitId: habit.id, habitName: habit.name, icon: habit.icon, at: habit.reminderTime, customMessage: habit.customMessage)
+        }
     }
 
     // MARK: - Streak Alerts
