@@ -518,6 +518,7 @@ struct HomeDashboardView: View {
                     Text("\(Int(completionPercent * 100))%")
                         .font(HLFont.title2())
                         .foregroundStyle(Color.hlTextPrimary)
+                        .minimumScaleFactor(0.75)
                     Text("done")
                         .font(HLFont.caption())
                         .foregroundStyle(Color.hlTextTertiary)
@@ -649,6 +650,7 @@ struct HomeDashboardView: View {
                     Text("\(streakDays)")
                         .font(HLFont.largeTitle())
                         .foregroundStyle(Color.hlFlame)
+                        .minimumScaleFactor(0.75)
                     Text("days")
                         .font(HLFont.body())
                         .foregroundStyle(Color.hlTextSecondary)
@@ -664,6 +666,7 @@ struct HomeDashboardView: View {
                 Text("\(bestStreak) days")
                     .font(HLFont.subheadline(.semibold))
                     .foregroundStyle(Color.hlTextSecondary)
+                    .minimumScaleFactor(0.75)
             }
         }
         .accessibilityElement(children: .ignore)

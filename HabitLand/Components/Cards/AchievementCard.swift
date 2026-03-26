@@ -134,6 +134,7 @@ struct AchievementCard: View {
             Text("\(Int(progress * Double(targetValue)))/\(targetValue)")
                 .font(HLFont.caption2(.medium))
                 .foregroundColor(.hlTextTertiary)
+                .minimumScaleFactor(0.75)
         }
         .padding(.top, HLSpacing.xxs)
     }

@@ -359,6 +359,7 @@ struct PersonalStatisticsView: View {
             Text(value)
                 .font(HLFont.subheadline(.semibold))
                 .foregroundColor(.hlPrimary)
+                .minimumScaleFactor(0.75)
         }
     }
 }

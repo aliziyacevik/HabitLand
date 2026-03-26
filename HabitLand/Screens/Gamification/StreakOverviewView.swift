@@ -48,6 +48,7 @@ struct StreakOverviewView: View {
                 Text("\(activeStreaks.count)")
                     .font(HLFont.largeTitle(.bold))
                     .foregroundStyle(Color.hlFlame)
+                    .minimumScaleFactor(0.75)
                 Text("Active Streaks")
                     .font(HLFont.caption(.medium))
                     .foregroundStyle(Color.hlTextSecondary)
@@ -58,6 +59,7 @@ struct StreakOverviewView: View {
                 Text("\(longestStreak?.currentStreak ?? 0)")
                     .font(HLFont.largeTitle(.bold))
                     .foregroundStyle(Color.hlGold)
+                    .minimumScaleFactor(0.75)
                 Text("Longest Current")
                     .font(HLFont.caption(.medium))
                     .foregroundStyle(Color.hlTextSecondary)
@@ -68,6 +70,7 @@ struct StreakOverviewView: View {
                 Text("\(habits.map(\.bestStreak).max() ?? 0)")
                     .font(HLFont.largeTitle(.bold))
                     .foregroundStyle(Color.hlPrimary)
+                    .minimumScaleFactor(0.75)
                 Text("All-Time Best")
                     .font(HLFont.caption(.medium))
                     .foregroundStyle(Color.hlTextSecondary)
@@ -90,6 +93,7 @@ struct StreakOverviewView: View {
             Text("\(habit.currentStreak) days")
                 .font(HLFont.largeTitle(.bold))
                 .foregroundStyle(Color.hlTextPrimary)
+                .minimumScaleFactor(0.75)
 
             Text(habit.name)
                 .font(HLFont.headline())
@@ -205,6 +209,7 @@ struct StreakOverviewView: View {
                 Text("\(habit.currentStreak)")
                     .font(HLFont.title2())
                     .foregroundStyle(Color.hlTextPrimary)
+                    .minimumScaleFactor(0.75)
             }
 
             Text(habit.name)
