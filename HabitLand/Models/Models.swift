@@ -15,6 +15,7 @@ final class Habit {
     var targetDays: [Int] = [0, 1, 2, 3, 4, 5, 6]
     var reminderTime: Date?
     var reminderEnabled: Bool = false
+    var reminderMessage: String = ""
     var goalCount: Int = 1
     var unit: String = "times"
     var notes: String = ""
@@ -40,6 +41,7 @@ final class Habit {
         targetDays: [Int] = [0, 1, 2, 3, 4, 5, 6],
         reminderTime: Date? = nil,
         reminderEnabled: Bool = false,
+        reminderMessage: String = "",
         goalCount: Int = 1,
         unit: String = "times",
         notes: String = "",
@@ -54,6 +56,7 @@ final class Habit {
         self.targetDays = targetDays
         self.reminderTime = reminderTime
         self.reminderEnabled = reminderEnabled
+        self.reminderMessage = reminderMessage
         self.goalCount = goalCount
         self.unit = unit
         self.notes = notes
