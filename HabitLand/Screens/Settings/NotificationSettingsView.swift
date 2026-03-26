@@ -6,7 +6,6 @@ struct NotificationSettingsView: View {
     @AppStorage("notif_habits") private var habitReminders = true
     @AppStorage("notif_streaks") private var streakAlerts = true
     @AppStorage("notif_achievements") private var achievements = true
-    @AppStorage("notif_social") private var socialNotifications = true
     @AppStorage("notif_quietHours") private var quietHoursEnabled = false
     @AppStorage("notif_quietStartHour") private var quietStartHour = 22
     @AppStorage("notif_quietStartMinute") private var quietStartMinute = 0
@@ -54,10 +53,8 @@ struct NotificationSettingsView: View {
 
             if masterToggle {
                 Section {
-                    notificationToggle("Habit Reminders", subtitle: "Daily reminders for your habits", icon: "bell.fill", color: .hlPrimary, isOn: $habitReminders)
-                    notificationToggle("Streak Alerts", subtitle: "Warnings when streaks are at risk", icon: "flame.fill", color: .hlFlame, isOn: $streakAlerts)
-                    notificationToggle("Achievements", subtitle: "When you unlock new achievements", icon: "trophy.fill", color: .hlGold, isOn: $achievements)
-                    notificationToggle("Social", subtitle: "Friend requests, challenges, messages", icon: "person.2.fill", color: .hlInfo, isOn: $socialNotifications)
+                    notificationToggle("Morning Motivation", subtitle: "Daily reminder to start your habits", icon: "sun.max.fill", color: .hlPrimary, isOn: $habitReminders)
+                    notificationToggle("Evening Reminder", subtitle: "Alert when habits are incomplete", icon: "moon.fill", color: .hlFlame, isOn: $streakAlerts)
                     notificationToggle("Weekly Summary", subtitle: "Progress recap every Sunday", icon: "chart.bar.fill", color: .hlMindfulness, isOn: $weeklySummary)
                 } header: {
                     Text("Notification Types")

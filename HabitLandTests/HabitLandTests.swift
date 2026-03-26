@@ -39,15 +39,15 @@ struct HabitTests {
         #expect(habit.todayCompleted == false)
     }
 
-    @Test func todayProgressCalculation() {
-        let habit = Habit(name: "Drink Water", goalCount: 3)
+    @Test func todayProgressIsBinary() {
+        let habit = Habit(name: "Drink Water")
         #expect(habit.todayProgress == 0.0)
 
         let c1 = HabitCompletion(date: Date())
         c1.habit = habit
         habit.completions = (habit.completions ?? []) + [c1]
-        // 1 of 3
-        #expect(abs(habit.todayProgress - (1.0/3.0)) < 0.01)
+        // Binary: any completion today → 1.0
+        #expect(habit.todayProgress == 1.0)
     }
 
     @Test func totalCompletionsCount() {

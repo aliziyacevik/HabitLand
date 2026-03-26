@@ -6,55 +6,48 @@ import Foundation
 
 struct NotificationManagerTests {
 
-    // MARK: - Evening Reminder
+    // MARK: - Morning Motivation
 
-    @Test @MainActor func scheduleEveningReminderForPendingHabits() {
+    @Test @MainActor func scheduleMorningMotivation() {
         let manager = NotificationManager.shared
-        manager.scheduleEveningReminder(pendingCount: 3)
-        // Verifies code path executes without crash
+        manager.scheduleMorningMotivation(habitCount: 5)
     }
 
-    @Test @MainActor func scheduleEveningReminderSingleHabit() {
+    @Test @MainActor func scheduleMorningMotivationZeroHabits() {
         let manager = NotificationManager.shared
-        manager.scheduleEveningReminder(pendingCount: 1)
+        manager.scheduleMorningMotivation(habitCount: 0)
+    }
+
+    // MARK: - Evening Reminder
+
+    @Test @MainActor func scheduleEveningReminderWithPending() {
+        let manager = NotificationManager.shared
+        manager.scheduleEveningReminder(pendingCount: 3, bestStreakAtRisk: 7)
+    }
+
+    @Test @MainActor func scheduleEveningReminderNoStreakRisk() {
+        let manager = NotificationManager.shared
+        manager.scheduleEveningReminder(pendingCount: 2, bestStreakAtRisk: nil)
     }
 
     @Test @MainActor func noEveningReminderWhenAllComplete() {
         let manager = NotificationManager.shared
-        // pendingCount = 0 → guard returns early
-        manager.scheduleEveningReminder(pendingCount: 0)
+        manager.scheduleEveningReminder(pendingCount: 0, bestStreakAtRisk: nil)
     }
 
-    // MARK: - Streak At Risk
+    // MARK: - Weekly Recap
 
-    @Test @MainActor func streakAtRiskRemindersWithNoAtRiskHabits() {
+    @Test @MainActor func scheduleWeeklyRecap() {
         let manager = NotificationManager.shared
-        let habits: [(id: UUID, name: String, streak: Int, completed: Bool)] = [
-            (UUID(), "Exercise", 5, true),  // completed, not at risk
-            (UUID(), "Read", 0, false),      // no streak, not at risk
-        ]
-        manager.scheduleStreakAtRiskReminders(habits: habits)
+        manager.scheduleWeeklyRecap(completedThisWeek: 15, totalThisWeek: 21, bestStreak: 7)
     }
 
-    @Test @MainActor func streakAtRiskRemindersSingleHabit() {
+    @Test @MainActor func cancelWeeklySummary() {
         let manager = NotificationManager.shared
-        let habits: [(id: UUID, name: String, streak: Int, completed: Bool)] = [
-            (UUID(), "Meditate", 7, false),
-        ]
-        manager.scheduleStreakAtRiskReminders(habits: habits)
+        manager.cancelWeeklySummary()
     }
 
-    @Test @MainActor func streakAtRiskRemindersMultipleHabits() {
-        let manager = NotificationManager.shared
-        let habits: [(id: UUID, name: String, streak: Int, completed: Bool)] = [
-            (UUID(), "Meditate", 7, false),
-            (UUID(), "Exercise", 3, false),
-            (UUID(), "Read", 10, false),
-        ]
-        manager.scheduleStreakAtRiskReminders(habits: habits)
-    }
-
-    // MARK: - Daily Notifications
+    // MARK: - Daily Notifications (composite)
 
     @Test @MainActor func dailyNotificationsScheduling() {
         let manager = NotificationManager.shared
@@ -65,52 +58,13 @@ struct NotificationManagerTests {
         manager.scheduleDailyNotifications(habits: habits)
     }
 
-    // MARK: - Habit Reminder
-
-    @Test @MainActor func scheduleAndCancelHabitReminder() {
+    @Test @MainActor func dailyNotificationsAllComplete() {
         let manager = NotificationManager.shared
-        let id = UUID()
-        manager.scheduleHabitReminder(habitId: id, habitName: "Exercise", icon: "figure.run", at: Date())
-        manager.cancelHabitReminder(habitId: id)
-        // No crash = success
-    }
-
-    // MARK: - Weekly Summary
-
-    @Test @MainActor func scheduleAndCancelWeeklySummary() {
-        let manager = NotificationManager.shared
-        manager.scheduleWeeklyRecap(completedThisWeek: 5, totalThisWeek: 7, bestStreak: 10)
-        manager.cancelWeeklySummary()
-    }
-
-    // MARK: - Morning Motivation
-
-    @Test @MainActor func scheduleAndCancelMorningMotivation() {
-        let manager = NotificationManager.shared
-        manager.scheduleMorningMotivation()
-        manager.cancelMorningMotivation()
-    }
-
-    // MARK: - Streak Coaching
-
-    @Test @MainActor func streakCoachingAtMilestone() {
-        let manager = NotificationManager.shared
-        // currentStreak + 1 must match a milestone to schedule
-        // Milestone at 3: currentStreak = 2
-        manager.scheduleStreakCoaching(currentStreak: 2)
-    }
-
-    @Test @MainActor func streakCoachingAtNonMilestone() {
-        let manager = NotificationManager.shared
-        // currentStreak = 5 → next = 6, not a milestone
-        manager.scheduleStreakCoaching(currentStreak: 5)
-    }
-
-    // MARK: - Weekly Recap
-
-    @Test @MainActor func weeklyRecapScheduling() {
-        let manager = NotificationManager.shared
-        manager.scheduleWeeklyRecap(completedThisWeek: 15, totalThisWeek: 21, bestStreak: 7)
+        let habits: [(id: UUID, name: String, streak: Int, completed: Bool)] = [
+            (UUID(), "Meditate", 5, true),
+            (UUID(), "Exercise", 3, true),
+        ]
+        manager.scheduleDailyNotifications(habits: habits)
     }
 
     // MARK: - Remove All
@@ -118,21 +72,5 @@ struct NotificationManagerTests {
     @Test @MainActor func removeAllDoesNotCrash() {
         let manager = NotificationManager.shared
         manager.removeAll()
-    }
-
-    // MARK: - Reschedule All
-
-    @Test @MainActor func rescheduleAllWithEmptyList() {
-        let manager = NotificationManager.shared
-        manager.rescheduleAll(habits: [])
-    }
-
-    @Test @MainActor func rescheduleAllWithHabits() {
-        let manager = NotificationManager.shared
-        let habits: [(id: UUID, name: String, icon: String, reminderTime: Date)] = [
-            (UUID(), "Exercise", "figure.run", Date()),
-            (UUID(), "Read", "book.fill", Date()),
-        ]
-        manager.rescheduleAll(habits: habits)
     }
 }

@@ -9,8 +9,12 @@ import SwiftUI
 final class CloudKitManager: ObservableObject {
     static let shared = CloudKitManager()
 
-    private let container = CKContainer(identifier: "iCloud.azc.HabitLand")
-    private var publicDB: CKDatabase { container.publicCloudDatabase }
+    private var _container: CKContainer?
+
+    private var publicDB: CKDatabase? { _container?.publicCloudDatabase }
+
+    /// Every public/internal method MUST call this guard first
+    private var isCloudKitReady: Bool { _container != nil }
 
     @Published var iCloudAvailable = false
     @Published var currentUserRecordID: CKRecord.ID?
@@ -31,12 +35,25 @@ final class CloudKitManager: ObservableObject {
     // MARK: - Init
 
     private init() {
+        // CKContainer init deferred — crashes without CloudKit entitlement
+        // Call activateIfAvailable() explicitly when CloudKit is needed
+    }
+
+    /// Call this to safely initialize CloudKit. No-op if already active or entitlement missing.
+    func activateIfAvailable() {
+        guard _container == nil else { return }
+        guard FileManager.default.ubiquityIdentityToken != nil else {
+            HLLogger.cloudkit.info("iCloud not available — skipping CloudKit activation")
+            return
+        }
+        _container = CKContainer.default()
         Task { await checkiCloudStatus() }
     }
 
     // MARK: - iCloud Status
 
     func checkiCloudStatus() async {
+        guard let container = _container else { return }
         do {
             let status = try await container.accountStatus()
             iCloudAvailable = status == .available
@@ -50,6 +67,7 @@ final class CloudKitManager: ObservableObject {
     }
 
     private func fetchCurrentUser() async {
+        guard let container = _container else { return }
         do {
             let recordID = try await container.userRecordID()
             currentUserRecordID = recordID
@@ -62,14 +80,14 @@ final class CloudKitManager: ObservableObject {
 
     /// Upserts the local UserProfile to CloudKit public database
     func publishProfile(_ profile: UserProfile) async {
-        guard let userID = currentUserRecordID else { return }
+        guard let userID = currentUserRecordID, let db = publicDB else { return }
 
         let recordID = CKRecord.ID(recordName: userID.recordName, zoneID: .default)
         let record: CKRecord
 
         // Try fetching existing record first
         do {
-            record = try await publicDB.record(for: recordID)
+            record = try await db.record(for: recordID)
         } catch {
             record = CKRecord(recordType: RecordType.userProfile, recordID: recordID)
         }
@@ -82,7 +100,7 @@ final class CloudKitManager: ObservableObject {
         record["bio"] = profile.bio as CKRecordValue
 
         do {
-            try await publicDB.save(record)
+            try await db.save(record)
         } catch {
             HLLogger.cloudkit.error("Failed to publish profile: \(error.localizedDescription, privacy: .public)")
         }
@@ -90,17 +108,17 @@ final class CloudKitManager: ObservableObject {
 
     /// Update streak & daily stats for leaderboard
     func publishStats(streak: Int, totalCompletions: Int, habitsCompletedToday: Int) async {
-        guard let userID = currentUserRecordID else { return }
+        guard let userID = currentUserRecordID, let db = publicDB else { return }
 
         let recordID = CKRecord.ID(recordName: userID.recordName, zoneID: .default)
 
         do {
-            let record = try await publicDB.record(for: recordID)
+            let record = try await db.record(for: recordID)
             record["currentStreak"] = streak as CKRecordValue
             record["totalCompletions"] = totalCompletions as CKRecordValue
             record["habitsCompletedToday"] = habitsCompletedToday as CKRecordValue
             record["lastActive"] = Date() as CKRecordValue
-            try await publicDB.save(record)
+            try await db.save(record)
         } catch {
             HLLogger.cloudkit.error("Failed to publish stats: \(error.localizedDescription, privacy: .public)")
         }
@@ -109,12 +127,13 @@ final class CloudKitManager: ObservableObject {
     // MARK: - Search Users
 
     func searchUsers(username: String) async -> [CKRecord] {
+        guard let db = publicDB else { return [] }
         let predicate = NSPredicate(format: "username BEGINSWITH[c] %@", username)
         let query = CKQuery(recordType: RecordType.userProfile, predicate: predicate)
         query.sortDescriptors = [NSSortDescriptor(key: "username", ascending: true)]
 
         do {
-            let (results, _) = try await publicDB.records(matching: query, resultsLimit: 20)
+            let (results, _) = try await db.records(matching: query, resultsLimit: 20)
             return results.compactMap { try? $0.1.get() }
                 .filter { $0.recordID != currentUserRecordID }
         } catch {
@@ -126,7 +145,7 @@ final class CloudKitManager: ObservableObject {
     // MARK: - Friend Requests
 
     func sendFriendRequest(to targetRecordName: String) async -> Bool {
-        guard let userID = currentUserRecordID else { return false }
+        guard let userID = currentUserRecordID, let db = publicDB else { return false }
 
         let record = CKRecord(recordType: RecordType.friendRequest)
         record["fromUserID"] = userID.recordName as CKRecordValue
@@ -135,7 +154,7 @@ final class CloudKitManager: ObservableObject {
         record["sentAt"] = Date() as CKRecordValue
 
         do {
-            try await publicDB.save(record)
+            try await db.save(record)
             return true
         } catch {
             HLLogger.cloudkit.error("Failed to send friend request: \(error.localizedDescription, privacy: .public)")
@@ -144,7 +163,7 @@ final class CloudKitManager: ObservableObject {
     }
 
     func fetchPendingRequests() async {
-        guard let userID = currentUserRecordID else { return }
+        guard let userID = currentUserRecordID, let db = publicDB else { return }
 
         let predicate = NSPredicate(format: "toUserID == %@ AND status == %@",
                                     userID.recordName, "pending")
@@ -152,7 +171,7 @@ final class CloudKitManager: ObservableObject {
         query.sortDescriptors = [NSSortDescriptor(key: "sentAt", ascending: false)]
 
         do {
-            let (results, _) = try await publicDB.records(matching: query, resultsLimit: 50)
+            let (results, _) = try await db.records(matching: query, resultsLimit: 50)
             let records = results.compactMap { try? $0.1.get() }
 
             // Fetch sender profiles
@@ -161,7 +180,7 @@ final class CloudKitManager: ObservableObject {
                 guard let fromUserID = record["fromUserID"] as? String else { continue }
 
                 let profileID = CKRecord.ID(recordName: fromUserID)
-                if let profile = try? await publicDB.record(for: profileID) {
+                if let profile = try? await db.record(for: profileID) {
                     requests.append(FriendRequest(
                         recordID: record.recordID,
                         fromUserID: fromUserID,
@@ -180,13 +199,13 @@ final class CloudKitManager: ObservableObject {
     }
 
     func acceptFriendRequest(_ request: FriendRequest, context: ModelContext) async -> Bool {
-        guard let userID = currentUserRecordID else { return false }
+        guard let userID = currentUserRecordID, let db = publicDB else { return false }
 
         // Update CK record status
         do {
-            let record = try await publicDB.record(for: request.recordID)
+            let record = try await db.record(for: request.recordID)
             record["status"] = "accepted" as CKRecordValue
-            try await publicDB.save(record)
+            try await db.save(record)
         } catch {
             HLLogger.cloudkit.error("Failed to accept request: \(error.localizedDescription, privacy: .public)")
             return false
@@ -199,7 +218,7 @@ final class CloudKitManager: ObservableObject {
         reverseRecord["status"] = "accepted" as CKRecordValue
         reverseRecord["sentAt"] = Date() as CKRecordValue
         do {
-            try await publicDB.save(reverseRecord)
+            try await db.save(reverseRecord)
         } catch {
             HLLogger.cloudkit.error("Failed to save reverse friendship: \(error.localizedDescription, privacy: .public)")
         }
@@ -227,10 +246,11 @@ final class CloudKitManager: ObservableObject {
     }
 
     func declineFriendRequest(_ request: FriendRequest) async {
+        guard let db = publicDB else { return }
         do {
-            let record = try await publicDB.record(for: request.recordID)
+            let record = try await db.record(for: request.recordID)
             record["status"] = "declined" as CKRecordValue
-            try await publicDB.save(record)
+            try await db.save(record)
             pendingRequests.removeAll { $0.recordID == request.recordID }
         } catch {
             HLLogger.cloudkit.error("Failed to decline request: \(error.localizedDescription, privacy: .public)")
@@ -241,12 +261,13 @@ final class CloudKitManager: ObservableObject {
 
     /// Fetches latest stats for all friends from CloudKit
     func syncFriendData(friends: [Friend], context: ModelContext) async {
+        guard let db = publicDB else { return }
         for friend in friends {
             guard let ckName = friend.cloudKitRecordName else { continue }
             let recordID = CKRecord.ID(recordName: ckName)
 
             do {
-                let record = try await publicDB.record(for: recordID)
+                let record = try await db.record(for: recordID)
                 friend.level = record["level"] as? Int ?? friend.level
                 friend.currentStreak = record["currentStreak"] as? Int ?? friend.currentStreak
                 friend.name = record["name"] as? String ?? friend.name
@@ -269,7 +290,7 @@ final class CloudKitManager: ObservableObject {
     // MARK: - Nudge
 
     func sendNudge(to friendRecordName: String, message: String) async -> Bool {
-        guard let userID = currentUserRecordID else { return false }
+        guard let userID = currentUserRecordID, let db = publicDB else { return false }
 
         let record = CKRecord(recordType: RecordType.nudge)
         record["fromUserID"] = userID.recordName as CKRecordValue
@@ -279,7 +300,7 @@ final class CloudKitManager: ObservableObject {
         record["isRead"] = false as CKRecordValue
 
         do {
-            try await publicDB.save(record)
+            try await db.save(record)
             return true
         } catch {
             HLLogger.cloudkit.error("Failed to send nudge: \(error.localizedDescription, privacy: .public)")
@@ -288,7 +309,7 @@ final class CloudKitManager: ObservableObject {
     }
 
     func fetchNudges() async -> [NudgeMessage] {
-        guard let userID = currentUserRecordID else { return [] }
+        guard let userID = currentUserRecordID, let db = publicDB else { return [] }
 
         let predicate = NSPredicate(format: "toUserID == %@ AND isRead == %@",
                                     userID.recordName, NSNumber(value: false))
@@ -296,7 +317,7 @@ final class CloudKitManager: ObservableObject {
         query.sortDescriptors = [NSSortDescriptor(key: "sentAt", ascending: false)]
 
         do {
-            let (results, _) = try await publicDB.records(matching: query, resultsLimit: 20)
+            let (results, _) = try await db.records(matching: query, resultsLimit: 20)
             let records = results.compactMap { try? $0.1.get() }
 
             var nudges: [NudgeMessage] = []
@@ -304,7 +325,7 @@ final class CloudKitManager: ObservableObject {
                 guard let fromUserID = record["fromUserID"] as? String else { continue }
                 let profileID = CKRecord.ID(recordName: fromUserID)
                 let senderName: String
-                if let profile = try? await publicDB.record(for: profileID) {
+                if let profile = try? await db.record(for: profileID) {
                     senderName = profile["name"] as? String ?? "A friend"
                 } else {
                     senderName = "A friend"
@@ -325,10 +346,11 @@ final class CloudKitManager: ObservableObject {
     }
 
     func markNudgeRead(_ nudge: NudgeMessage) async {
+        guard let db = publicDB else { return }
         do {
-            let record = try await publicDB.record(for: nudge.recordID)
+            let record = try await db.record(for: nudge.recordID)
             record["isRead"] = true as CKRecordValue
-            try await publicDB.save(record)
+            try await db.save(record)
         } catch {
             HLLogger.cloudkit.error("Failed to mark nudge read: \(error.localizedDescription, privacy: .public)")
         }
@@ -338,7 +360,7 @@ final class CloudKitManager: ObservableObject {
 
     func createChallenge(name: String, description: String, icon: String,
                          durationDays: Int, habitCategory: String) async -> CKRecord? {
-        guard let userID = currentUserRecordID else { return nil }
+        guard let userID = currentUserRecordID, let db = publicDB else { return nil }
 
         let record = CKRecord(recordType: RecordType.challenge)
         record["name"] = name as CKRecordValue
@@ -351,7 +373,7 @@ final class CloudKitManager: ObservableObject {
         record["isActive"] = true as CKRecordValue
 
         do {
-            let saved = try await publicDB.save(record)
+            let saved = try await db.save(record)
 
             // Auto-join as participant
             await joinChallenge(challengeRecordName: saved.recordID.recordName)
@@ -364,7 +386,7 @@ final class CloudKitManager: ObservableObject {
     }
 
     func joinChallenge(challengeRecordName: String) async {
-        guard let userID = currentUserRecordID else { return }
+        guard let userID = currentUserRecordID, let db = publicDB else { return }
 
         let record = CKRecord(recordType: RecordType.challengeParticipant)
         record["challengeID"] = challengeRecordName as CKRecordValue
@@ -373,14 +395,14 @@ final class CloudKitManager: ObservableObject {
         record["joinedAt"] = Date() as CKRecordValue
 
         do {
-            try await publicDB.save(record)
+            try await db.save(record)
         } catch {
             HLLogger.cloudkit.error("Failed to join challenge: \(error.localizedDescription, privacy: .public)")
         }
     }
 
     func inviteFriendToChallenge(friendRecordName: String, challengeRecordName: String) async -> Bool {
-        guard let userID = currentUserRecordID else { return false }
+        guard let userID = currentUserRecordID, let db = publicDB else { return false }
 
         // Send a nudge-style invitation
         let record = CKRecord(recordType: RecordType.nudge)
@@ -391,7 +413,7 @@ final class CloudKitManager: ObservableObject {
         record["isRead"] = false as CKRecordValue
 
         do {
-            try await publicDB.save(record)
+            try await db.save(record)
             return true
         } catch {
             return false
@@ -399,28 +421,29 @@ final class CloudKitManager: ObservableObject {
     }
 
     func updateChallengeProgress(challengeRecordName: String, progress: Double) async {
-        guard let userID = currentUserRecordID else { return }
+        guard let userID = currentUserRecordID, let db = publicDB else { return }
 
         let predicate = NSPredicate(format: "challengeID == %@ AND userID == %@",
                                     challengeRecordName, userID.recordName)
         let query = CKQuery(recordType: RecordType.challengeParticipant, predicate: predicate)
 
         do {
-            let (results, _) = try await publicDB.records(matching: query, resultsLimit: 1)
+            let (results, _) = try await db.records(matching: query, resultsLimit: 1)
             guard let record = results.first.flatMap({ try? $0.1.get() }) else { return }
             record["progress"] = progress as CKRecordValue
-            try await publicDB.save(record)
+            try await db.save(record)
         } catch {
             HLLogger.cloudkit.error("Failed to update challenge progress: \(error.localizedDescription, privacy: .public)")
         }
     }
 
     func fetchChallengeParticipantCount(challengeRecordName: String) async -> Int {
+        guard let db = publicDB else { return 0 }
         let predicate = NSPredicate(format: "challengeID == %@", challengeRecordName)
         let query = CKQuery(recordType: RecordType.challengeParticipant, predicate: predicate)
 
         do {
-            let (results, _) = try await publicDB.records(matching: query, resultsLimit: 100)
+            let (results, _) = try await db.records(matching: query, resultsLimit: 100)
             return results.count
         } catch {
             return 0
@@ -431,7 +454,7 @@ final class CloudKitManager: ObservableObject {
 
     /// Fetch XP-ranked data for the user's friends
     func fetchLeaderboardData(friendRecordNames: [String]) async -> [LeaderboardEntry] {
-        guard let userID = currentUserRecordID else { return [] }
+        guard let userID = currentUserRecordID, let db = publicDB else { return [] }
 
         var allIDs = friendRecordNames
         allIDs.append(userID.recordName)
@@ -441,7 +464,7 @@ final class CloudKitManager: ObservableObject {
         for recordName in allIDs {
             let recordID = CKRecord.ID(recordName: recordName)
             do {
-                let record = try await publicDB.record(for: recordID)
+                let record = try await db.record(for: recordID)
                 entries.append(LeaderboardEntry(
                     recordName: recordName,
                     name: record["name"] as? String ?? "Unknown",
@@ -462,13 +485,14 @@ final class CloudKitManager: ObservableObject {
     // MARK: - Referral System
 
     func saveReferralRedemption(referrerCode: String, redeemerUserID: String) async -> Bool {
+        guard let db = publicDB else { return false }
         let record = CKRecord(recordType: RecordType.referralRedemption)
         record["referrerCode"] = referrerCode as CKRecordValue
         record["redeemerUserID"] = redeemerUserID as CKRecordValue
         record["redeemedAt"] = Date() as CKRecordValue
 
         do {
-            try await publicDB.save(record)
+            try await db.save(record)
             return true
         } catch {
             HLLogger.cloudkit.error("Failed to save referral redemption: \(error.localizedDescription, privacy: .public)")
@@ -477,11 +501,12 @@ final class CloudKitManager: ObservableObject {
     }
 
     func hasUserRedeemedReferral(userID: String) async -> Bool {
+        guard let db = publicDB else { return false }
         let predicate = NSPredicate(format: "redeemerUserID == %@", userID)
         let query = CKQuery(recordType: RecordType.referralRedemption, predicate: predicate)
 
         do {
-            let (results, _) = try await publicDB.records(matching: query, resultsLimit: 1)
+            let (results, _) = try await db.records(matching: query, resultsLimit: 1)
             return !results.isEmpty
         } catch {
             return false
@@ -489,11 +514,12 @@ final class CloudKitManager: ObservableObject {
     }
 
     func fetchReferralCount(forCode code: String) async -> Int {
+        guard let db = publicDB else { return 0 }
         let predicate = NSPredicate(format: "referrerCode == %@", code)
         let query = CKQuery(recordType: RecordType.referralRedemption, predicate: predicate)
 
         do {
-            let (results, _) = try await publicDB.records(matching: query)
+            let (results, _) = try await db.records(matching: query)
             return results.count
         } catch {
             return 0
@@ -501,11 +527,12 @@ final class CloudKitManager: ObservableObject {
     }
 
     func findReferrerProfile(byCode code: String) async -> CKRecord? {
+        guard let db = publicDB else { return nil }
         let predicate = NSPredicate(format: "referralCode == %@", code)
         let query = CKQuery(recordType: RecordType.userProfile, predicate: predicate)
 
         do {
-            let (results, _) = try await publicDB.records(matching: query, resultsLimit: 1)
+            let (results, _) = try await db.records(matching: query, resultsLimit: 1)
             return try results.first?.1.get()
         } catch {
             return nil

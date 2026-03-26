@@ -10,7 +10,7 @@ Build Habits. Level Up.
 
 Finally, a habit tracker that makes building habits actually fun.
 
-HabitLand turns your daily routines into a game — complete habits, earn XP, unlock achievements, and watch yourself level up. Track your sleep, compete with friends, and build streaks that keep you coming back.
+HabitLand turns your daily routines into a game — complete habits, earn XP, unlock achievements, and watch yourself level up. Track your sleep, build streaks, and stay focused with a built-in Pomodoro timer.
 
 TRACK YOUR HABITS
 • Create custom habits with icons, colors, and categories
@@ -26,20 +26,14 @@ GAMIFICATION THAT WORKS
 
 SLEEP TRACKING
 • Log your sleep with quality and mood ratings
-• Import sleep data from Apple Health
+• Track your bedtime consistency
 • See how your sleep affects your habits
 • Get personalized sleep insights
 
 STAY FOCUSED
-• Built-in Pomodoro timer with ambient sounds
+• Built-in Pomodoro timer with customizable session lengths
 • Forest, rain, ocean, and white noise soundscapes
 • Track focus sessions alongside your habits
-
-COMPETE WITH FRIENDS
-• Add friends and see their progress
-• Climb the weekly leaderboard
-• Create challenges and hold each other accountable
-• Send nudges when motivation drops
 
 BEAUTIFUL & ACCESSIBLE
 • 6 accent color themes
@@ -49,17 +43,17 @@ BEAUTIFUL & ACCESSIBLE
 
 Your data stays on your device. No account required. No ads. Ever.
 
-Start your 7-day free trial of Pro and unlock unlimited habits, sleep tracking, social features, and detailed analytics.
+Upgrade to HabitLand Pro to unlock unlimited habits, sleep tracking, detailed analytics, and all achievements.
 
 ## Keywords (100 chars max)
-habit,tracker,streak,routine,goals,productivity,sleep,health,gamification,focus,pomodoro,daily
+habit,tracker,streak,routine,goals,productivity,sleep,gamification,focus,pomodoro,daily,level
 
 ## Category
 Primary: Health & Fitness
 Secondary: Productivity
 
 ## What's New (v1.0)
-Welcome to HabitLand! Build better habits with gamification, sleep tracking, social challenges, and a built-in focus timer.
+Welcome to HabitLand! Build better habits with gamification, sleep tracking, achievements, and a built-in focus timer.
 
 ## Promotional Text (170 chars max)
-Build habits that stick — earn XP, unlock achievements, track sleep, compete with friends, and level up your life. Start your free 7-day Pro trial today.
+Build habits that stick — earn XP, unlock achievements, track sleep, and level up your life. Upgrade to Pro for unlimited habits and detailed analytics.

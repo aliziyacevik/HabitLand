@@ -251,35 +251,7 @@ struct AchievementManagerTests {
         #expect(unlocked.contains { $0.name == "Eternal" })
     }
 
-    // MARK: - Social Achievements
-
-    @Test func socialButterflyUnlocksWith5Friends() throws {
-        let ctx = try makeContext()
-        let _ = seedAchievement("Social Butterfly", context: ctx)
-        for i in 0..<5 {
-            let friend = Friend(name: "Friend \(i)", username: "@friend\(i)")
-            ctx.insert(friend)
-        }
-        try ctx.save()
-
-        let unlocked = AchievementManager.checkAll(context: ctx)
-        #expect(unlocked.contains { $0.name == "Social Butterfly" })
-    }
-
-    @Test func socialButterflyProgressWith2Friends() throws {
-        let ctx = try makeContext()
-        let a = seedAchievement("Social Butterfly", context: ctx)
-        for i in 0..<2 {
-            let friend = Friend(name: "Friend \(i)", username: "@friend\(i)")
-            ctx.insert(friend)
-        }
-        try ctx.save()
-
-        let _ = AchievementManager.checkAll(context: ctx)
-        #expect(a.isUnlocked == false)
-        #expect(abs(a.progress - 0.4) < 0.01)
-        #expect(a.targetValue == 5)
-    }
+    // MARK: - Social Achievements (deferred to v1.1)
 
     @Test func teamPlayerUnlocksWithCompletedChallenge() throws {
         let ctx = try makeContext()

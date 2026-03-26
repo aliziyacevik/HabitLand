@@ -11,14 +11,10 @@ struct AchievementManager {
         let achievements: [Achievement]
         let habits: [Habit]
         let sleepLogs: [SleepLog]
-        let friends: [Friend]
-        let challenges: [Challenge]
         do {
             achievements = try context.fetch(FetchDescriptor<Achievement>())
             habits = try context.fetch(FetchDescriptor<Habit>())
             sleepLogs = try context.fetch(FetchDescriptor<SleepLog>())
-            friends = try context.fetch(FetchDescriptor<Friend>())
-            challenges = try context.fetch(FetchDescriptor<Challenge>())
         } catch {
             HLLogger.data.error("Failed to fetch data for achievement check: \(error.localizedDescription, privacy: .public)")
             return []
@@ -143,36 +139,6 @@ struct AchievementManager {
                 } else {
                     achievement.progress = Double(bestStreak) / 365.0
                     achievement.targetValue = 365
-                }
-
-            // MARK: - Social Achievements
-
-            case "Social Butterfly":
-                let friendCount = friends.count
-                if friendCount >= 5 {
-                    shouldUnlock = true
-                } else {
-                    achievement.progress = Double(friendCount) / 5.0
-                    achievement.targetValue = 5
-                }
-
-            case "Team Player":
-                let completedChallenges = challenges.filter { !$0.isActive && $0.progress >= 1.0 }
-                if !completedChallenges.isEmpty {
-                    shouldUnlock = true
-                } else {
-                    let bestProgress = challenges.map(\.progress).max() ?? 0
-                    achievement.progress = bestProgress
-                    achievement.targetValue = 1
-                }
-
-            case "Challenger":
-                let challengeCount = challenges.count
-                if challengeCount >= 3 {
-                    shouldUnlock = true
-                } else {
-                    achievement.progress = Double(challengeCount) / 3.0
-                    achievement.targetValue = 3
                 }
 
             // MARK: - Sleep Achievements

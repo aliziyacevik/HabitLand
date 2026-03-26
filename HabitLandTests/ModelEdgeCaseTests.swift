@@ -82,19 +82,17 @@ struct HabitModelEdgeCaseTests {
 
     // MARK: - Today Progress Edge Cases
 
-    @Test func todayProgressWithZeroGoal() {
-        let habit = Habit(name: "Test", goalCount: 0)
-        #expect(habit.todayProgress == 0)
+    @Test func todayProgressIsZeroWithNoCompletion() {
+        let habit = Habit(name: "Test")
+        #expect(habit.todayProgress == 0.0)
     }
 
-    @Test func todayProgressCapsAtOne() {
-        let habit = Habit(name: "Test", goalCount: 1)
+    @Test func todayProgressIsOneWithCompletion() {
+        let habit = Habit(name: "Test")
         let c1 = HabitCompletion(date: Date())
         c1.habit = habit
-        let c2 = HabitCompletion(date: Date())
-        c2.habit = habit
-        habit.completions = [c1, c2]
-        #expect(habit.todayProgress <= 1.0)
+        habit.completions = [c1]
+        #expect(habit.todayProgress == 1.0)
     }
 
     // MARK: - Week Completion Rate Edge Cases

@@ -14,16 +14,21 @@ struct PomodoroView: View {
     @Binding var isPresented: Bool
 
     @State private var phase: PomodoroPhase = .work
-    @State private var remainingSeconds: Int = ProManager.shared.canAccessFullPomodoro ? 25 * 60 : ProManager.freePomodoroDuration
+    @State private var remainingSeconds: Int = 25 * 60
     @State private var isRunning = false
     @State private var completedSessions = 0
     @State private var timer: Timer?
     @State private var backgroundDate: Date?
     @State private var showUpgradeHint = false
+    @State private var showSettings = false
 
-    private var workDuration: Int { ProManager.shared.canAccessFullPomodoro ? 25 * 60 : ProManager.freePomodoroDuration }
-    private let breakDuration = 5 * 60
-    private let longBreakDuration = 15 * 60
+    @AppStorage("pomodoro_work_minutes") private var workMinutes = 25
+    @AppStorage("pomodoro_break_minutes") private var breakMinutes = 5
+    @AppStorage("pomodoro_long_break_minutes") private var longBreakMinutes = 15
+
+    private var workDuration: Int { workMinutes * 60 }
+    private var breakDuration: Int { breakMinutes * 60 }
+    private var longBreakDuration: Int { longBreakMinutes * 60 }
 
     enum PomodoroPhase: String {
         case work = "Focus"
@@ -92,7 +97,18 @@ struct PomodoroView: View {
                     }
                 }
                 Spacer()
-                Color.clear.frame(width: min(closeButtonSize, 56), height: min(closeButtonSize, 56))
+                Button {
+                    showSettings = true
+                } label: {
+                    Image(systemName: "gearshape")
+                        .font(.system(size: min(closeIconSize, 20), weight: .semibold))
+                        .foregroundStyle(Color.hlTextSecondary)
+                        .frame(width: min(closeButtonSize, 56), height: min(closeButtonSize, 56))
+                        .background(Color.hlSurface)
+                        .clipShape(Circle())
+                }
+                .accessibilityLabel("Timer Settings")
+                .disabled(isRunning)
             }
             .padding(.horizontal, HLSpacing.lg)
             .padding(.top, HLSpacing.sm)
@@ -213,6 +229,7 @@ struct PomodoroView: View {
         .background(Color.hlBackground.ignoresSafeArea())
         .onAppear {
             UIApplication.shared.isIdleTimerDisabled = true
+            remainingSeconds = workDuration
         }
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
@@ -224,6 +241,43 @@ struct PomodoroView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             handleForeground()
+        }
+        .sheet(isPresented: $showSettings) {
+            pomodoroSettingsSheet
+                .hlSheetContent()
+        }
+    }
+
+    // MARK: - Settings Sheet
+
+    private var pomodoroSettingsSheet: some View {
+        NavigationStack {
+            List {
+                Section("Session Duration") {
+                    Stepper("\(workMinutes) min", value: $workMinutes, in: 5...60, step: 5)
+                        .onChange(of: workMinutes) { _, newValue in
+                            remainingSeconds = newValue * 60
+                        }
+                }
+
+                Section("Break Duration") {
+                    Stepper("\(breakMinutes) min", value: $breakMinutes, in: 1...30, step: 1)
+                }
+
+                Section("Long Break Duration") {
+                    Stepper("\(longBreakMinutes) min", value: $longBreakMinutes, in: 5...60, step: 5)
+                }
+            }
+            .navigationTitle("Timer Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") {
+                        showSettings = false
+                    }
+                    .font(HLFont.callout(.semibold))
+                }
+            }
         }
     }
 

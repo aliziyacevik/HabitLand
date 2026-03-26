@@ -5,9 +5,9 @@ import StoreKit
 struct PaywallView: View {
     @ScaledMetric(relativeTo: .body) private var featureIconSize: CGFloat = 18
     @ScaledMetric(relativeTo: .body) private var checkIconSize: CGFloat = 18
-    @ScaledMetric(relativeTo: .body) private var giftIconSize: CGFloat = 20
     @ScaledMetric(relativeTo: .title) private var headerIconSize: CGFloat = 36
     var context: PaywallContext? = nil
+    var onDismissAction: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
     @StateObject private var proManager = ProManager.shared
     @State private var selectedPlan: String = ProManager.lifetimeID
@@ -15,8 +15,6 @@ struct PaywallView: View {
     @State private var errorMessage = ""
     @State private var showTerms = false
     @State private var showPrivacy = false
-    @State private var showReferralEntry = false
-    @Query private var profiles: [UserProfile]
 
     var body: some View {
         NavigationStack {
@@ -24,25 +22,24 @@ struct PaywallView: View {
                 VStack(spacing: HLSpacing.lg) {
                     headerSection
                     featuresSection
-                    if proManager.isTrialEligible {
-                        trialBanner
-                    }
                     plansSection
                     purchaseButton
                     promoCodeButton
-                    referralButton
                     restoreButton
                     legalSection
                 }
             }
             .background(Color.hlBackground.ignoresSafeArea())
-            .task {
-                await proManager.checkTrialEligibility()
-            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { dismiss() } label: {
+                    Button {
+                        if let onDismissAction {
+                            onDismissAction()
+                        } else {
+                            dismiss()
+                        }
+                    } label: {
                         Image(systemName: "xmark.circle.fill")
                             .font(.title3)
                             .symbolRenderingMode(.hierarchical)
@@ -109,7 +106,7 @@ struct PaywallView: View {
                     .font(HLFont.title1(.bold))
                     .foregroundStyle(Color.hlTextPrimary)
 
-                Text("Build habits that actually stick")
+                Text("Unlock your full potential")
                     .font(HLFont.body())
                     .foregroundStyle(Color.hlTextSecondary)
             }
@@ -121,12 +118,12 @@ struct PaywallView: View {
 
     private var featuresSection: some View {
         VStack(spacing: 0) {
-            featureRow(icon: "infinity", color: .hlPrimary, title: "Unlimited Habits", subtitle: "No limits on your growth")
-            featureRow(icon: "chart.bar.fill", color: .hlInfo, title: "Advanced Analytics", subtitle: "See what's working and improve")
-            featureRow(icon: "person.2.fill", color: .hlSocial, title: "Social Features", subtitle: "Stay accountable with friends")
-            featureRow(icon: "moon.fill", color: .hlSleep, title: "Sleep Tracking", subtitle: "Wake up feeling your best")
-            featureRow(icon: "trophy.fill", color: .hlFlame, title: "All Achievements", subtitle: "Celebrate every milestone")
-            featureRow(icon: "paintpalette.fill", color: .hlMindfulness, title: "Custom Themes", subtitle: "Make the app truly yours")
+            featureRow(icon: "infinity", color: .hlPrimary, title: "Unlimited Habits", subtitle: "Create as many habits as you want")
+            featureRow(icon: "chart.bar.fill", color: .hlInfo, title: "Advanced Analytics", subtitle: "Monthly trends, insights & reports")
+            featureRow(icon: "flame.fill", color: .hlFlame, title: "Streak Shields", subtitle: "Protect your streaks from breaking")
+            featureRow(icon: "moon.fill", color: .hlSleep, title: "Sleep Tracking", subtitle: "Track and improve your sleep")
+            featureRow(icon: "trophy.fill", color: .hlFlame, title: "All Achievements", subtitle: "Unlock every achievement & badge")
+            featureRow(icon: "paintpalette.fill", color: .hlMindfulness, title: "Custom Themes", subtitle: "All icons, colors & personalizations")
         }
         .hlCard()
         .padding(.horizontal, HLSpacing.md)
@@ -161,49 +158,17 @@ struct PaywallView: View {
         .padding(.horizontal, HLSpacing.md)
     }
 
-    // MARK: - Trial Banner
-
-    private var trialBanner: some View {
-        HStack(spacing: HLSpacing.sm) {
-            Image(systemName: "gift.fill")
-                .font(.system(size: min(giftIconSize, 24)))
-                .foregroundStyle(Color.hlPrimary)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(proManager.trialOfferText ?? "7-day free trial")
-                    .font(HLFont.headline())
-                    .foregroundStyle(Color.hlTextPrimary)
-                Text("Try all Pro features free. Cancel anytime.")
-                    .font(HLFont.caption())
-                    .foregroundStyle(Color.hlTextSecondary)
-            }
-
-            Spacer()
-        }
-        .padding(HLSpacing.md)
-        .background(Color.hlPrimaryLight)
-        .cornerRadius(HLRadius.lg)
-        .overlay(
-            RoundedRectangle(cornerRadius: HLRadius.lg)
-                .stroke(Color.hlPrimary.opacity(0.3), lineWidth: 1)
-        )
-        .padding(.horizontal, HLSpacing.md)
-        .padding(.bottom, HLSpacing.md)
-    }
-
     // MARK: - Plans
 
     private var plansSection: some View {
         VStack(spacing: HLSpacing.sm) {
-            // Yearly — with trial if eligible
+            // Yearly
             planCard(
                 id: ProManager.yearlyID,
                 title: "Yearly",
                 price: proManager.yearlyProduct?.displayPrice ?? "$19.99",
-                subtitle: proManager.isTrialEligible
-                    ? (proManager.trialOfferText ?? "7-day free trial") + ", then per year"
-                    : "per year",
-                badge: proManager.isTrialEligible ? "FREE TRIAL" : nil,
+                subtitle: "per year",
+                badge: nil,
                 isSelected: selectedPlan == ProManager.yearlyID
             )
 
@@ -219,12 +184,6 @@ struct PaywallView: View {
         }
         .padding(.horizontal, HLSpacing.md)
         .padding(.bottom, HLSpacing.lg)
-        .onAppear {
-            // Default to yearly when trial eligible
-            if proManager.isTrialEligible {
-                selectedPlan = ProManager.yearlyID
-            }
-        }
     }
 
     private func planCard(id: String, title: String, price: String, subtitle: String, badge: String?, isSelected: Bool) -> some View {
@@ -290,9 +249,7 @@ struct PaywallView: View {
                     ProgressView()
                         .tint(.white)
                 } else {
-                    Text(proManager.isTrialEligible && selectedPlan == ProManager.yearlyID
-                         ? "Start Free Trial"
-                         : "Continue")
+                    Text("Continue")
                         .font(HLFont.headline())
                 }
             }
@@ -327,36 +284,6 @@ struct PaywallView: View {
             .foregroundStyle(Color.hlPrimary)
         }
         .padding(.bottom, HLSpacing.xxs)
-    }
-
-    // MARK: - Referral
-
-    private var referralButton: some View {
-        Button {
-            showReferralEntry = true
-        } label: {
-            HStack(spacing: HLSpacing.xs) {
-                Image(systemName: "gift.fill")
-                    .accessibilityHidden(true)
-                Text("Got a referral?")
-            }
-            .font(HLFont.subheadline())
-            .foregroundStyle(Color.hlTextSecondary)
-        }
-        .padding(.bottom, HLSpacing.xxs)
-        .sheet(isPresented: $showReferralEntry) {
-            if let profile = profiles.first {
-                NavigationStack {
-                    ReferralCodeEntryView(profile: profile) {
-                        showReferralEntry = false
-                    }
-                    .padding(HLSpacing.lg)
-                    .navigationTitle("Enter Referral Code")
-                    .navigationBarTitleDisplayMode(.inline)
-                }
-                .hlSheetContent()
-            }
-        }
     }
 
     // MARK: - Restore

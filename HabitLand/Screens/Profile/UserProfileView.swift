@@ -13,7 +13,6 @@ struct UserProfileView: View {
     @Query private var habits: [Habit]
 
     @State private var showEditProfile = false
-    @State private var showStatisticsPaywall = false
 
     private var profile: UserProfile? { profiles.first }
 
@@ -40,10 +39,8 @@ struct UserProfileView: View {
                         .hlStaggeredAppear(index: 0)
                     statsRow
                         .hlStaggeredAppear(index: 1)
-                    streakFreezeCard
-                        .hlStaggeredAppear(index: 2)
                     achievementsSection
-                        .hlStaggeredAppear(index: 3)
+                        .hlStaggeredAppear(index: 2)
                     quickLinksSection
                         .hlStaggeredAppear(index: 3)
                 }
@@ -262,6 +259,8 @@ struct UserProfileView: View {
         .accessibilityLabel("Streak Shields, \(profile?.streakFreezeCount ?? 0) available. Costs \(StreakFreezeManager.freezeCostXP) XP to buy.")
     }
 
+    @State private var showStatisticsPaywall = false
+
     private var quickLinksSection: some View {
         VStack(spacing: HLSpacing.xs) {
             if ProManager.shared.canAccessAnalytics {
@@ -270,20 +269,41 @@ struct UserProfileView: View {
                 Button {
                     showStatisticsPaywall = true
                 } label: {
-                    quickLinkContent(icon: "chart.bar.fill", title: "Personal Statistics", showLock: true)
+                    HStack(spacing: HLSpacing.sm) {
+                        Image(systemName: "chart.bar.fill")
+                            .font(.system(size: min(linkIconSize, 20)))
+                            .foregroundColor(.hlPrimary)
+                            .frame(width: 32, height: 32)
+                            .background(Color.hlPrimaryLight)
+                            .cornerRadius(HLRadius.sm)
+                            .accessibilityHidden(true)
+
+                        Text("Personal Statistics")
+                            .font(HLFont.body())
+                            .foregroundColor(.hlTextPrimary)
+
+                        Spacer()
+
+                        ProBadge()
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: min(chevronSize, 16)))
+                            .foregroundColor(.hlTextTertiary)
+                            .accessibilityHidden(true)
+                    }
+                    .hlCard(padding: HLSpacing.sm)
                 }
                 .buttonStyle(.plain)
+                .sheet(isPresented: $showStatisticsPaywall) {
+                    PaywallView(context: .analytics)
+                        .hlSheetContent()
+                }
             }
             quickLink(icon: "trophy.fill", title: "Achievements", destination: AnyView(AchievementsShowcaseView()))
-            quickLink(icon: "gearshape", title: "Settings", destination: AnyView(GeneralSettingsView()))
             ShareLink(item: "Check out my profile on HabitLand! I'm Level \(profile?.level ?? 1) with a \(profile?.xp ?? 0) XP streak. Download: https://apps.apple.com/app/habitland/id0000000000") {
                 quickLinkContent(icon: "square.and.arrow.up", title: "Share Profile")
             }
             .buttonStyle(.plain)
-        }
-        .sheet(isPresented: $showStatisticsPaywall) {
-            PaywallView(context: .analytics)
-                .hlSheetContent()
         }
     }
 
@@ -302,7 +322,7 @@ struct UserProfileView: View {
         .buttonStyle(.plain)
     }
 
-    private func quickLinkContent(icon: String, title: String, showLock: Bool = false) -> some View {
+    private func quickLinkContent(icon: String, title: String) -> some View {
         HStack(spacing: HLSpacing.sm) {
             Image(systemName: icon)
                 .font(.system(size: min(linkIconSize, 20)))
@@ -315,10 +335,6 @@ struct UserProfileView: View {
             Text(title)
                 .font(HLFont.body())
                 .foregroundColor(.hlTextPrimary)
-
-            if showLock {
-                ProBadge()
-            }
 
             Spacer()
 

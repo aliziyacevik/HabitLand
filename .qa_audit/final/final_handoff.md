@@ -1,153 +1,134 @@
-# QA Audit — Final Handoff Report
-**Date:** 2026-03-24 (Updated)
-**App:** HabitLand (iOS) v1.0.0 Build 1
-**Tester:** Automated QA Audit (XCUITest + Code Audit + Visual Inspection + Design Review)
-**Previous Audit:** 2026-03-23
+# QA Audit v6 — Final Handoff Report
+**Date**: 2026-03-25
+**Auditor**: Automated QA (Claude)
+**App**: HabitLand v1.0.0
+**Device**: iPhone 16 Pro Simulator (iOS 18)
 
 ---
 
-## 1. Executive Summary
+## Executive Summary
 
-HabitLand remains in **good shape for release**. The critical data integrity issues from the previous audit (missing `modelContext.save()`) were already fixed. This audit found **6 new issues**: 2 critical force-unwrap crash risks, 1 high fragile optional pattern, 2 medium accessibility gaps, and 1 low UX issue. The app's core flows (home, sleep, social) work well. The main testing blocker is the achievement celebration overlay that intercepts tab navigation during automated testing.
+HabitLand is in **excellent shape for App Store submission**. All 4 tabs function correctly in both Pro and Free user modes. Premium gates work as expected. Code quality is high with proper design system usage, accessibility patterns, and error handling.
 
-**Release Readiness: CONDITIONAL GO** — fix the 2 critical force-unwrap issues before release.
+### Verdict: READY FOR SUBMISSION
 
-## 2. Coverage Summary
+---
 
-| Metric | This Audit | Previous |
-|--------|-----------|----------|
-| Screens runtime tested | 32/43 (74%) | 30/43 (70%) |
-| Code audit coverage | 43/43 (100%) | 43/43 (100%) |
-| Screenshots captured | 40 | 41 |
-| XCUITest pass rate | 100% | 100% |
-| New screens captured | +6 (Pomodoro, Log Sleep, Sleep Analytics, Create Challenge, Invite Friends, Personal Stats) | — |
+## Test Results
 
-**Still blocked:** Habits tab detail, Profile tab, Settings sub-screens (achievement celebration + tab navigation sticking)
+| Test | Result | Duration |
+|------|--------|----------|
+| testFullAppAuditWithData | PASS | ~142s |
+| testPremiumGatesAsFreeUser | PASS | ~127s |
 
-## 3. Issue Summary
+## Screenshots Captured
 
-| Severity | Total | Previously Fixed | New (This Audit) | Open |
-|----------|-------|-----------------|-------------------|------|
-| Critical | 3 | 1 (save()) | 2 (force unwraps) | 2 |
-| High | 5 | 4 | 1 (fragile optional) | 1 |
-| Medium | 7 | 1 | 2 (a11y, friend profile) | 6 |
-| Low | 5 | 0 | 1 (home scroll) | 5 |
-| **Total** | **20** | **6** | **6** | **14** |
+- 37 screenshots across both test modes
+- All 4 tabs (Home, Habits, Sleep, Profile) + sub-screens
+- Premium gates verified for free users (Sleep, Statistics, Habit limit, Settings)
+- Onboarding flow completed in free user test
+- Paywall verified from multiple entry points (Settings, Statistics lock, Habit limit FAB)
 
-## 4. Design Review Summary
+---
 
-**Score: 31/40 — Grade: B** (from Mar 23 review)
+## Issues Found
 
-| Pillar | Score |
-|--------|-------|
-| Visual Hierarchy | 4/5 |
-| Color & Theme | 4/5 |
-| Typography | 4/5 |
-| Spacing & Layout | 4/5 |
-| Copywriting & UX Writing | 4/5 |
-| Interaction Design | 4/5 |
-| HIG Compliance | 4/5 |
-| Accessibility | 3/5 |
+### ISSUE-001: Stale "friends connected" text in PremiumGateView (Low)
+- PremiumGateView shows "{N} friends connected" if Friend data exists
+- Social features are removed, so this references non-functional feature
+- Only appears when legacy Friend data exists in database
+- **File**: `HabitLand/Screens/Premium/PremiumGateView.swift:258-263`
 
-**Key design strengths:** Consistent card system, pleasant green accent, good empty states, solid gamification visuals (leaderboard podium, streak badges, progress rings).
+### ISSUE-002: Force unwraps in CloudKitManager (Low)
+- 3 force unwraps on `_container!` optional
+- CloudKit is disabled (no entitlement), all public methods guard first
+- Low risk but not compiler-safe
+- **File**: `HabitLand/Services/CloudKitManager.swift:15,59,73`
 
-**Key design gaps:** Dynamic Type support (hardcoded font sizes), sleep emoji rendering, sparse pull-to-refresh.
+### ISSUE-003: Stale trial-related unit tests (Critical — FIXED)
+- ProManagerExtendedTests referenced removed trial members
+- Blocked all test runs at build time
+- **Status**: Fixed by removing 4 stale test functions
+- **File**: `HabitLandTests/ProManagerExtendedTests.swift`
 
-## 5. Top 10 Problems (ranked by user impact)
+### ISSUE-004: Potential division by zero in levelProgress (Low)
+- `Double(xp) / Double(xpForNextLevel)` where xpForNextLevel = level * 100
+- Level defaults to 1, extremely unlikely to be 0
+- **File**: `HabitLand/Models/Models.swift:272`
 
-1. **[CRITICAL] Force unwrap on URL creation** — SharedChallengesView:213, InviteFriendsView:126 — crash on malformed URL
-2. **[CRITICAL] Force unwrap on Calendar.date()** — 3 files — crash on edge-case date arithmetic
-3. **[HIGH] Fragile force unwrap after nil check** — PersonalStatisticsView:106, MonthlyAnalyticsView:469
-4. **[MEDIUM] 15+ hardcoded font sizes** — won't scale with Dynamic Type accessibility
-5. **[MEDIUM] Sleep quality emojis render as "?"** — affects sleep dashboard, history, log form
-6. **[MEDIUM] Friend profile empty space** — large gap below Nudge/Challenge buttons
-7. **[MEDIUM] Missing accessibility labels** — several interactive buttons lack VoiceOver support
-8. **[MEDIUM] Pomodoro timer overnight edge cases** — timer behavior after long background unclear
-9. **[LOW] Home dashboard scroll shallow** — content ends at Focus Timer card
-10. **[LOW] Social Feed letter avatars** — basic appearance vs potential animal avatars
+### ISSUE-005: "Enter Referral Code" still in Settings (Informational)
+- Referral code entry removed from PaywallView but remains in Settings
+- May be intentional; needs confirmation
+- **File**: `HabitLand/Screens/Settings/GeneralSettingsView.swift:104-109`
 
-## 6. New Issues Found This Audit
+---
 
-### ISSUE-015: Force unwrap URLs (Critical)
-- SharedChallengesView.swift:213 — `URL(string: challengeShareURL)!`
-- InviteFriendsView.swift:126 — `URL(string: appStoreURL)!`
-- **Fix:** Replace with `guard let url = URL(string: ...) else { return }`
+## Code Quality Assessment
 
-### ISSUE-016: Force unwrap dates (Critical)
-- HabitScheduleView.swift:260, HabitStatisticsView.swift:414, HabitHistoryView.swift:192
-- **Fix:** Use `?? Date()` fallback
+| Category | Rating | Notes |
+|----------|--------|-------|
+| Force Unwraps | A | 3 in CloudKitManager (guarded, disabled) |
+| modelContext.save() | A+ | All mutations properly saved |
+| Division by Zero | A | 1 low-risk potential (levelProgress) |
+| Font System | A+ | All use HLFont tokens with @ScaledMetric + min() caps |
+| Accessibility | A | Labels on interactive elements, decorative icons hidden |
+| Error Handling | A | SharedModelContainer 4-level fallback |
+| Design System | A+ | Consistent HLSpacing, HLRadius, HLFont throughout |
+| Stale References | B+ | Minor social reference in PremiumGateView |
 
-### ISSUE-017: Fragile optional pattern (High)
-- PersonalStatisticsView.swift:106 — `best!.1` after nil check
-- MonthlyAnalyticsView.swift:469 — `profile!.name`
-- **Fix:** Use optional binding
+---
 
-### ISSUE-018: Hardcoded font sizes (Medium)
-- 15+ locations across Effects, OnboardingView, HomeDashboardView, etc.
-- **Fix:** Wrap with @ScaledMetric
+## Premium Gate Verification
 
-### ISSUE-019: Friend profile empty space (Medium)
-- 04_friend_profile.png shows empty area below action buttons
-- **Fix:** Add shared habits section or recent activity
+| Feature | Free User | Pro User | Correct? |
+|---------|-----------|----------|----------|
+| Sleep Tracking | Blurred + lock + "Upgrade to Pro" | Full dashboard | Yes |
+| Personal Statistics | PRO badge -> paywall sheet | Full stats | Yes |
+| Settings Upgrade | "Upgrade to Pro" visible | Hidden | Yes |
+| Habit Limit (3) | FAB opens paywall | Unlimited | Yes |
+| Tab Crown Icon | Shows on Sleep tab | Not shown | Yes |
 
-### ISSUE-020: Home scroll shallow (Low)
-- Home content ends quickly — mid/bottom/deep screenshots identical
-- **Fix:** Consider adding more dashboard content below fold
+---
 
-## 7. Product Risks
+## Visual Quality
 
-- **Crash Risk:** 2 critical force-unwrap patterns could crash in production if URLs/dates hit edge cases
-- **Data Trust:** Previously fixed save() issue was critical — now resolved
-- **First Impression:** Sleep quality "?" icons look broken to new users
-- **Accessibility:** Hardcoded font sizes fail Dynamic Type — potential App Store rejection if Apple reviews accessibility
+- **Home dashboard**: Clean layout, progress ring, habit cards with streaks
+- **Habit detail**: 30-day heatmap, weekly chart, stat cards, completions list
+- **Habits list**: Sort menu, filter tabs, progress summary, free tier banner
+- **Sleep dashboard**: Last night card, weekly chart, averages, insights, correlation
+- **Log Sleep form**: Duration, bedtime/wake pickers, quality + mood selectors, notes
+- **Profile**: Avatar, level badge, stats row, achievements showcase, quick links
+- **Edit Profile**: Clean form with name, username, bio
+- **Personal Statistics**: All-time stats grid, monthly chart, category breakdown, records
+- **Settings**: Well-organized sections (Account, Preferences, Data, Legal)
+- **Paywall**: Feature list with checkmarks, plan cards, purchase button
+- **Premium gates**: Professional blur overlay with clear CTA
+- **No text truncation, layout issues, or broken elements detected**
 
-## 8. Engineering Risks
+---
 
-- **Force unwrap patterns:** Grep for `!` across codebase — more may exist
-- **Achievement system timing:** Celebrations fire asynchronously and can block user interaction
-- **CloudKit disabled:** Social features untested with real sync (developer account pending)
-- **No SwiftData save() wrapper:** Future development may re-introduce missing saves
+## Recommendations
 
-## 9. UX Risks
+1. **Optional cleanup**: Remove "friends connected" block from PremiumGateView
+2. **Optional safety**: Add `max(xpForNextLevel, 1)` guard in levelProgress
+3. **Confirm intent**: Whether "Enter Referral Code" should remain in Settings
+4. All core functionality is production-ready
 
-- **Pomodoro:** fullScreenCover can't be swiped away — some users may struggle with X button
-- **Friend profile:** Empty space feels unfinished
-- **Settings:** Only accessible via gear icon or quick links — not highly discoverable
+---
 
-## 10. Recommended Actions
+## Files Modified During Audit
 
-### Immediate (before release)
-- [ ] Fix ISSUE-015: Force unwrap URLs → guard let
-- [ ] Fix ISSUE-016: Force unwrap dates → ?? Date()
-- [ ] Fix ISSUE-017: Fragile optional patterns → optional binding
-- [ ] Verify sleep emoji rendering on real device
-- [ ] Build and test on real device
+- `HabitLandUITests/QAAuditTests.swift` — Complete rewrite with 2 test functions
+- `HabitLandTests/ProManagerExtendedTests.swift` — Removed 4 stale trial test functions
 
-### Secondary (post-release)
-- [ ] Fix ISSUE-018: Wrap hardcoded font sizes with @ScaledMetric
-- [ ] Fix ISSUE-019: Add content to friend profile
-- [ ] Add accessibility labels to all interactive elements
-- [ ] Test on iPhone SE / small screen
-- [ ] Test with Dynamic Type Accessibility XL
+## Artifacts Generated
 
-## 11. Handoff — How to Continue
-
-### Files to read:
-- `.qa_audit/reports/master_issue_list.md` — all 20 issues with severity/priority
-- `.qa_audit/state/coverage_matrix.md` — what was tested and what wasn't
-- `.qa_audit/screenshots/by_screen/` — 40 screenshots across both runs
-- `.qa_audit/reports/UI-DESIGN-REVIEW.md` — design review (31/40, Grade B)
-- `.qa_audit/reports/issues/ISSUE-015-*.md` through `ISSUE-020-*.md` — new issues
-
-### To re-run the audit:
-```bash
-xcodebuild test -project HabitLand.xcodeproj -scheme HabitLand \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
-  -only-testing:HabitLandUITests/QAAuditFullTests/testFullAppAudit
-```
-
-### Known test limitations:
-- Achievement celebration overlay blocks Habits tab navigation
-- Tab bar navigation gets stuck on Social after visiting Challenges
-- Profile and Settings tabs not captured (requires Social tab exit)
-- Discovery/Analytics/Onboarding not in automated flow
+- `.qa_audit/screenshots/by_screen/` — 37 screenshots
+- `.qa_audit/reports/issues/ISSUE-001-stale-friends-connected-in-premium-gate.md`
+- `.qa_audit/reports/issues/ISSUE-002-cloudkit-force-unwraps.md`
+- `.qa_audit/reports/issues/ISSUE-003-stale-trial-tests-in-pro-manager-extended.md`
+- `.qa_audit/reports/issues/ISSUE-004-level-progress-potential-division-by-zero.md`
+- `.qa_audit/reports/issues/ISSUE-005-referral-code-still-in-settings.md`
+- `.qa_audit/state/app_map.md`
+- `.qa_audit/state/coverage_matrix.md`
+- `.qa_audit/final/final_handoff.md`

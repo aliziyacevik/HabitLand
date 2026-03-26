@@ -15,12 +15,10 @@ struct GeneralSettingsView: View {
     private var profile: UserProfile? { profiles.first }
 
     @ObservedObject private var proManager = ProManager.shared
-    @ObservedObject private var healthKitManager = HealthKitManager.shared
-    @StateObject private var cloudKit = CloudKitManager.shared
+    // CloudKit disabled — social features removed
     @State private var showPaywall = false
     @State private var showPrivacy = false
     @State private var showTerms = false
-    @State private var showReferralEntry = false
 
     var body: some View {
         List {
@@ -102,58 +100,11 @@ struct GeneralSettingsView: View {
                     }
                 }
 
-                // Referral code entry — only shown if user hasn't redeemed a code yet
-                if let profile = profile, profile.referredByCode == nil {
-                    Button {
-                        showReferralEntry = true
-                    } label: {
-                        settingsRow(icon: "gift.fill", color: .hlGold, title: "Enter Referral Code")
-                    }
-                }
             } header: {
                 Text("Account")
             }
 
-            Section {
-                // iCloud Sync status (D-08)
-                HStack {
-                    settingsRow(icon: "icloud.fill", color: .blue, title: "iCloud Sync")
-                    Spacer()
-                    Text(cloudKit.iCloudAvailable ? "Available" : "Unavailable")
-                        .font(HLFont.caption())
-                        .foregroundStyle(Color.hlTextSecondary)
-                    Circle()
-                        .fill(cloudKit.iCloudAvailable ? Color.green : Color.hlTextTertiary)
-                        .frame(width: 8, height: 8)
-                }
-
-                // HealthKit connection status (D-09)
-                HStack {
-                    settingsRow(icon: "heart.fill", color: .red, title: "Apple Health")
-                    Spacer()
-                    if healthKitManager.isAuthorized {
-                        Text("Connected")
-                            .font(HLFont.caption())
-                            .foregroundStyle(Color.hlTextSecondary)
-                        Circle()
-                            .fill(Color.green)
-                            .frame(width: 8, height: 8)
-                    } else if healthKitManager.isAvailable {
-                        Text("Not Connected")
-                            .font(HLFont.caption())
-                            .foregroundStyle(Color.hlTextTertiary)
-                        Circle()
-                            .fill(Color.hlTextTertiary)
-                            .frame(width: 8, height: 8)
-                    } else {
-                        Text("Unavailable")
-                            .font(HLFont.caption())
-                            .foregroundStyle(Color.hlTextTertiary)
-                    }
-                }
-            } header: {
-                Text("Connected Services")
-            }
+            // iCloud Sync section removed — CloudKit not active
 
             Section {
                 NavigationLink(destination: AppearanceSettingsView()) {
@@ -170,9 +121,6 @@ struct GeneralSettingsView: View {
             }
 
             Section {
-                NavigationLink(destination: PrivacySettingsView()) {
-                    settingsRow(icon: "lock.fill", color: .hlInfo, title: "Privacy")
-                }
                 NavigationLink(destination: DataExportView()) {
                     settingsRow(icon: "square.and.arrow.down", color: .hlMindfulness, title: "Data & Export")
                 }
@@ -303,33 +251,6 @@ struct GeneralSettingsView: View {
         .sheet(isPresented: $showTerms) {
             TermsOfUseView()
                 .hlSheetContent()
-        }
-        .sheet(isPresented: $showReferralEntry) {
-            if let profile = profile {
-                NavigationStack {
-                    VStack(spacing: HLSpacing.lg) {
-                        Spacer()
-                        ReferralCodeEntryView(profile: profile) {
-                            showReferralEntry = false
-                        }
-                        .padding(.horizontal, HLSpacing.md)
-                        Spacer()
-                    }
-                    .background(Color.hlBackground.ignoresSafeArea())
-                    .navigationTitle("Referral Code")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button("Done") {
-                                showReferralEntry = false
-                            }
-                            .font(HLFont.headline())
-                            .foregroundStyle(Color.hlPrimary)
-                        }
-                    }
-                }
-                .hlSheetContent()
-            }
         }
     }
 

@@ -104,7 +104,7 @@ struct NotificationCenterView: View {
         EmptyStateView(
             icon: "bell.slash",
             title: "All Caught Up!",
-            subtitle: "You're on top of your game. New achievements and friend updates will appear here."
+            subtitle: "You're on top of your game. New achievements and streak updates will appear here."
         )
     }
 

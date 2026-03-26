@@ -109,19 +109,13 @@ final class Habit {
 
     var todayCompleted: Bool {
         let today = Calendar.current.startOfDay(for: Date())
-        let todaySum = safeCompletions
-            .filter { Calendar.current.startOfDay(for: $0.date) == today && $0.isCompleted }
-            .reduce(0) { $0 + $1.count }
-        return todaySum >= goalCount
+        return safeCompletions.contains {
+            Calendar.current.startOfDay(for: $0.date) == today && $0.isCompleted
+        }
     }
 
     var todayProgress: Double {
-        guard goalCount > 0 else { return 0 }
-        let today = Calendar.current.startOfDay(for: Date())
-        let todaySum = safeCompletions
-            .filter { Calendar.current.startOfDay(for: $0.date) == today && $0.isCompleted }
-            .reduce(0) { $0 + $1.count }
-        return min(Double(todaySum) / Double(goalCount), 1.0)
+        todayCompleted ? 1.0 : 0.0
     }
 
     var weekCompletionRate: Double {
@@ -278,7 +272,8 @@ final class UserProfile {
     }
 
     var levelProgress: Double {
-        Double(xp) / Double(xpForNextLevel)
+        guard xpForNextLevel > 0 else { return 0 }
+        return Double(xp) / Double(xpForNextLevel)
     }
 
     // MARK: - Referral Code Generation
@@ -729,9 +724,5 @@ struct SampleData {
         ("Sleep Master", "Log sleep for 30 days", "moon.stars.fill", .sleep),
         ("Consistent Sleeper", "Log 7+ hours for 7 consecutive days", "bed.double.fill", .sleep),
 
-        // Social
-        ("Social Butterfly", "Add 5 friends", "person.2.fill", .social),
-        ("Team Player", "Complete a shared challenge", "flag.fill", .social),
-        ("Challenger", "Create 3 challenges", "flag.2.crossed.fill", .social),
     ]
 }

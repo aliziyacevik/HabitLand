@@ -23,9 +23,6 @@ struct CreateHabitView: View {
     @State private var reminderTime = Calendar.current.date(from: DateComponents(hour: 8, minute: 0)) ?? Date()
     @State private var showIconPicker = false
     @State private var showTemplateBrowser = false
-    @State private var selectedHealthMetric: HealthKitMetric?
-    @StateObject private var healthKit = HealthKitManager.shared
-
     private let iconOptions = [
         "checkmark.circle", "star.fill", "heart.fill", "bolt.fill",
         "flame.fill", "drop.fill", "leaf.fill", "brain.head.profile",
@@ -56,9 +53,6 @@ struct CreateHabitView: View {
                     categorySection
                     frequencySection
                     goalSection
-                    if healthKit.isAvailable {
-                        healthKitSection
-                    }
                     reminderSection
                     createButton
                 }
@@ -376,91 +370,13 @@ struct CreateHabitView: View {
                     DatePicker("Time", selection: $reminderTime, displayedComponents: .hourAndMinute)
                         .font(HLFont.body())
                         .foregroundStyle(Color.hlTextPrimary)
+
+                    Text("You can always change this in your habit settings.")
+                        .font(HLFont.caption())
+                        .foregroundStyle(Color.hlTextTertiary)
                 }
             }
             .hlCard()
-        }
-    }
-
-    // MARK: - HealthKit
-
-    private var healthKitSection: some View {
-        VStack(alignment: .leading, spacing: HLSpacing.xs) {
-            HStack(spacing: HLSpacing.xs) {
-                Image(systemName: "heart.fill")
-                    .foregroundStyle(Color.hlHealth)
-                Text("Apple Health")
-                    .font(HLFont.headline())
-                    .foregroundStyle(Color.hlTextPrimary)
-            }
-
-            Text("Auto-complete this habit from Health data")
-                .font(HLFont.caption())
-                .foregroundStyle(Color.hlTextSecondary)
-
-            VStack(spacing: HLSpacing.xxs) {
-                // None option
-                Button {
-                    selectedHealthMetric = nil
-                    HLHaptics.selection()
-                } label: {
-                    HStack {
-                        Image(systemName: "xmark.circle")
-                            .foregroundStyle(Color.hlTextTertiary)
-                        Text("Manual tracking")
-                            .font(HLFont.body())
-                            .foregroundStyle(Color.hlTextPrimary)
-                        Spacer()
-                        if selectedHealthMetric == nil {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(Color.hlPrimary)
-                        }
-                    }
-                    .padding(.vertical, HLSpacing.xs)
-                    .padding(.horizontal, HLSpacing.sm)
-                }
-
-                ForEach(HealthKitMetric.allCases) { metric in
-                    Button {
-                        selectedHealthMetric = metric
-                        // Auto-fill all fields from metric
-                        if name.isEmpty || HealthKitMetric.allCases.contains(where: { $0.suggestedName == name }) {
-                            name = metric.suggestedName
-                        }
-                        selectedIcon = metric.icon
-                        selectedColorHex = metric.suggestedColorHex
-                        selectedCategory = HabitCategory(rawValue: metric.suggestedCategory) ?? .health
-                        goalCount = metric.defaultGoal
-                        unit = metric.unit
-                        HLHaptics.selection()
-                    } label: {
-                        HStack {
-                            Image(systemName: metric.icon)
-                                .foregroundStyle(Color.hlPrimary)
-                                .frame(width: 24)
-                            Text(metric.rawValue)
-                                .font(HLFont.body())
-                                .foregroundStyle(Color.hlTextPrimary)
-                            Spacer()
-                            Text("\(metric.defaultGoal) \(metric.unit)")
-                                .font(HLFont.caption())
-                                .foregroundStyle(Color.hlTextTertiary)
-                            if selectedHealthMetric == metric {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(Color.hlPrimary)
-                            }
-                        }
-                        .padding(.vertical, HLSpacing.xs)
-                        .padding(.horizontal, HLSpacing.sm)
-                    }
-                }
-            }
-            .background(Color.hlSurface)
-            .cornerRadius(HLRadius.md)
-            .overlay(
-                RoundedRectangle(cornerRadius: HLRadius.md)
-                    .stroke(Color.hlCardBorder, lineWidth: 1)
-            )
         }
     }
 
@@ -596,32 +512,14 @@ struct CreateHabitView: View {
             goalCount: goalCount,
             unit: unit
         )
-        habit.healthKitMetric = selectedHealthMetric?.rawValue
         modelContext.insert(habit)
         try? modelContext.save()
 
         if reminderEnabled {
-            NotificationManager.shared.scheduleHabitReminder(
-                habitId: habit.id,
-                habitName: habit.name,
-                icon: habit.icon,
-                at: reminderTime
-            )
+            NotificationManager.shared.scheduleHabitReminder(habitId: habit.id, habitName: habit.name, at: reminderTime)
         }
 
-        // Request HealthKit authorization if needed, then sync initial data
-        if let metric = selectedHealthMetric {
-            Task {
-                let authorized = await healthKit.requestAuthorization(for: [metric])
-                if authorized {
-                    try? await Task.sleep(for: .seconds(1))
-                    await healthKit.syncHealthHabits(context: modelContext)
-                }
-                await MainActor.run { dismiss() }
-            }
-        } else {
-            dismiss()
-        }
+        dismiss()
     }
 }
 

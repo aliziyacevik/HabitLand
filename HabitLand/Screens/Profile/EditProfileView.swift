@@ -24,7 +24,6 @@ struct EditProfileView: View {
             VStack(spacing: HLSpacing.lg) {
                 avatarSection
                 formSection
-                goalsSection
                 saveButton
             }
             .padding(.horizontal, HLSpacing.md)

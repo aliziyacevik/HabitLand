@@ -26,9 +26,6 @@ struct DailyHabitsOverview: View {
     @State private var showDailyOverviewForHabit: String?
     @State private var undoHabitName = ""
     @State private var undoCompletion: HabitCompletion?
-    @State private var showHealthKitToast = false
-    @State private var healthKitToastName = ""
-
     private var profile: UserProfile? { profiles.first }
 
     enum HabitFilter: String, CaseIterable {
@@ -116,28 +113,6 @@ struct DailyHabitsOverview: View {
                     },
                     isVisible: $showUndoToast
                 )
-            }
-            .overlay(alignment: .top) {
-                if showHealthKitToast {
-                    HStack(spacing: HLSpacing.xs) {
-                        Image(systemName: "heart.fill")
-                            .font(.system(size: min(badgeIconSize, 18), weight: .semibold))
-                            .foregroundStyle(.red)
-                        Text("\(healthKitToastName) syncs from Apple Health automatically")
-                            .font(HLFont.caption(.medium))
-                            .foregroundStyle(Color.hlTextPrimary)
-                            .lineLimit(2)
-                            .minimumScaleFactor(0.75)
-                    }
-                    .padding(.horizontal, HLSpacing.md)
-                    .padding(.vertical, HLSpacing.sm)
-                    .background(Color.hlSurface)
-                    .cornerRadius(HLRadius.lg)
-                    .hlShadow(HLShadow.md)
-                    .padding(.horizontal, HLSpacing.lg)
-                    .padding(.top, HLSpacing.sm)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                }
             }
             .fullScreenCover(isPresented: $showTimer) {
                 HabitTimerView(isPresented: $showTimer)
@@ -337,15 +312,6 @@ struct DailyHabitsOverview: View {
             }
 
             Button {
-                if habit.healthKitMetric != nil {
-                    healthKitToastName = habit.name
-                    withAnimation(HLAnimation.quick) { showHealthKitToast = true }
-                    HLHaptics.light()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                        withAnimation(HLAnimation.quick) { showHealthKitToast = false }
-                    }
-                    return
-                }
                 let wasCompleted = habit.todayCompleted
                 withAnimation(HLAnimation.celebration) {
                     if wasCompleted {
@@ -416,28 +382,9 @@ struct DailyHabitsOverview: View {
                 }
                 try? modelContext.save()
             } label: {
-                if let metricRaw = habit.healthKitMetric,
-                   let metric = HealthKitMetric(rawValue: metricRaw) {
-                    ZStack {
-                        Circle()
-                            .stroke(habit.color.opacity(0.15), lineWidth: 3)
-                            .frame(width: 28, height: 28)
-                        Circle()
-                            .trim(from: 0, to: habit.todayProgress)
-                            .stroke(habit.color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
-                            .frame(width: 28, height: 28)
-                            .rotationEffect(.degrees(-90))
-                        Image(systemName: metric.icon)
-                            .font(.system(size: min(tinyIconSize, 13), weight: .bold))
-                            .foregroundStyle(habit.color)
-                    }
-                } else {
-                    AnimatedCheckmark(isCompleted: habit.todayCompleted, color: habit.color, size: 28)
-                }
+                AnimatedCheckmark(isCompleted: habit.todayCompleted, color: habit.color, size: 28)
             }
-            .accessibilityLabel(habit.healthKitMetric != nil
-                ? "\(habit.name) syncs from Apple Health"
-                : habit.todayCompleted ? "Mark \(habit.name) incomplete" : "Complete \(habit.name)")
+            .accessibilityLabel(habit.todayCompleted ? "Mark \(habit.name) incomplete" : "Complete \(habit.name)")
         }
         .hlCard(padding: HLSpacing.sm)
         .contextMenu {

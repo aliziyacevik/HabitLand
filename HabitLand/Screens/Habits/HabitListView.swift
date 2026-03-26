@@ -38,7 +38,6 @@ struct HabitListView: View {
     @State private var sortOption: HabitSortOption = .custom
     @State private var showCreateHabit = false
     @State private var showPaywall = false
-    @State private var showLimitAlert = false
     @ObservedObject private var proManager = ProManager.shared
 
     private var activeHabits: [Habit] {
@@ -139,29 +138,6 @@ struct HabitListView: View {
             .sheet(isPresented: $showPaywall) {
                 PaywallView()
                     .hlSheetContent()
-            }
-            .alert(
-                proManager.hasTrialBeenOffered ? "Habit Limit Reached" : "Want to Try Unlimited?",
-                isPresented: $showLimitAlert
-            ) {
-                if !proManager.hasTrialBeenOffered {
-                    Button("Start 7-Day Free Trial") {
-                        proManager.startInAppTrial()
-                        HLHaptics.success()
-                    }
-                    Button("Maybe Later", role: .cancel) {}
-                } else {
-                    Button("Upgrade to Pro") {
-                        showPaywall = true
-                    }
-                    Button("OK", role: .cancel) {}
-                }
-            } message: {
-                if !proManager.hasTrialBeenOffered {
-                    Text("You're doing great with \(ProManager.freeHabitLimit) habits! Try Pro free for 7 days — unlimited habits, sleep tracking, social features, and more.")
-                } else {
-                    Text("Free plan allows up to \(ProManager.freeHabitLimit) active habits. Upgrade to HabitLand Pro for unlimited habits and premium features.")
-                }
             }
         }
     }
@@ -412,7 +388,7 @@ struct HabitListView: View {
             if proManager.canCreateHabit(currentCount: activeHabits.count) {
                 showCreateHabit = true
             } else {
-                showLimitAlert = true
+                showPaywall = true
                 HLHaptics.warning()
             }
         } label: {
@@ -482,7 +458,7 @@ struct HabitListView: View {
                     if proManager.canCreateHabit(currentCount: activeHabits.count) {
                         showCreateHabit = true
                     } else {
-                        showLimitAlert = true
+                        showPaywall = true
                     }
                 } label: {
                     HStack(spacing: HLSpacing.xs) {

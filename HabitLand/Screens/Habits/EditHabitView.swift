@@ -19,9 +19,6 @@ struct EditHabitView: View {
     @State private var reminderEnabled: Bool
     @State private var reminderTime: Date
     @State private var showDeleteAlert = false
-    @State private var selectedHealthMetric: HealthKitMetric?
-    @StateObject private var healthKit = HealthKitManager.shared
-
     private let iconOptions = [
         "checkmark.circle", "star.fill", "heart.fill", "bolt.fill",
         "flame.fill", "drop.fill", "leaf.fill", "brain.head.profile",
@@ -53,7 +50,6 @@ struct EditHabitView: View {
         _unit = State(initialValue: habit.unit)
         _reminderEnabled = State(initialValue: habit.reminderEnabled)
         _reminderTime = State(initialValue: habit.reminderTime ?? Date())
-        _selectedHealthMetric = State(initialValue: habit.healthKitMetric.flatMap { HealthKitMetric(rawValue: $0) })
     }
 
     var body: some View {
@@ -66,9 +62,6 @@ struct EditHabitView: View {
                     categorySection
                     frequencySection
                     goalSection
-                    if healthKit.isAvailable {
-                        healthKitSection
-                    }
                     reminderSection
                     saveButton
                     deleteButton
@@ -319,80 +312,6 @@ struct EditHabitView: View {
         }
     }
 
-    // MARK: - HealthKit
-
-    private var healthKitSection: some View {
-        VStack(alignment: .leading, spacing: HLSpacing.xs) {
-            HStack(spacing: HLSpacing.xs) {
-                Image(systemName: "heart.fill")
-                    .foregroundStyle(Color.hlHealth)
-                Text("Apple Health")
-                    .font(HLFont.headline())
-                    .foregroundStyle(Color.hlTextPrimary)
-            }
-
-            Text("Auto-complete this habit from Health data")
-                .font(HLFont.caption())
-                .foregroundStyle(Color.hlTextSecondary)
-
-            VStack(spacing: HLSpacing.xxs) {
-                Button {
-                    selectedHealthMetric = nil
-                    HLHaptics.selection()
-                } label: {
-                    HStack {
-                        Image(systemName: "xmark.circle")
-                            .foregroundStyle(Color.hlTextTertiary)
-                        Text("Manual tracking")
-                            .font(HLFont.body())
-                            .foregroundStyle(Color.hlTextPrimary)
-                        Spacer()
-                        if selectedHealthMetric == nil {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(Color.hlPrimary)
-                        }
-                    }
-                    .padding(.vertical, HLSpacing.xs)
-                    .padding(.horizontal, HLSpacing.sm)
-                }
-
-                ForEach(HealthKitMetric.allCases) { metric in
-                    Button {
-                        selectedHealthMetric = metric
-                        goalCount = metric.defaultGoal
-                        unit = metric.unit
-                        HLHaptics.selection()
-                    } label: {
-                        HStack {
-                            Image(systemName: metric.icon)
-                                .foregroundStyle(Color.hlPrimary)
-                                .frame(width: 24)
-                            Text(metric.rawValue)
-                                .font(HLFont.body())
-                                .foregroundStyle(Color.hlTextPrimary)
-                            Spacer()
-                            Text("\(metric.defaultGoal) \(metric.unit)")
-                                .font(HLFont.caption())
-                                .foregroundStyle(Color.hlTextTertiary)
-                            if selectedHealthMetric == metric {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(Color.hlPrimary)
-                            }
-                        }
-                        .padding(.vertical, HLSpacing.xs)
-                        .padding(.horizontal, HLSpacing.sm)
-                    }
-                }
-            }
-            .background(Color.hlSurface)
-            .cornerRadius(HLRadius.md)
-            .overlay(
-                RoundedRectangle(cornerRadius: HLRadius.md)
-                    .stroke(Color.hlCardBorder, lineWidth: 1)
-            )
-        }
-    }
-
     // MARK: - Buttons
 
     private var saveButton: some View {
@@ -452,18 +371,11 @@ struct EditHabitView: View {
         habit.unit = unit
         habit.reminderEnabled = reminderEnabled
         habit.reminderTime = reminderEnabled ? reminderTime : nil
-        habit.healthKitMetric = selectedHealthMetric?.rawValue
         habit.updatedAt = Date()
 
-        // Reschedule or cancel notification
         NotificationManager.shared.cancelHabitReminder(habitId: habit.id)
         if reminderEnabled {
-            NotificationManager.shared.scheduleHabitReminder(
-                habitId: habit.id,
-                habitName: name,
-                icon: selectedIcon,
-                at: reminderTime
-            )
+            NotificationManager.shared.scheduleHabitReminder(habitId: habit.id, habitName: name, at: reminderTime)
         }
 
         dismiss()

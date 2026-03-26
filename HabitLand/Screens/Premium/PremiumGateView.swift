@@ -151,7 +151,6 @@ struct BlurredPremiumGateModifier: ViewModifier {
     @ObservedObject private var proManager = ProManager.shared
     @Query private var habits: [Habit]
     @Query private var sleepLogs: [SleepLog]
-    @Query private var friends: [Friend]
     @State private var showPaywall = false
 
     private var isScreenshotMode: Bool {
@@ -163,7 +162,7 @@ struct BlurredPremiumGateModifier: ViewModifier {
     }
 
     private var hasTrialData: Bool {
-        sleepLogs.count > 0 || friends.count > 0 || habits.count > 0
+        sleepLogs.count > 0 || habits.count > 0
     }
 
     func body(content: Content) -> some View {
@@ -253,13 +252,6 @@ struct BlurredPremiumGateModifier: ViewModifier {
                         icon: "checkmark.circle.fill",
                         color: .hlPrimary,
                         text: "\(habits.count) habits · \(totalCompletions) completions · \(bestStreak)d streak"
-                    )
-                }
-                if friends.count > 0 {
-                    lossRow(
-                        icon: "person.2.fill",
-                        color: .hlFitness,
-                        text: "\(friends.count) friends connected"
                     )
                 }
             }

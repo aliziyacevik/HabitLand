@@ -2,7 +2,6 @@ import Foundation
 import os
 import StoreKit
 import SwiftUI
-import UserNotifications
 
 @MainActor
 final class ProManager: ObservableObject {
@@ -32,9 +31,6 @@ final class ProManager: ObservableObject {
         if let expiresAt = referralProExpiresAt, expiresAt > Date.now {
             return true
         }
-        if isInAppTrialActive {
-            return true
-        }
         return !purchasedProductIDs.isEmpty
     }
 
@@ -46,8 +42,6 @@ final class ProManager: ObservableObject {
         } else if let expiresAt = referralProExpiresAt, expiresAt > Date.now {
             let days = Calendar.current.dateComponents([.day], from: Date.now, to: expiresAt).day ?? 0
             return ("Pro (Referral - \(days)d left)", "gift.fill")
-        } else if isInAppTrialActive {
-            return ("Pro Trial (\(trialRemainingDays)d left)", "sparkles")
         }
         #if DEBUG
         if debugProEnabled || ProcessInfo.processInfo.arguments.contains("-screenshotMode") {
@@ -63,33 +57,6 @@ final class ProManager: ObservableObject {
 
     var lifetimeProduct: Product? {
         products.first { $0.id == Self.lifetimeID }
-    }
-
-    // MARK: - Free Trial
-
-    @Published private(set) var isTrialEligible = false
-
-    /// Check if user is eligible for the free trial (never subscribed before)
-    func checkTrialEligibility() async {
-        guard let yearly = yearlyProduct else { return }
-        if let subscription = yearly.subscription {
-            isTrialEligible = await subscription.isEligibleForIntroOffer
-        }
-    }
-
-    /// Free trial period text from the subscription offer
-    var trialOfferText: String? {
-        guard let yearly = yearlyProduct,
-              let subscription = yearly.subscription,
-              let introOffer = subscription.introductoryOffer else { return nil }
-
-        switch introOffer.period.unit {
-        case .day: return "\(introOffer.period.value)-day free trial"
-        case .week: return "\(introOffer.period.value)-week free trial"
-        case .month: return "\(introOffer.period.value)-month free trial"
-        case .year: return "\(introOffer.period.value)-year free trial"
-        @unknown default: return "Free trial"
-        }
     }
 
     private var updateListenerTask: Task<Void, Error>?
@@ -227,86 +194,6 @@ final class ProManager: ObservableObject {
         }
     }
 
-    // MARK: - In-App Trial (UserDefaults-based, no StoreKit needed)
-
-    private static let trialStartKey = "habitland_trial_start"
-    private static let trialDuration: TimeInterval = 7 * 24 * 60 * 60 // 7 days
-    private static let trialOfferedKey = "habitland_trial_offered"
-    private static let trialExpiryPaywallShownKey = "habitland_trial_expiry_paywall_shown"
-
-    var isInAppTrialActive: Bool {
-        guard let startDate = UserDefaults.standard.object(forKey: Self.trialStartKey) as? Date else {
-            return false
-        }
-        return Date.now < startDate.addingTimeInterval(Self.trialDuration)
-    }
-
-    var hasTrialExpired: Bool {
-        guard let startDate = UserDefaults.standard.object(forKey: Self.trialStartKey) as? Date else {
-            return false
-        }
-        return Date.now >= startDate.addingTimeInterval(Self.trialDuration)
-    }
-
-    var trialRemainingDays: Int {
-        guard let startDate = UserDefaults.standard.object(forKey: Self.trialStartKey) as? Date else {
-            return 0
-        }
-        let end = startDate.addingTimeInterval(Self.trialDuration)
-        return max(0, Calendar.current.dateComponents([.day], from: Date.now, to: end).day ?? 0)
-    }
-
-    var hasTrialBeenOffered: Bool {
-        UserDefaults.standard.bool(forKey: Self.trialOfferedKey)
-    }
-
-    var hasTrialExpiryPaywallBeenShown: Bool {
-        get { UserDefaults.standard.bool(forKey: Self.trialExpiryPaywallShownKey) }
-        set { UserDefaults.standard.set(newValue, forKey: Self.trialExpiryPaywallShownKey) }
-    }
-
-    /// Whether soft paywall should show (trial expired + not shown yet + not Pro)
-    var shouldShowTrialExpiryPaywall: Bool {
-        hasTrialExpired && !hasTrialExpiryPaywallBeenShown && !isPro
-    }
-
-    func startInAppTrial() {
-        UserDefaults.standard.set(Date.now, forKey: Self.trialStartKey)
-        UserDefaults.standard.set(true, forKey: Self.trialOfferedKey)
-        objectWillChange.send()
-        scheduleTrialExpiryNotifications()
-    }
-
-    // MARK: - Trial Expiry Notifications
-
-    private func scheduleTrialExpiryNotifications() {
-        let center = UNUserNotificationCenter.current()
-
-        // Day 5 — 2 days left
-        let day5Content = UNMutableNotificationContent()
-        day5Content.title = "Pro Trial: 2 Days Left"
-        day5Content.body = "You've been building great habits! Upgrade now to keep unlimited access."
-        day5Content.sound = .default
-        let day5Trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5 * 24 * 60 * 60, repeats: false)
-        center.add(UNNotificationRequest(identifier: "trial-expiry-2d", content: day5Content, trigger: day5Trigger))
-
-        // Day 6 — 1 day left
-        let day6Content = UNMutableNotificationContent()
-        day6Content.title = "Last Day of Pro Trial!"
-        day6Content.body = "Your free trial ends tomorrow. Don't lose your streaks and sleep data — upgrade to Pro."
-        day6Content.sound = .default
-        let day6Trigger = UNTimeIntervalNotificationTrigger(timeInterval: 6 * 24 * 60 * 60, repeats: false)
-        center.add(UNNotificationRequest(identifier: "trial-expiry-1d", content: day6Content, trigger: day6Trigger))
-
-        // Day 7 — expired
-        let day7Content = UNMutableNotificationContent()
-        day7Content.title = "Pro Trial Ended"
-        day7Content.body = "Your 7-day trial is over. Upgrade to Pro to keep all your features unlocked."
-        day7Content.sound = .default
-        let day7Trigger = UNTimeIntervalNotificationTrigger(timeInterval: 7 * 24 * 60 * 60, repeats: false)
-        center.add(UNNotificationRequest(identifier: "trial-expired", content: day7Content, trigger: day7Trigger))
-    }
-
     // MARK: - Free Tier Limits
 
     static let freeHabitLimit = 3
@@ -315,19 +202,19 @@ final class ProManager: ObservableObject {
     static let freePomodoroDuration: Int = 5 * 60 // 5 minutes
 
     func canCreateHabit(currentCount: Int) -> Bool {
-        isPro || isInAppTrialActive || currentCount < Self.freeHabitLimit
+        isPro || currentCount < Self.freeHabitLimit
     }
 
     var canAccessAnalytics: Bool {
-        isPro || isInAppTrialActive
+        isPro
     }
 
     var canAccessFullPomodoro: Bool {
-        isPro || isInAppTrialActive
+        isPro
     }
 
     func questLimit() -> Int {
-        isPro || isInAppTrialActive ? Int.max : Self.freeQuestLimit
+        isPro ? Int.max : Self.freeQuestLimit
     }
 }
 
@@ -336,7 +223,6 @@ final class ProManager: ObservableObject {
 enum PaywallContext {
     case habitLimit
     case sleepTracking
-    case socialFeatures
     case achievements
     case analytics
     case pomodoro
@@ -345,7 +231,6 @@ enum PaywallContext {
         switch self {
         case .habitLimit: return "Unlock Unlimited Habits"
         case .sleepTracking: return "Unlock Sleep Tracking"
-        case .socialFeatures: return "Unlock Social Features"
         case .achievements: return "Unlock All Achievements"
         case .analytics: return "Unlock Detailed Analytics"
         case .pomodoro: return "Unlock Full Pomodoro"
@@ -356,7 +241,6 @@ enum PaywallContext {
         switch self {
         case .habitLimit: return "infinity"
         case .sleepTracking: return "moon.fill"
-        case .socialFeatures: return "person.2.fill"
         case .achievements: return "trophy.fill"
         case .analytics: return "chart.line.uptrend.xyaxis"
         case .pomodoro: return "timer"
@@ -367,7 +251,6 @@ enum PaywallContext {
         switch self {
         case .habitLimit: return "You've been tracking 3 habits — unlock unlimited to keep growing"
         case .sleepTracking: return "Track and improve your sleep patterns with detailed analytics"
-        case .socialFeatures: return "Connect with friends, join challenges, and climb the leaderboard"
         case .achievements: return "Unlock all 20+ achievements and showcase your progress"
         case .analytics: return "See trends, insights, and how your habits improve over time"
         case .pomodoro: return "Unlock unlimited focus sessions with ambient sounds"

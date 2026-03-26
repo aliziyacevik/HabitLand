@@ -142,74 +142,6 @@ struct ProManagerExtendedTests {
         clearKeys()
     }
 
-    // MARK: - Trial Remaining Days
-
-    @Test @MainActor func trialRemainingDaysCalculation() {
-        clearKeys()
-        let manager = ProManager.shared
-
-        // No trial
-        #expect(manager.trialRemainingDays == 0)
-
-        // Trial started today
-        UserDefaults.standard.set(Date.now, forKey: "habitland_trial_start")
-        #expect(manager.trialRemainingDays >= 6)
-
-        // Trial started 5 days ago
-        let fiveDaysAgo = Date.now.addingTimeInterval(-5 * 24 * 60 * 60)
-        UserDefaults.standard.set(fiveDaysAgo, forKey: "habitland_trial_start")
-        #expect(manager.trialRemainingDays >= 1 && manager.trialRemainingDays <= 2)
-
-        clearKeys()
-    }
-
-    // MARK: - Trial Expiry Paywall
-
-    @Test @MainActor func shouldShowTrialExpiryPaywallWhenExpired() {
-        clearKeys()
-        let manager = ProManager.shared
-
-        // No trial — should not show
-        #expect(manager.shouldShowTrialExpiryPaywall == false)
-
-        // Expired trial
-        let eightDaysAgo = Date.now.addingTimeInterval(-8 * 24 * 60 * 60)
-        UserDefaults.standard.set(eightDaysAgo, forKey: "habitland_trial_start")
-        // Paywall not yet shown
-        UserDefaults.standard.set(false, forKey: "habitland_trial_expiry_paywall_shown")
-
-        #expect(manager.hasTrialExpired == true)
-
-        clearKeys()
-    }
-
-    @Test @MainActor func trialExpiryPaywallNotShownTwice() {
-        clearKeys()
-        let manager = ProManager.shared
-
-        let eightDaysAgo = Date.now.addingTimeInterval(-8 * 24 * 60 * 60)
-        UserDefaults.standard.set(eightDaysAgo, forKey: "habitland_trial_start")
-        UserDefaults.standard.set(true, forKey: "habitland_trial_expiry_paywall_shown")
-
-        #expect(manager.shouldShowTrialExpiryPaywall == false)
-
-        clearKeys()
-    }
-
-    // MARK: - Has Trial Been Offered
-
-    @Test @MainActor func hasTrialBeenOfferedTracksCorrectly() {
-        clearKeys()
-        let manager = ProManager.shared
-
-        #expect(manager.hasTrialBeenOffered == false)
-
-        manager.startInAppTrial()
-        #expect(manager.hasTrialBeenOffered == true)
-
-        clearKeys()
-    }
-
     // MARK: - Product IDs
 
     @Test func productIDsAreCorrect() {
@@ -223,7 +155,7 @@ struct ProManagerExtendedTests {
 struct PaywallContextTests {
 
     @Test func allContextsHaveTitles() {
-        let contexts: [PaywallContext] = [.habitLimit, .sleepTracking, .socialFeatures, .achievements, .analytics, .pomodoro]
+        let contexts: [PaywallContext] = [.habitLimit, .sleepTracking, .achievements, .analytics, .pomodoro]
         for ctx in contexts {
             #expect(!ctx.title.isEmpty)
             #expect(!ctx.icon.isEmpty)

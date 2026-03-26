@@ -9,8 +9,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     static var pendingShortcut: HabitLandApp.QuickAction?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        // Register for remote push notifications (D-10)
-        // Local notifications remain primary; APNs registration prepares for future server-triggered notifications
         application.registerForRemoteNotifications()
         return true
     }
@@ -92,8 +90,6 @@ struct HabitLandApp: App {
                         requestNotificationsIfNeeded()
                     }
                     setupQuickActions()
-                    Task { await checkReferralRewards() }
-                    syncHealthKitHabits()
                 }
         }
         .modelContainer(sharedModelContainer)
@@ -172,8 +168,10 @@ struct HabitLandApp: App {
         let context = sharedModelContainer.mainContext
         let calendar = Calendar.current
 
-        // Skip onboarding
+        // Skip onboarding and dismiss getting started
         UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+        UserDefaults.standard.set(true, forKey: "getting_started_dismissed")
+        UserDefaults.standard.set(true, forKey: "invite_card_dismissed")
 
         // Clear existing data
         do {
@@ -298,50 +296,25 @@ struct HabitLandApp: App {
             context.insert(friend)
         }
 
+        // Seed demo notifications
+        let notifData: [(String, String, String, NotificationType, TimeInterval)] = [
+            ("Achievement Unlocked! 🏆", "You earned \"On Fire\" — 7-day streak!", "trophy.fill", .achievement, -300),
+            ("Streak at Risk! 🔥", "You haven't completed Exercise today. Don't lose your 15-day streak!", "flame.fill", .streakAlert, -3600),
+            ("Good Morning! ☀️", "You have 5 habits waiting. Let's make today count!", "sun.max.fill", .general, -7200),
+            ("Weekly Progress 📊", "This week: 28 habits completed, 4 active streaks. Best: 33 days!", "chart.bar.fill", .general, -86400),
+            ("Time for Bed 😴", "Log your sleep to keep tracking your patterns.", "moon.fill", .general, -90000),
+        ]
+        for (title, body, icon, type, offset) in notifData {
+            let notif = AppNotification(title: title, body: body, icon: icon, type: type)
+            notif.createdAt = Date().addingTimeInterval(offset)
+            notif.isRead = offset < -80000
+            context.insert(notif)
+        }
+
         do {
             try context.save()
         } catch {
             HLLogger.data.error("Failed to save screenshot data: \(error.localizedDescription, privacy: .public)")
-        }
-    }
-
-    private func checkReferralRewards() async {
-        let context = sharedModelContainer.mainContext
-        let descriptor = FetchDescriptor<UserProfile>()
-        guard let profile = try? context.fetch(descriptor).first,
-              let referralCode = profile.referralCode else { return }
-
-        let cloudKit = CloudKitManager.shared
-        guard cloudKit.iCloudAvailable else { return }
-
-        let cloudCount = await cloudKit.fetchReferralCount(forCode: referralCode)
-        let localCount = profile.referralCount
-
-        guard cloudCount > localCount else { return }
-
-        let newRedemptions = cloudCount - localCount
-        let proManager = ProManager.shared
-        let maxStacks = ProManager.maxReferralStacks
-
-        // Grant Pro for each new redemption, up to the cap
-        for i in 0..<newRedemptions {
-            let totalAfterThis = localCount + i + 1
-            if totalAfterThis > maxStacks { break }
-            proManager.extendReferralPro()
-        }
-
-        // Update local count to match cloud (even if capped, so we don't re-process)
-        profile.referralCount = cloudCount
-        do {
-            try context.save()
-        } catch {
-            HLLogger.data.error("Failed to save referral count: \(error.localizedDescription, privacy: .public)")
-        }
-    }
-
-    private func syncHealthKitHabits() {
-        Task {
-            await HealthKitManager.shared.syncHealthHabits(context: sharedModelContainer.mainContext)
         }
     }
 
