@@ -1,9 +1,11 @@
 import SwiftUI
 import SwiftData
+import UserNotifications
 
 struct HabitReminderView: View {
     @Bindable var habit: Habit
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
 
     @State private var reminderEnabled: Bool
     @State private var reminderTime: Date
@@ -15,6 +17,7 @@ struct HabitReminderView: View {
         self.habit = habit
         _reminderEnabled = State(initialValue: habit.reminderEnabled)
         _reminderTime = State(initialValue: habit.reminderTime ?? Calendar.current.date(from: DateComponents(hour: 8, minute: 0)) ?? Date())
+        _customMessage = State(initialValue: habit.reminderMessage)
     }
 
     var body: some View {
@@ -181,6 +184,19 @@ struct HabitReminderView: View {
 
     private var testButton: some View {
         Button {
+            // Send actual test notification
+            let content = UNMutableNotificationContent()
+            content.title = "Time for \(habit.name)"
+            content.body = customMessage.isEmpty ? "Time for \(habit.name)!" : customMessage
+            content.sound = .default
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 3, repeats: false)
+            let request = UNNotificationRequest(
+                identifier: "test-\(habit.id.uuidString)",
+                content: content,
+                trigger: trigger
+            )
+            UNUserNotificationCenter.current().add(request)
+
             withAnimation(HLAnimation.spring) {
                 showTestConfirmation = true
             }
@@ -209,7 +225,21 @@ struct HabitReminderView: View {
         Button {
             habit.reminderEnabled = reminderEnabled
             habit.reminderTime = reminderEnabled ? reminderTime : nil
+            habit.reminderMessage = customMessage
             habit.updatedAt = Date()
+            try? modelContext.save()
+
+            // Cancel existing and reschedule if enabled
+            NotificationManager.shared.cancelHabitReminder(habitId: habit.id)
+            if reminderEnabled {
+                NotificationManager.shared.scheduleHabitReminder(
+                    habitId: habit.id,
+                    habitName: habit.name,
+                    at: reminderTime,
+                    customMessage: customMessage
+                )
+            }
+
             dismiss()
         } label: {
             Text("Save Reminder Settings")
