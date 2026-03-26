@@ -33,46 +33,6 @@ final class NotificationManager: ObservableObject {
 
     // MARK: - Habit Reminders
 
-    func scheduleHabitReminders(habits: [(id: UUID, name: String, icon: String, reminderTime: Date)]) {
-        let reminderIds = habits.map { "habit-\($0.id.uuidString)" }
-        center.removePendingNotificationRequests(withIdentifiers: reminderIds + ["habit-group"])
-
-        let calendar = Calendar.current
-        var grouped: [String: [String]] = [:]
-        for habit in habits {
-            let key = "\(calendar.component(.hour, from: habit.reminderTime)):\(calendar.component(.minute, from: habit.reminderTime))"
-            grouped[key, default: []].append(habit.name)
-        }
-
-        for (timeKey, names) in grouped {
-            let parts = timeKey.split(separator: ":").compactMap { Int($0) }
-            guard parts.count == 2 else { continue }
-
-            let content = UNMutableNotificationContent()
-            if names.count == 1 {
-                content.title = "Time for \(names[0])"
-                content.body = "Don't break the chain! Complete your habit now."
-            } else {
-                content.title = "\(names.count) Habits Waiting"
-                let listed = names.prefix(3).joined(separator: ", ")
-                content.body = names.count <= 3
-                    ? "Time for \(listed)"
-                    : "Time for \(listed) and \(names.count - 3) more"
-            }
-            content.sound = .default
-            content.categoryIdentifier = "habitReminder"
-
-            var components = DateComponents()
-            components.hour = parts[0]
-            components.minute = parts[1]
-            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
-
-            let identifier = names.count == 1 ? "habit-\(timeKey)" : "habit-group-\(timeKey)"
-            let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-            center.add(request)
-        }
-    }
-
     func scheduleHabitReminder(habitId: UUID, habitName: String, icon: String = "", at time: Date, customMessage: String = "") {
         let content = UNMutableNotificationContent()
         content.title = "Time for \(habitName)"
@@ -166,7 +126,8 @@ final class NotificationManager: ObservableObject {
             ("Fresh Start! 💪", "Yesterday is done. Today you can be even better."),
         ]
 
-        guard let pick = messages.randomElement() else { return }
+        let dayOfYear = Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 1
+        let pick = messages[dayOfYear % messages.count]
         let content = UNMutableNotificationContent()
         content.title = pick.0
         content.body = pick.1

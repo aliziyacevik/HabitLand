@@ -375,7 +375,7 @@ struct EditHabitView: View {
 
         NotificationManager.shared.cancelHabitReminder(habitId: habit.id)
         if reminderEnabled {
-            NotificationManager.shared.scheduleHabitReminder(habitId: habit.id, habitName: name, at: reminderTime)
+            NotificationManager.shared.scheduleHabitReminder(habitId: habit.id, habitName: name, icon: selectedIcon, at: reminderTime, customMessage: habit.reminderMessage)
         }
 
         dismiss()

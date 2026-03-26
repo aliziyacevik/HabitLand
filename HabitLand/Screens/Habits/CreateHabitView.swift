@@ -516,7 +516,7 @@ struct CreateHabitView: View {
         try? modelContext.save()
 
         if reminderEnabled {
-            NotificationManager.shared.scheduleHabitReminder(habitId: habit.id, habitName: habit.name, at: reminderTime)
+            NotificationManager.shared.scheduleHabitReminder(habitId: habit.id, habitName: habit.name, icon: habit.icon, at: reminderTime)
         }
 
         dismiss()

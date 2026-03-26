@@ -230,6 +230,16 @@ struct HabitLandApp: App {
             }
         }
 
+        // Set reminder on Morning Meditation for screenshot showcase
+        if let meditationHabit = habitsData.first(where: { $0.name == "Morning Meditation" }) {
+            let fetchDescriptor = FetchDescriptor<Habit>(predicate: #Predicate { $0.name == "Morning Meditation" })
+            if let habit = try? context.fetch(fetchDescriptor).first {
+                habit.reminderEnabled = true
+                habit.reminderTime = calendar.date(from: DateComponents(hour: 7, minute: 30))
+                habit.reminderMessage = "Take a deep breath and start your day mindfully"
+            }
+        }
+
         // Create sleep logs for the past 10 days
         let sleepData: [(hours: Double, quality: SleepQuality)] = [
             (7.7, .good), (6.8, .fair), (8.2, .excellent), (7.0, .good),

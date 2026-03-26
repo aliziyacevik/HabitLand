@@ -68,17 +68,43 @@ final class AppStoreScreenshots: XCTestCase {
         dismissEverything(app)
         save(app, dir + "05_profile.png")
 
-        // 6. POMODORO TIMER
+        // 6. HABIT REMINDER — navigate from habit detail
         app.tabBars.buttons["Home"].tap()
         sleep(2)
-        // Tap Pomodoro button in toolbar
+        let meditationForReminder = app.staticTexts["Morning Meditation"]
+        if meditationForReminder.waitForExistence(timeout: 3) && meditationForReminder.isHittable {
+            meditationForReminder.tap()
+            sleep(2)
+            // Scroll down to find Reminders action row
+            app.swipeUp()
+            sleep(1)
+            let remindersLink = app.staticTexts["Reminders"]
+            if remindersLink.waitForExistence(timeout: 3) && remindersLink.isHittable {
+                remindersLink.tap()
+                sleep(2)
+                // Scroll down to show Custom Message and Preview sections
+                app.swipeUp()
+                sleep(1)
+                save(app, dir + "06_reminder.png")
+                // Go back to home
+                if app.navigationBars.buttons.element(boundBy: 0).exists {
+                    app.navigationBars.buttons.element(boundBy: 0).tap()
+                    sleep(1)
+                }
+            }
+            // Back from detail
+            if app.navigationBars.buttons.element(boundBy: 0).exists {
+                app.navigationBars.buttons.element(boundBy: 0).tap()
+                sleep(1)
+            }
+        }
+
+        // 7. POMODORO TIMER
         let pomodoroBtn = app.buttons["Pomodoro Focus"]
         if pomodoroBtn.waitForExistence(timeout: 3) && pomodoroBtn.isHittable {
             pomodoroBtn.tap()
             sleep(3)
-            // Do NOT call dismissEverything — it would close the fullScreenCover
-            save(app, dir + "06_pomodoro.png")
-            // Close pomodoro
+            save(app, dir + "07_pomodoro.png")
             let closeBtn = app.buttons["Close"]
             if closeBtn.waitForExistence(timeout: 1) && closeBtn.isHittable {
                 closeBtn.tap()
