@@ -224,7 +224,6 @@ struct PomodoroView: View {
                     .frame(height: HLSpacing.lg)
                 }
                 .padding(.bottom, HLSpacing.xl)
-                .hlAdaptiveWidth()
             }
         }
         .background(Color.hlBackground.ignoresSafeArea())

@@ -37,7 +37,6 @@ struct AchievementsShowcaseView: View {
             }
             .padding(.horizontal, HLSpacing.md)
             .padding(.vertical, HLSpacing.md)
-            .hlAdaptiveWidth()
         }
         .refreshable {
             try? await Task.sleep(for: .milliseconds(300))

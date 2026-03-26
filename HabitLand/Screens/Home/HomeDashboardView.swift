@@ -210,7 +210,6 @@ struct HomeDashboardView: View {
                     }
                     .padding(.horizontal, HLSpacing.md)
                     .padding(.bottom, HLSpacing.xxxl + HLSpacing.xl)
-                    .hlAdaptiveWidth()
                 }
                 .refreshable {
                     AchievementManager.checkAll(context: modelContext)

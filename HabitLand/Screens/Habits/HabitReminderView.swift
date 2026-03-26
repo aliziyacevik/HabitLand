@@ -39,7 +39,6 @@ struct HabitReminderView: View {
             }
             .padding(.horizontal, HLSpacing.md)
             .padding(.vertical, HLSpacing.md)
-            .hlAdaptiveWidth()
         }
         .background(Color.hlBackground.ignoresSafeArea())
         .navigationTitle("Reminders")

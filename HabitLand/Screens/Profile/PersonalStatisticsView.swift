@@ -9,7 +9,6 @@ struct PersonalStatisticsView: View {
     @Query private var allHabits: [Habit]
     @Query private var achievements: [Achievement]
     @Query private var sleepLogs: [SleepLog]
-    @Environment(\.horizontalSizeClass) private var sizeClass
 
     private var calendar: Calendar { Calendar.current }
     private var today: Date { calendar.startOfDay(for: Date()) }
@@ -168,7 +167,6 @@ struct PersonalStatisticsView: View {
             }
             .padding(.horizontal, HLSpacing.md)
             .padding(.vertical, HLSpacing.md)
-            .hlAdaptiveWidth()
         }
         .refreshable {
             try? await Task.sleep(for: .milliseconds(300))
@@ -210,7 +208,7 @@ struct PersonalStatisticsView: View {
                 .font(HLFont.headline())
                 .foregroundColor(.hlTextPrimary)
 
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: sizeClass == .regular ? 3 : 2), spacing: HLSpacing.sm) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: HLSpacing.sm) {
                 metricTile(value: "\(totalCompletions)", label: "Total Completions", icon: "checkmark.circle.fill", color: .hlPrimary)
                 metricTile(value: "\(daysActive)", label: "Days Active", icon: "calendar", color: .hlInfo)
                 metricTile(value: "\(Int(successRate * 100))%", label: "Success Rate", icon: "chart.line.uptrend.xyaxis", color: .hlPrimary)
