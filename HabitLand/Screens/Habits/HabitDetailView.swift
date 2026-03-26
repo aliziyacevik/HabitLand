@@ -351,6 +351,7 @@ struct StatBox: View {
             Text(value)
                 .font(HLFont.title3(.bold))
                 .foregroundStyle(color)
+                .minimumScaleFactor(0.75)
             Text(subtitle)
                 .font(HLFont.caption2())
                 .foregroundStyle(Color.hlTextTertiary)

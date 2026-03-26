@@ -72,6 +72,7 @@ struct LevelProgressView: View {
                     Text("Lv.\(level)")
                         .font(HLFont.headline())
                         .foregroundStyle(Color.hlTextPrimary)
+                        .minimumScaleFactor(0.75)
                 }
             }
 
@@ -101,6 +102,7 @@ struct LevelProgressView: View {
                 Text("\(xp) / \(needed) XP")
                     .font(HLFont.subheadline(.semibold))
                     .foregroundStyle(Color.hlGold)
+                    .minimumScaleFactor(0.75)
             }
 
             // XP bar
@@ -131,6 +133,7 @@ struct LevelProgressView: View {
                 Text(String(format: "%.0f%%", progress * 100))
                     .font(HLFont.caption(.semibold))
                     .foregroundStyle(Color.hlTextSecondary)
+                    .minimumScaleFactor(0.75)
             }
         }
         .hlCard()

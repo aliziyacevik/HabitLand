@@ -48,6 +48,7 @@ struct RewardsView: View {
                 Text("\(userXP) XP")
                     .font(HLFont.title1())
                     .foregroundStyle(Color.hlTextPrimary)
+                    .minimumScaleFactor(0.75)
             }
 
             Spacer()

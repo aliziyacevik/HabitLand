@@ -172,6 +172,7 @@ struct LeaderboardView: View {
             Text("\(entry.xp) XP")
                 .font(isFirst ? HLFont.caption(.semibold) : HLFont.caption2(.medium))
                 .foregroundColor(.hlTextSecondary)
+                .minimumScaleFactor(0.75)
 
             RoundedRectangle(cornerRadius: HLRadius.sm)
                 .fill(color.opacity(0.2))
@@ -180,6 +181,7 @@ struct LeaderboardView: View {
                     Text("#\(rank)")
                         .font(HLFont.title3(.bold))
                         .foregroundColor(color)
+                        .minimumScaleFactor(0.75)
                 )
         }
         .frame(maxWidth: .infinity)
@@ -235,6 +237,7 @@ struct LeaderboardView: View {
             Text("\(entry.xp) XP")
                 .font(HLFont.subheadline(.semibold))
                 .foregroundColor(entry.isCurrentUser ? .hlPrimary : .hlTextSecondary)
+                .minimumScaleFactor(0.75)
         }
         .padding(.vertical, HLSpacing.xs)
         .padding(.horizontal, HLSpacing.sm)

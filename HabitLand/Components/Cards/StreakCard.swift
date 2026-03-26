@@ -59,6 +59,7 @@ struct StreakCard: View {
                 Text("\(currentStreak)")
                     .font(HLFont.largeTitle(.bold))
                     .foregroundColor(useGradient ? .white : .hlTextPrimary)
+                    .minimumScaleFactor(0.75)
 
                 Text(currentStreak == 1 ? "day" : "days")
                     .font(HLFont.subheadline(.medium))
